@@ -9,6 +9,7 @@ if __name__ == '__main__':
         'conda install -c conda-forge ray-train --yes',
         'conda install -c conda-forge ray-tune --yes',
         'conda install -c conda-forge ray-rllib --yes',
+        'conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia --yes',
     ]
 
     # Execute conda commands
