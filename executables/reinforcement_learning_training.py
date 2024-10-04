@@ -5,7 +5,8 @@ from ray.rllib.algorithms.dqn import DQNConfig, DQN
 from ray.rllib.utils.from_config import NotProvided
 from ray.rllib.algorithms import AlgorithmConfig, Algorithm
 
-from configuration.reinforcement_learning.reinforcement_learning_configuration import ReinforcementLearningConfiguration
+from configurations.reinforcement_learning.reinforcement_learning_configuration import ReinforcementLearningConfiguration
+from environments.register_environments import register_environments
 
 
 def reinforcement_learning_training(reinforcement_learning_configuration: ReinforcementLearningConfiguration):
@@ -13,6 +14,8 @@ def reinforcement_learning_training(reinforcement_learning_configuration: Reinfo
     if not ray.is_initialized():
         ray.init()
         ray_initialization = True
+
+    register_environments()
 
     algorithm: Algorithm
     algorithm_configuration: AlgorithmConfig
@@ -108,6 +111,8 @@ def reinforcement_learning_training(reinforcement_learning_configuration: Reinfo
 
 
 if __name__ == '__main__':
-    from configuration.reinforcement_learning.minimal_cartpole import minimal_cartpole
+    from configurations.reinforcement_learning.minimal_cartpole import minimal_cartpole
+    from configurations.reinforcement_learning.minimal_pong_survivor import minimal_pong_survivor
+    from configurations.reinforcement_learning.minimal_bipedal_walker import minimal_bipedal_walker
 
-    reinforcement_learning_training(minimal_cartpole)
+    reinforcement_learning_training(minimal_bipedal_walker)

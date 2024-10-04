@@ -1,0 +1,5 @@
+from configurations.reinforcement_learning.reinforcement_learning_configuration import ReinforcementLearningConfiguration
+from environments.configurations import classic_one_ball
+
+minimal_pong_survivor = ReinforcementLearningConfiguration('PongSurvivor')
+minimal_pong_survivor.environment_configuration = classic_one_ball
