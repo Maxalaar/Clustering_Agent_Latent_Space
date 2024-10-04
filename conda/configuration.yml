@@ -1,5 +1,7 @@
 name: Clustering_Agent_Latent_Space
 channels:
+  - pytorch
+  - nvidia
   - conda-forge
   - defaults
 dependencies:
@@ -26,6 +28,7 @@ dependencies:
   - aws-checksums=0.1.18
   - aws-crt-cpp=0.26.8
   - aws-sdk-cpp=1.11.267
+  - blas=1.0
   - blosc=1.21.5
   - brotli=1.1.0
   - brotli-bin=1.1.0
@@ -45,10 +48,18 @@ dependencies:
   - colorama=0.4.6
   - colorful=0.5.6
   - cryptography=43.0.1
+  - cuda-cudart=12.1.105
+  - cuda-cupti=12.1.105
+  - cuda-libraries=12.1.0
+  - cuda-nvrtc=12.1.105
+  - cuda-nvtx=12.1.105
+  - cuda-opencl=12.4.127
+  - cuda-runtime=12.1.0
   - dav1d=1.2.1
   - distlib=0.3.8
   - dm-tree=0.1.8
   - farama-notifications=0.0.4
+  - ffmpeg=4.4.0
   - filelock=3.16.1
   - freetype=2.12.1
   - frozenlist=1.4.1
@@ -56,6 +67,9 @@ dependencies:
   - gflags=2.2.2
   - giflib=5.2.2
   - glog=0.7.1
+  - gmp=6.2.1
+  - gmpy2=2.1.2
+  - gnutls=3.6.15
   - google-api-core=2.20.0
   - google-auth=2.35.0
   - googleapis-common-protos=1.65.0
@@ -70,6 +84,7 @@ dependencies:
   - imageio=2.35.1
   - importlib-metadata=8.5.0
   - importlib_resources=6.4.5
+  - intel-openmp=2022.0.1
   - jax-jumpy=1.0.0
   - jinja2=3.1.4
   - jsonschema=4.23.0
@@ -77,6 +92,7 @@ dependencies:
   - jxrlib=1.1
   - keyutils=1.6.1
   - krb5=1.21.3
+  - lame=3.100
   - lazy-loader=0.4
   - lazy_loader=0.4
   - lcms2=2.16
@@ -98,7 +114,13 @@ dependencies:
   - libbrotlienc=1.1.0
   - libcblas=3.9.0
   - libcrc32c=1.1.2
+  - libcublas=12.1.0.26
+  - libcufft=11.0.2.4
+  - libcufile=1.9.1.3
+  - libcurand=10.3.5.147
   - libcurl=8.7.1
+  - libcusolver=11.4.4.55
+  - libcusparse=12.0.2.55
   - libdeflate=1.20
   - libedit=3.1.20191231
   - libev=4.33
@@ -116,13 +138,17 @@ dependencies:
   - libgrpc=1.62.2
   - libhwy=1.1.0
   - libiconv=1.17
+  - libidn2=2.3.4
   - libjpeg-turbo=3.0.0
   - libjxl=0.10.3
   - liblapack=3.9.0
   - libllvm16=16.0.6
   - libnghttp2=1.58.0
   - libnl=3.10.0
+  - libnpp=12.0.2.50
   - libnsl=2.0.1
+  - libnvjitlink=12.1.105
+  - libnvjpeg=12.1.1.14
   - libopenblas=0.3.27
   - libparquet=15.0.2
   - libpng=1.6.44
@@ -132,30 +158,40 @@ dependencies:
   - libssh2=1.11.0
   - libstdcxx=14.1.0
   - libstdcxx-ng=14.1.0
+  - libtasn1=4.19.0
   - libthrift=0.19.0
   - libtiff=4.6.0
+  - libunistring=0.9.10
   - libunwind=1.6.2
   - libutf8proc=2.8.0
   - libuuid=2.38.1
+  - libvpx=1.11.0
   - libwebp-base=1.4.0
   - libxcb=1.17.0
   - libxcrypt=4.4.36
   - libxml2=2.12.7
   - libzlib=1.3.1
   - libzopfli=1.0.3
+  - llvm-openmp=15.0.7
   - lz4=4.3.3
   - lz4-c=1.9.4
   - markdown-it-py=3.0.0
   - markupsafe=2.1.5
   - mdurl=0.1.2
   - memray=1.12.0
+  - mkl=2022.1.0
+  - mpc=1.1.0
+  - mpfr=4.0.2
+  - mpmath=1.3.0
   - msgpack-python=1.1.0
   - multidict=6.1.0
   - ncurses=6.4
+  - nettle=3.7.3
   - networkx=3.3
   - numpy=1.26.4
   - opencensus=0.11.3
   - opencensus-context=0.1.3
+  - openh264=2.1.1
   - openjpeg=2.5.2
   - openssl=3.3.2
   - orc=2.0.0
@@ -184,6 +220,9 @@ dependencies:
   - python-dateutil=2.9.0
   - python-tzdata=2024.2
   - python_abi=3.11
+  - pytorch=2.4.1
+  - pytorch-cuda=12.1
+  - pytorch-mutex=1.0
   - pytz=2024.2
   - pyu2f=0.1.5
   - pywavelets=1.7.0
@@ -214,10 +253,14 @@ dependencies:
   - snappy=1.2.1
   - sqlite=3.45.2
   - svt-av1=2.2.1
+  - sympy=1.13.2
   - tensorboardx=2.6.2.2
   - textual=0.81.0
   - tifffile=2024.9.20
   - tk=8.6.13
+  - torchaudio=2.4.1
+  - torchtriton=3.0.0
+  - torchvision=0.19.1
   - typer=0.12.5
   - typer-slim=0.12.5
   - typer-slim-standard=0.12.5
@@ -229,6 +272,8 @@ dependencies:
   - virtualenv=20.21.0
   - wheel=0.44.0
   - wrapt=1.16.0
+  - x264=1!161.3030
+  - x265=3.5
   - xorg-libxau=1.0.11
   - xorg-libxdmcp=1.1.5
   - xz=5.4.6
