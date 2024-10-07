@@ -1,0 +1,9 @@
+from configurations.experimentation.experimentation_configuration import ExperimentationConfiguration
+from configurations.reinforcement_learning.basic_reinforcement_learning_configuration import  basic_reinforcement_learning_configuration
+
+
+bipedal_walker = ExperimentationConfiguration(
+    experimentation_name='bipedal_walker',
+    environment_name='BipedalWalker',
+)
+bipedal_walker.reinforcement_learning_configuration = basic_reinforcement_learning_configuration

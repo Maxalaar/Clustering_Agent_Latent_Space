@@ -1,26 +1,22 @@
+from pathlib import Path
 from typing import Optional
+import yaml
 
 from ray.rllib.algorithms.callbacks import DefaultCallbacks
 from ray.rllib.utils.from_config import NotProvided
 
 
 class ReinforcementLearningConfiguration:
-    def __init__(self, environment_name: str, algorithm: str = 'PPO'):
+    def __init__(self, algorithm: str = 'PPO'):
         # Generale
         self.ray_local_mode: bool = False
         self.algorithm: str = algorithm
-        self.learning_name: Optional[str] = None
-        self.storage_path: Optional[str] = None
 
         # Framework
         self.framework: str = 'torch'
 
         # Resources
         self.number_gpu: int = NotProvided
-
-        # Environment
-        self.environment_name: str = environment_name
-        self.environment_configuration: dict = NotProvided
 
         # Training
         self.architecture_name: str = NotProvided
@@ -63,5 +59,13 @@ class ReinforcementLearningConfiguration:
         self.checkpoint_score_order: str = 'max'
         self.checkpoint_frequency: int = 0
         self.checkpoint_at_end: Optional[bool] = None
+
+    def to_yaml_file(self, directory: Path):
+        directory.mkdir(parents=True, exist_ok=True)
+        file_path = directory / 'reinforcement_learning_configuration.yaml'
+        configuration_dictionary = {key: value for key, value in self.__dict__.items() if value is not NotProvided}
+
+        with open(file_path, 'w') as file:
+            yaml.dump(configuration_dictionary, file)
 
 

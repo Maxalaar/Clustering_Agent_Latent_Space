@@ -1,5 +1,4 @@
 from configurations.reinforcement_learning.reinforcement_learning_configuration import ReinforcementLearningConfiguration
 
 
-minimal_cartpole = ReinforcementLearningConfiguration('CartPole')
-minimal_cartpole.environment_configuration = {}
+minimal_reinforcement_learning_configuration = ReinforcementLearningConfiguration()

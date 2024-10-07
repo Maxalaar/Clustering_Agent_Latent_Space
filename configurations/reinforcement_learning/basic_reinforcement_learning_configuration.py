@@ -1,0 +1,5 @@
+from configurations.reinforcement_learning.reinforcement_learning_configuration import ReinforcementLearningConfiguration
+
+
+basic_reinforcement_learning_configuration = ReinforcementLearningConfiguration()
+basic_reinforcement_learning_configuration.number_learners = 15

@@ -1,4 +1,0 @@
-from configurations.reinforcement_learning.reinforcement_learning_configuration import ReinforcementLearningConfiguration
-
-minimal_bipedal_walker = ReinforcementLearningConfiguration('BipedalWalker')
-minimal_bipedal_walker.environment_configuration = {}

@@ -5,11 +5,14 @@ from ray.rllib.algorithms.dqn import DQNConfig, DQN
 from ray.rllib.utils.from_config import NotProvided
 from ray.rllib.algorithms import AlgorithmConfig, Algorithm
 
-from configurations.reinforcement_learning.reinforcement_learning_configuration import ReinforcementLearningConfiguration
+from configurations.experimentation.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
 
 
-def reinforcement_learning_training(reinforcement_learning_configuration: ReinforcementLearningConfiguration):
+def reinforcement_learning_training(experimentation_configuration: ExperimentationConfiguration):
+    reinforcement_learning_configuration = experimentation_configuration.reinforcement_learning_configuration
+    reinforcement_learning_configuration.to_yaml_file(experimentation_configuration.reinforcement_learning_storage_path)
+
     ray_initialization = False
     if not ray.is_initialized():
         ray.init()
@@ -27,15 +30,15 @@ def reinforcement_learning_training(reinforcement_learning_configuration: Reinfo
         algorithm = DQN
         algorithm_configuration = DQNConfig()
     else:
-        raise ValueError('Unsupported algorithm ' + str(reinforcement_learning_configuration.algorithme) + '.')
+        raise ValueError('Unsupported algorithm ' + str(reinforcement_learning_configuration.algorithm) + '.')
 
     algorithm_configuration.framework(reinforcement_learning_configuration.framework)
     algorithm_configuration.resources(num_gpus=reinforcement_learning_configuration.number_gpu)
 
     # Environment
     algorithm_configuration.environment(
-        env=reinforcement_learning_configuration.environment_name,
-        env_config=reinforcement_learning_configuration.environment_configuration,
+        env=experimentation_configuration.environment_name,
+        env_config=experimentation_configuration.environment_configuration,
     )
 
     # Training
@@ -91,8 +94,8 @@ def reinforcement_learning_training(reinforcement_learning_configuration: Reinfo
         trainable=algorithm,
         param_space=algorithm_configuration,
         run_config=air.RunConfig(
-            name=reinforcement_learning_configuration.learning_name,
-            storage_path=reinforcement_learning_configuration.storage_path,
+            name=str(experimentation_configuration.reinforcement_learning_storage_path),
+            storage_path=str(experimentation_configuration.experimentation_storage_path),
             stop=reinforcement_learning_configuration.stopping_criterion,
             checkpoint_config=air.CheckpointConfig(
                 num_to_keep=1,
@@ -111,8 +114,6 @@ def reinforcement_learning_training(reinforcement_learning_configuration: Reinfo
 
 
 if __name__ == '__main__':
-    from configurations.reinforcement_learning.minimal_cartpole import minimal_cartpole
-    from configurations.reinforcement_learning.minimal_pong_survivor import minimal_pong_survivor
-    from configurations.reinforcement_learning.minimal_bipedal_walker import minimal_bipedal_walker
+    from configurations.experimentation.bipedal_walker import bipedal_walker
 
-    reinforcement_learning_training(minimal_bipedal_walker)
+    reinforcement_learning_training(bipedal_walker)
