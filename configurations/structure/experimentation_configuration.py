@@ -1,7 +1,8 @@
 from pathlib import Path
 from typing import Optional
 
-from configurations.reinforcement_learning.reinforcement_learning_configuration import ReinforcementLearningConfiguration
+from configurations.structure.reinforcement_learning_configuration import ReinforcementLearningConfiguration
+from configurations.structure.video_episodes_generation_configuration import VideoEpisodesGenerationConfiguration
 
 
 class ExperimentationConfiguration:
@@ -12,9 +13,13 @@ class ExperimentationConfiguration:
 
         self.experimentation_name: str = experimentation_name
         self.experimentation_storage_path: Path = Path.cwd().parent / 'experiments' / self.experimentation_name
-        self.reinforcement_learning_storage_path: Path = self.experimentation_storage_path / 'reinforcement_learning'
+        self.video_path: Path = self.experimentation_storage_path / 'video'
 
         self.environment_name: str = environment_name
         self.environment_configuration: dict = environment_configuration
 
+        self.reinforcement_learning_storage_path: Path = self.experimentation_storage_path / 'reinforcement_learning'
         self.reinforcement_learning_configuration: Optional[ReinforcementLearningConfiguration] = None
+
+        self.video_episodes_storage_path: Path = self.video_path / 'episodes'
+        self.video_episodes_generation_configuration: Optional[VideoEpisodesGenerationConfiguration] = None

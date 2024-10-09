@@ -1,6 +1,0 @@
-from configurations.experimentation.experimentation_configuration import ExperimentationConfiguration
-from configurations.experimentation.minimal_cartpole import minimal_cartpole_reinforcement_learning_configuration
-
-
-minimal_cartpole = ExperimentationConfiguration(experimentation_name='minimal_cartpole')
-minimal_cartpole.reinforcement_learning_configuration = minimal_cartpole_reinforcement_learning_configuration

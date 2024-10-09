@@ -2,7 +2,7 @@ import gymnasium as gym
 import gymnasium.spaces
 import numpy as np
 
-from typing import TYPE_CHECKING, Any, SupportsFloat, TypeVar
+from typing import TYPE_CHECKING, Any, SupportsFloat, TypeVar, Optional
 
 from gymnasium.envs.registration import EnvSpec
 from gymnasium.spaces import Box
@@ -35,7 +35,7 @@ def flattening(dictionary: dict, flatten_dictionary: dict = {}, prefix: str = ''
 
 
 class PongSurvivor(gym.Env):
-    def __init__(self, environment_configuration: dict):
+    def __init__(self, environment_configuration: Optional[dict] = None):
         self.balls = []
         self.paddles = []
 

@@ -29,7 +29,7 @@ class ReinforcementLearningConfiguration:
         self.num_sgd_iter: int = NotProvided
 
         # Environment runners
-        self.batch_mode: str = NotProvided
+        self.batch_mode: str = 'complete_episodes'
         self.number_environment_runners: int = NotProvided
         self.number_environment_per_environment_runners: int = NotProvided
         self.number_cpus_per_environment_runners: int = NotProvided

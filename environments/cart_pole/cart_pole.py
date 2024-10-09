@@ -1,9 +1,12 @@
+from typing import Optional
+
 import gymnasium as gym
 
 
 class CartPole(gym.Env):
-    def __init__(self, environment_configuration=None):
-        self.environment = gym.make('CartPole-v1')
+    def __init__(self, environment_configuration: Optional[dict] = None):
+        self.render_mode = environment_configuration.get('render_mode', None)
+        self.environment = gym.make('CartPole-v1', render_mode=self.render_mode)
 
         self.observation_space = self.environment.observation_space
         self.action_space = self.environment.action_space
@@ -17,7 +20,7 @@ class CartPole(gym.Env):
 
         return observation, reward, done, truncated, information
 
-    def render(self, mode='human'):
+    def render(self):
         return self.environment.render()
 
     def close(self):

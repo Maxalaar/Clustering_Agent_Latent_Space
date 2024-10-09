@@ -1,4 +1,4 @@
-from configurations.experimentation.experimentation_configuration import ExperimentationConfiguration
+from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from configurations.reinforcement_learning.basic_reinforcement_learning_configuration import  basic_reinforcement_learning_configuration
 
 
@@ -7,3 +7,7 @@ bipedal_walker = ExperimentationConfiguration(
     environment_name='BipedalWalker',
 )
 bipedal_walker.reinforcement_learning_configuration = basic_reinforcement_learning_configuration
+bipedal_walker.reinforcement_learning_configuration.train_batch_size = 10_000
+bipedal_walker.reinforcement_learning_configuration.mini_batch_size_per_learner = 5_000
+bipedal_walker.reinforcement_learning_configuration.number_gpu = 1
+bipedal_walker.reinforcement_learning_configuration.number_gpus_per_learner = 1

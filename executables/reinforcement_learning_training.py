@@ -5,7 +5,7 @@ from ray.rllib.algorithms.dqn import DQNConfig, DQN
 from ray.rllib.utils.from_config import NotProvided
 from ray.rllib.algorithms import AlgorithmConfig, Algorithm
 
-from configurations.experimentation.experimentation_configuration import ExperimentationConfiguration
+from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
 
 
@@ -15,7 +15,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 
     ray_initialization = False
     if not ray.is_initialized():
-        ray.init()
+        ray.init(local_mode=experimentation_configuration.reinforcement_learning_configuration.ray_local_mode)
         ray_initialization = True
 
     register_environments()
@@ -114,6 +114,8 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 
 
 if __name__ == '__main__':
+    from configurations.experimentation.cartpole import cartpole
     from configurations.experimentation.bipedal_walker import bipedal_walker
+    from configurations.experimentation.lunar_lander import lunar_lander
 
     reinforcement_learning_training(bipedal_walker)
