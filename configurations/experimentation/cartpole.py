@@ -6,4 +6,3 @@ cartpole = ExperimentationConfiguration(
     experimentation_name='cartpole',
     environment_name='CartPole',
 )
-cartpole.reinforcement_learning_configuration = basic_reinforcement_learning_configuration

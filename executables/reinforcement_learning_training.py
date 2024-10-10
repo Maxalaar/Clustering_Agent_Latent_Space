@@ -47,6 +47,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
             model={
                 'custom_model': reinforcement_learning_configuration.architecture_name,
                 'custom_model_config': reinforcement_learning_configuration.architecture_configuration,
+                'fcnet_hiddens': reinforcement_learning_configuration.fully_connected_architecture,
             }
         )
     algorithm_configuration.training(
@@ -117,5 +118,6 @@ if __name__ == '__main__':
     from configurations.experimentation.cartpole import cartpole
     from configurations.experimentation.bipedal_walker import bipedal_walker
     from configurations.experimentation.lunar_lander import lunar_lander
+    from configurations.experimentation.ant import ant
 
     reinforcement_learning_training(bipedal_walker)

@@ -19,7 +19,7 @@ class ExperimentationConfiguration:
         self.environment_configuration: dict = environment_configuration
 
         self.reinforcement_learning_storage_path: Path = self.experimentation_storage_path / 'reinforcement_learning'
-        self.reinforcement_learning_configuration: Optional[ReinforcementLearningConfiguration] = None
+        self.reinforcement_learning_configuration: Optional[ReinforcementLearningConfiguration] = ReinforcementLearningConfiguration()
 
         self.video_episodes_storage_path: Path = self.video_path / 'episodes'
-        self.video_episodes_generation_configuration: Optional[VideoEpisodesGenerationConfiguration] = None
+        self.video_episodes_generation_configuration: Optional[VideoEpisodesGenerationConfiguration] = VideoEpisodesGenerationConfiguration()

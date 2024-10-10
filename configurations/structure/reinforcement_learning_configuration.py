@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 import yaml
 
 from ray.rllib.algorithms.callbacks import DefaultCallbacks
@@ -21,6 +21,7 @@ class ReinforcementLearningConfiguration:
         # Training
         self.architecture_name: str = NotProvided
         self.architecture_configuration: dict = NotProvided
+        self.fully_connected_architecture: List[int] = None
         self.train_batch_size: int = NotProvided
         self.learning_rate: float = NotProvided
         # PPO only

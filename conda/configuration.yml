@@ -32,15 +32,16 @@ dependencies:
   - aws-crt-cpp=0.26.8
   - aws-sdk-cpp=1.11.267
   - blas=1.0
-  - blosc=1.21.5
+  - blosc=1.21.6
   - brotli=1.1.0
   - brotli-bin=1.1.0
   - brotli-python=1.1.0
   - brunsli=0.1
   - bzip2=1.0.8
   - c-ares=1.33.1
-  - c-blosc2=2.14.4
+  - c-blosc2=2.15.1
   - ca-certificates=2024.9.24
+  - cached-property=1.5.2
   - cachetools=5.5.0
   - cairo=1.18.0
   - certifi=2024.8.30
@@ -59,13 +60,19 @@ dependencies:
   - cuda-nvtx=12.1.105
   - cuda-opencl=12.4.127
   - cuda-runtime=12.1.0
+  - cudatoolkit=11.8.0
+  - cudnn=8.9.2.26
+  - cupti=11.8.0
+  - cyrus-sasl=2.1.27
   - dav1d=1.2.1
   - dbus=1.13.18
+  - decorator=5.1.1
   - distlib=0.3.8
   - dm-tree=0.1.8
+  - double-conversion=3.3.0
   - expat=2.6.3
   - farama-notifications=0.0.4
-  - ffmpeg=4.4.0
+  - ffmpeg=6.1.2
   - filelock=3.16.1
   - fluidsynth=2.3.6
   - font-ttf-dejavu-sans-mono=2.37
@@ -75,7 +82,9 @@ dependencies:
   - fontconfig=2.14.2
   - fonts-anaconda=1
   - fonts-conda-ecosystem=1
+  - freeglut=3.4.0
   - freetype=2.12.1
+  - fribidi=1.0.10
   - frozenlist=1.4.1
   - fsspec=2024.9.0
   - gettext=0.22.5
@@ -85,7 +94,7 @@ dependencies:
   - glib=2.82.1
   - glib-tools=2.82.1
   - glog=0.7.1
-  - gmp=6.2.1
+  - gmp=6.3.0
   - gmpy2=2.1.2
   - gnutls=3.6.15
   - google-api-core=2.20.0
@@ -94,19 +103,23 @@ dependencies:
   - gputil=1.4.0
   - graphite2=1.3.14
   - grpcio=1.62.2
-  - gymnasium=0.28.1
   - h2=4.1.0
+  - h5py=3.11.0
   - harfbuzz=9.0.0
+  - hdf5=1.14.3
   - hpack=4.0.0
   - hyperframe=6.0.1
   - icu=75.1
   - idna=3.10
-  - imagecodecs=2024.1.1
+  - imagecodecs=2024.6.1
   - imageio=2.35.1
+  - imageio-ffmpeg=0.5.1
+  - imath=3.1.12
   - importlib-metadata=8.5.0
   - importlib_resources=6.4.5
   - intel-openmp=2022.0.1
   - jack=1.9.22
+  - jasper=4.2.4
   - jax-jumpy=1.0.0
   - jinja2=3.1.4
   - jsonschema=4.23.0
@@ -131,6 +144,7 @@ dependencies:
   - libarrow-substrait=15.0.2
   - libasprintf=0.22.5
   - libasprintf-devel=0.22.5
+  - libass=0.17.3
   - libavif16=1.1.1
   - libblas=3.9.0
   - libbrotlicommon=1.1.0
@@ -138,17 +152,22 @@ dependencies:
   - libbrotlienc=1.1.0
   - libcap=2.69
   - libcblas=3.9.0
+  - libclang-cpp19.1=19.1.0
+  - libclang13=19.1.0
   - libcrc32c=1.1.2
   - libcublas=12.1.0.26
   - libcufft=11.0.2.4
   - libcufile=1.9.1.3
+  - libcups=2.3.3
   - libcurand=10.3.5.147
   - libcurl=8.7.1
   - libcusolver=11.4.4.55
   - libcusparse=12.0.2.55
   - libdb=6.2.32
-  - libdeflate=1.20
+  - libdeflate=1.22
+  - libdrm=2.4.123
   - libedit=3.1.20191231
+  - libegl=1.7.0
   - libev=4.33
   - libevent=2.1.12
   - libexpat=2.6.3
@@ -162,82 +181,117 @@ dependencies:
   - libgfortran=14.1.0
   - libgfortran-ng=14.1.0
   - libgfortran5=14.1.0
+  - libgl=1.7.0
   - libglib=2.82.1
+  - libglu=9.0.0
+  - libglvnd=1.7.0
+  - libglx=1.7.0
   - libgomp=14.1.0
   - libgoogle-cloud=2.23.0
   - libgoogle-cloud-storage=2.23.0
   - libgpg-error=1.50
   - libgrpc=1.62.2
+  - libhwloc=2.11.1
   - libhwy=1.1.0
   - libiconv=1.17
   - libidn2=2.3.4
   - libjpeg-turbo=3.0.0
-  - libjxl=0.10.3
+  - libjxl=0.11.0
   - liblapack=3.9.0
+  - liblapacke=3.9.0
   - libllvm16=16.0.6
+  - libllvm19=19.1.1
   - libmad=0.15.1b
+  - libmagma=2.8.0
+  - libmagma_sparse=2.8.0
   - libnghttp2=1.58.0
   - libnl=3.10.0
   - libnpp=12.0.2.50
   - libnsl=2.0.1
+  - libntlm=1.6
   - libnvjitlink=12.1.105
   - libnvjpeg=12.1.1.14
   - libogg=1.3.5
   - libopenblas=0.3.27
+  - libopencv=4.10.0
+  - libopenvino=2024.4.0
+  - libopenvino-auto-batch-plugin=2024.4.0
+  - libopenvino-auto-plugin=2024.4.0
+  - libopenvino-hetero-plugin=2024.4.0
+  - libopenvino-intel-cpu-plugin=2024.4.0
+  - libopenvino-intel-gpu-plugin=2024.4.0
+  - libopenvino-intel-npu-plugin=2024.4.0
+  - libopenvino-ir-frontend=2024.4.0
+  - libopenvino-onnx-frontend=2024.4.0
+  - libopenvino-paddle-frontend=2024.4.0
+  - libopenvino-pytorch-frontend=2024.4.0
+  - libopenvino-tensorflow-frontend=2024.4.0
+  - libopenvino-tensorflow-lite-frontend=2024.4.0
   - libopus=1.3.1
   - libparquet=15.0.2
+  - libpciaccess=0.18
   - libpng=1.6.44
+  - libpq=17.0
   - libprotobuf=4.25.3
   - libre2-11=2023.09.01
   - libsndfile=1.2.2
-  - libsqlite=3.45.2
+  - libsqlite=3.46.1
   - libssh2=1.11.0
   - libstdcxx=14.1.0
   - libstdcxx-ng=14.1.0
   - libsystemd0=255
   - libtasn1=4.19.0
   - libthrift=0.19.0
-  - libtiff=4.6.0
+  - libtiff=4.7.0
   - libunistring=0.9.10
   - libunwind=1.6.2
   - libutf8proc=2.8.0
   - libuuid=2.38.1
+  - libva=2.22.0
   - libvorbis=1.3.7
-  - libvpx=1.11.0
+  - libvpx=1.14.1
   - libwebp-base=1.4.0
   - libxcb=1.17.0
   - libxcrypt=4.4.36
+  - libxkbcommon=1.7.0
   - libxml2=2.12.7
   - libzlib=1.3.1
   - libzopfli=1.0.3
   - llvm-openmp=15.0.7
   - lz4=4.3.3
   - lz4-c=1.9.4
+  - magma=2.8.0
   - markdown=3.4.1
   - markdown-it-py=3.0.0
   - markupsafe=2.1.5
   - mdurl=0.1.2
   - memray=1.12.0
   - mkl=2022.1.0
+  - moviepy=1.0.3
   - mpc=1.1.0
   - mpfr=4.0.2
   - mpg123=1.32.6
   - mpmath=1.3.0
   - msgpack-python=1.1.0
   - multidict=6.1.0
+  - mysql-common=9.0.1
+  - mysql-libs=9.0.1
   - ncurses=6.4
   - nettle=3.7.3
   - networkx=3.3
-  - numpy=1.26.4
+  - numpy-base=2.0.1
+  - ocl-icd=2.3.2
   - opencensus=0.11.3
   - opencensus-context=0.1.3
-  - openh264=2.1.1
+  - opencv=4.10.0
+  - openexr=3.2.2
+  - openh264=2.4.1
   - openjpeg=2.5.2
+  - openldap=2.6.8
   - openssl=3.3.2
   - opusfile=0.12
   - orc=2.0.0
   - packaging=24.1
-  - pandas=2.1.4
   - pcre2=10.44
   - pillow=10.4.0
   - pip=24.2
@@ -246,12 +300,15 @@ dependencies:
   - platformdirs=3.11.0
   - portaudio=19.6.0
   - portmidi=2.0.4
+  - proglog=0.1.9
   - prometheus_client=0.21.0
   - proto-plus=1.23.0
   - protobuf=4.25.3
   - psutil=6.0.0
   - pthread-stubs=0.4
+  - pugixml=1.14
   - pulseaudio-client=17.0
+  - py-opencv=4.10.0
   - py-spy=0.3.14
   - pyarrow=15.0.2
   - pyasn1=0.6.1
@@ -266,13 +323,14 @@ dependencies:
   - python-dateutil=2.9.0
   - python-tzdata=2024.2
   - python_abi=3.11
-  - pytorch=2.4.1
+  - pytorch=2.3.0
   - pytorch-cuda=12.1
   - pytorch-mutex=1.0
   - pytz=2024.2
   - pyu2f=0.1.5
   - pywavelets=1.7.0
   - pyyaml=6.0.2
+  - qt6-main=6.7.3
   - rav1e=0.6.6
   - ray-core=2.37.0
   - ray-data=2.37.0
@@ -301,18 +359,20 @@ dependencies:
   - six=1.16.0
   - smart_open=7.0.4
   - snappy=1.2.1
-  - sqlite=3.45.2
+  - sqlite=3.31.1
   - svt-av1=2.2.1
   - sympy=1.13.2
+  - tbb=2021.13.0
   - tensorboard=2.18.0
   - tensorboard-data-server=0.7.0
   - tensorboardx=2.6.2.2
   - textual=0.81.0
   - tifffile=2024.9.20
   - tk=8.6.13
-  - torchaudio=2.4.1
-  - torchtriton=3.0.0
-  - torchvision=0.19.1
+  - torchaudio=2.3.0
+  - torchtriton=2.3.1
+  - torchvision=0.18.0
+  - tqdm=4.66.5
   - typer=0.12.5
   - typer-slim=0.12.5
   - typer-slim-standard=0.12.5
@@ -322,18 +382,35 @@ dependencies:
   - ucx=1.15.0
   - urllib3=2.2.3
   - virtualenv=20.21.0
+  - wayland=1.23.1
+  - wayland-protocols=1.37
   - werkzeug=3.0.3
   - wheel=0.44.0
   - wrapt=1.16.0
-  - x264=1!161.3030
+  - x264=1!164.3095
   - x265=3.5
+  - xcb-util=0.4.1
+  - xcb-util-cursor=0.1.5
+  - xcb-util-image=0.4.0
+  - xcb-util-keysyms=0.4.1
+  - xcb-util-renderutil=0.3.10
+  - xcb-util-wm=0.4.2
+  - xkeyboard-config=2.43
   - xorg-libice=1.1.1
   - xorg-libsm=1.2.4
   - xorg-libx11=1.8.10
   - xorg-libxau=1.0.11
+  - xorg-libxcomposite=0.4.6
+  - xorg-libxcursor=1.2.2
+  - xorg-libxdamage=1.1.6
   - xorg-libxdmcp=1.1.5
   - xorg-libxext=1.3.6
+  - xorg-libxfixes=6.0.1
+  - xorg-libxi=1.8.2
+  - xorg-libxrandr=1.5.4
   - xorg-libxrender=0.9.11
+  - xorg-libxtst=1.2.5
+  - xorg-libxxf86vm=1.1.5
   - xorg-xorgproto=2024.1
   - xz=5.4.6
   - yaml=0.2.5
@@ -341,11 +418,40 @@ dependencies:
   - zfp=1.0.1
   - zipp=3.20.2
   - zlib=1.3.1
-  - zlib-ng=2.0.7
-  - zstandard=0.22.0
-  - zstd=1.5.5
+  - zlib-ng=2.2.2
+  - zstandard=0.19.0
+  - zstd=1.5.6
   - pip:
+      - ale-py==0.10.1
       - box2d-py==2.3.5
+      - chex==0.1.87
+      - contourpy==1.3.0
+      - cycler==0.12.1
+      - cython==0.29.37
+      - etils==1.9.4
+      - fasteners==0.19
+      - flax==0.9.0
+      - fonttools==4.54.1
+      - glfw==2.7.0
       - gym==0.26.2
+      - gymnasium==1.0.0
+      - humanize==4.11.0
+      - jax==0.4.34
+      - jaxlib==0.4.34
+      - kiwisolver==1.4.7
+      - matplotlib==3.9.2
+      - ml-dtypes==0.5.0
+      - mujoco==3.2.3
+      - mujoco-py==2.1.2.14
+      - nest-asyncio==1.6.0
+      - numpy==1.26.4
+      - opt-einsum==3.4.0
+      - optax==0.2.3
+      - orbax-checkpoint==0.7.0
+      - pandas==2.2.3
       - pygame==2.1.3
+      - pyopengl==3.1.7
+      - pyparsing==3.1.4
       - swig==4.2.1
+      - tensorstore==0.1.66
+      - toolz==1.0.0

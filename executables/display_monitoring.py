@@ -60,9 +60,11 @@ if __name__ == "__main__":
     list_learning = [
         'ray/tune/evaluation/env_runners/episode_reward_mean',
         'ray/tune/env_runners/episode_reward_mean',
+        # PPO
         'ray/tune/info/learner/default_policy/learner_stats/policy_loss',
         'ray/tune/info/learner/default_policy/learner_stats/vf_loss',
         'ray/tune/info/learner/default_policy/learner_stats/entropy',
+        # DQN
         'ray/tune/info/learner/default_policy/mean_td_error',
     ]
 

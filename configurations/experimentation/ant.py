@@ -2,7 +2,7 @@ from configurations.reinforcement_learning.basic_reinforcement_learning_configur
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 
 
-lunar_lander = ExperimentationConfiguration(
-    experimentation_name='lunar_lander',
-    environment_name='LunarLander',
+ant = ExperimentationConfiguration(
+    experimentation_name='ant',
+    environment_name='Ant',
 )

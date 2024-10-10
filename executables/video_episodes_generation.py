@@ -1,27 +1,16 @@
 import os
 from pathlib import Path
+import string
+import random
 
 import ray
 import gymnasium
 from ray.rllib.algorithms import Algorithm, AlgorithmConfig
-from ray.tune import Tuner
 from ray.tune.registry import _Registry, register_env
-import string
-import random
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-
-
-def path_best_checkpoints(experimentation_configuration: ExperimentationConfiguration):
-    tuner = Tuner.restore(
-        path=str(experimentation_configuration.reinforcement_learning_storage_path),
-        trainable=experimentation_configuration.reinforcement_learning_configuration.algorithm,
-    )
-    result_grid = tuner.get_results()
-    best_result = result_grid.get_best_result()  # metric='evaluation/env_runners/episode_reward_mean', mode='max'
-    path_checkpoint: Path = best_result.best_checkpoints[0][0].path
-    return path_checkpoint
+from utilities.path_best_checkpoints import path_best_checkpoints
 
 
 def delete_non_videos(path: Path):
@@ -82,19 +71,19 @@ def video_episode_generation(experimentation_configuration: ExperimentationConfi
     algorithm_configuration.learners(num_learners=0)
     algorithm_configuration.env_runners(
         num_env_runners=0,
-        num_envs_per_worker=1,
-        num_cpus_per_env_runner=1,
-        num_gpus_per_env_runner=0,
+        num_envs_per_worker=experimentation_configuration.video_episodes_generation_configuration.number_environment_per_environment_runners,
+        num_cpus_per_env_runner=experimentation_configuration.video_episodes_generation_configuration.number_cpus_per_environment_runners,
+        num_gpus_per_env_runner=experimentation_configuration.video_episodes_generation_configuration.number_gpus_per_environment_runners,
     )
     algorithm_configuration.evaluation(
         evaluation_interval=1,
-        evaluation_num_env_runners=10,
-        evaluation_duration=50,
+        evaluation_num_env_runners=experimentation_configuration.video_episodes_generation_configuration.number_environment_runners,
+        evaluation_duration=experimentation_configuration.video_episodes_generation_configuration.minimal_number_videos,
         evaluation_parallel_to_training=False,
     )
     algorithm: Algorithm = algorithm_configuration.build()
 
-    algorithm.restore(checkpoint_path)
+    algorithm.restore(str(checkpoint_path))
     algorithm.evaluate()
     algorithm.eval_env_runner_group.stop()
 

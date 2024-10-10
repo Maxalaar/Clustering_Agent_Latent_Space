@@ -8,4 +8,3 @@ pong_survivor_one_ball = ExperimentationConfiguration(
     environment_name='PongSurvivor',
 )
 pong_survivor_one_ball.environment_configuration = classic_one_ball
-pong_survivor_one_ball.reinforcement_learning_configuration = basic_reinforcement_learning_configuration

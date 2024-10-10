@@ -11,7 +11,18 @@ class BipedalWalker(gym.Env):
         self.environment = gym.make('BipedalWalker-v3', render_mode=self.render_mode)
 
         # self.observation_space = self.environment.observation_space
-        self.observation_space = Box(np.array([-3.1415927, -5., -5., -5., -3.1415927, -5., -3.1415927, -5., -0., -3.1415927, -5., -3.1415927, -5., -0., -1., -1., -1., -1., -1., -1., -1., -1., -1., -1.]), np.asarray([3.1415927, 5., 5., 5., 3.1415927, 5., 3.1415927, 5., 5., 3.1415927, 5., 3.1415927, 5., 5., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.]), (24,), np.float32)
+        # self.observation_space = Box(
+        #     np.array([-2*3.1415927, -5., -5., -5., -3.1415927, -5., -3.1415927, -5., -0., -3.1415927, -5., -3.1415927, -5., -0., -1., -1., -1., -1., -1., -1., -1., -1., -1., -1.]),
+        #     np.array([2*3.1415927, 5., 5., 5., 3.1415927, 5., 3.1415927, 5., 5., 3.1415927, 5., 3.1415927, 5., 5., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.]),
+        #     (24,),
+        #     np.float32
+        # )
+        self.observation_space = Box(
+            low=np.NINF,
+            high=np.PINF,
+            shape=(24,),
+            dtype=np.float32
+        )
         self.action_space = self.environment.action_space
 
     def reset(self, seed=None, options=None):

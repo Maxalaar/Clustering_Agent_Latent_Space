@@ -1,14 +1,12 @@
 from typing import Optional
 
 import gymnasium as gym
-from gymnasium.spaces import Box
-import numpy as np
 
 
-class LunarLander(gym.Env):
+class Ant(gym.Env):
     def __init__(self, environment_configuration: Optional[dict] = None):
         self.render_mode = environment_configuration.get('render_mode', None)
-        self.environment = gym.make('LunarLander-v3', render_mode=self.render_mode)
+        self.environment = gym.make('Ant-v5', render_mode=self.render_mode)
 
         self.observation_space = self.environment.observation_space
         self.action_space = self.environment.action_space
@@ -22,7 +20,7 @@ class LunarLander(gym.Env):
 
         return observation, reward, done, truncated, information
 
-    def render(self, mode='human'):
+    def render(self):
         return self.environment.render()
 
     def close(self):

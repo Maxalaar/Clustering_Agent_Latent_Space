@@ -12,11 +12,17 @@ if __name__ == '__main__':
         'conda install -c conda-forge ray-rllib --yes',
         'conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia --yes',
         'conda install -c conda-forge::pygame --yes',
-        'conda install -c conda-forge::gputil --yes '
-        'pip install gymnasium[box2d]',
+        'conda install -c conda-forge::gputil --yes ',
         'conda install -c conda-forge::gputil --yes',
         'conda install -c conda-forge::tensorboard --yes',
-        #no 'conda install conda-forge::moviepy --yes'
+        'conda install conda-forge::moviepy --yes',
+        'conda install h5py --yes',
+
+        'pip install gymnasium==1.0.0',
+        'pip install gymnasium[box2d]',
+        'pip install gymnasium[mujoco]',
+        'pip install "numpy<2"',
+        # ? -> pip install -U numpy pandas
     ]
 
     # Execute conda commands
