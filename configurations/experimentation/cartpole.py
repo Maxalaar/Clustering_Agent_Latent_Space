@@ -4,5 +4,5 @@ from configurations.structure.experimentation_configuration import Experimentati
 
 cartpole = ExperimentationConfiguration(
     experimentation_name='cartpole',
-    environment_name='CartPole',
+    environment_name='CartPoleRllib',
 )

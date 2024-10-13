@@ -8,9 +8,9 @@ from environments.pong_survivor.pong_survivor import PongSurvivor
 
 
 def register_environments():
-    register_env(name='CartPole', env_creator=CartPole)
-    register_env(name='LunarLander', env_creator=LunarLander)
-    register_env(name='BipedalWalker', env_creator=BipedalWalker)
-    register_env(name='Ant', env_creator=Ant)
+    register_env(name='CartPoleRllib', env_creator=CartPole)
+    register_env(name='LunarLanderRllib', env_creator=LunarLander)
+    register_env(name='BipedalWalkerRllib', env_creator=BipedalWalker)
+    register_env(name='AntRllib', env_creator=Ant)
     register_env(name='PongSurvivor', env_creator=PongSurvivor)
 

@@ -1,3 +1,4 @@
+from copy import deepcopy
 from pathlib import Path
 from typing import Optional, List
 import yaml
@@ -21,13 +22,15 @@ class ReinforcementLearningConfiguration:
         # Training
         self.architecture_name: str = NotProvided
         self.architecture_configuration: dict = NotProvided
-        self.fully_connected_architecture: List[int] = None
         self.train_batch_size: int = NotProvided
         self.learning_rate: float = NotProvided
         # PPO only
         self.mini_batch_size_per_learner: int = NotProvided
-        self.sgd_minibatch_size: int = NotProvided
         self.num_sgd_iter: int = NotProvided
+        self.lambda_gae: float = NotProvided
+        self.clip_policy_parameter: float = NotProvided
+        self.clip_value_function_parameter: float = NotProvided
+        self.clip_all_parameter: float = NotProvided
 
         # Environment runners
         self.batch_mode: str = 'complete_episodes'
@@ -58,7 +61,7 @@ class ReinforcementLearningConfiguration:
         self.number_checkpoint_to_keep: Optional[int] = None
         self.checkpoint_score_attribute: Optional[str] = None
         self.checkpoint_score_order: str = 'max'
-        self.checkpoint_frequency: int = 0
+        self.checkpoint_frequency: int = 50
         self.checkpoint_at_end: Optional[bool] = None
 
     def to_yaml_file(self, directory: Path):
@@ -68,5 +71,20 @@ class ReinforcementLearningConfiguration:
 
         with open(file_path, 'w') as file:
             yaml.dump(configuration_dictionary, file)
+
+    def clone(self):
+        deep_copy = deepcopy(self)
+
+        for attribute_name in dir(deep_copy):
+            if not attribute_name.startswith('_'):
+                attribute_value = getattr(deep_copy, attribute_name)
+                if type(attribute_value) == type(NotProvided):
+                    setattr(deep_copy, attribute_name, NotProvided)
+
+        return deep_copy
+
+
+
+
 
 

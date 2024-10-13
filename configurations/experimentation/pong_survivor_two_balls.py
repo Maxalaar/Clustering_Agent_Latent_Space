@@ -1,0 +1,11 @@
+from configurations.structure.experimentation_configuration import ExperimentationConfiguration
+from environments.pong_survivor.configurations import classic_two_balls
+
+pong_survivor_two_balls = ExperimentationConfiguration(
+    experimentation_name='pong_survivor_tow_balls',
+    environment_name='PongSurvivor',
+)
+pong_survivor_two_balls.environment_configuration = classic_two_balls
+
+pong_survivor_two_balls.reinforcement_learning_configuration.train_batch_size = 40_000
+pong_survivor_two_balls.reinforcement_learning_configuration.mini_batch_size_per_learner = 10_000
