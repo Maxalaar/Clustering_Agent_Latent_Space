@@ -10,7 +10,7 @@ class Dense(TorchModelV2, nn.Module):
         TorchModelV2.__init__(self, observation_space, action_space, num_outputs, model_configuration, name)
         nn.Module.__init__(self)
         self.activation_function = kwargs.get('activation_function', nn.ReLU())
-        self.configuration_hidden_layers = kwargs.get('configuration_hidden_layers', [128, 64, 32, 64, 128])
+        self.configuration_hidden_layers = kwargs.get('configuration_hidden_layers', [64, 64])
         self.num_hidden_layers = len(self.configuration_hidden_layers)
 
         self.flatten_observation = None

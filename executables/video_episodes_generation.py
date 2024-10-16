@@ -65,9 +65,9 @@ def video_episode_generation(experimentation_configuration: ExperimentationConfi
 
     algorithm.restore(str(best_checkpoints_path))
     algorithm.evaluate()
-    algorithm.eval_env_runner_group.stop()
-
-    delete_non_videos(experimentation_configuration.video_episodes_storage_path)
+    # algorithm.eval_env_runner_group.stop()
+    #
+    # delete_non_videos(experimentation_configuration.video_episodes_storage_path)
 
 
 if __name__ == '__main__':

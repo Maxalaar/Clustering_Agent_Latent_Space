@@ -61,7 +61,7 @@ class ReinforcementLearningConfiguration:
         self.number_checkpoint_to_keep: Optional[int] = None
         self.checkpoint_score_attribute: Optional[str] = None
         self.checkpoint_score_order: str = 'max'
-        self.checkpoint_frequency: int = 50
+        self.checkpoint_frequency: int = None
         self.checkpoint_at_end: Optional[bool] = None
 
     def to_yaml_file(self, directory: Path):

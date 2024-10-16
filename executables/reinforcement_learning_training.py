@@ -103,7 +103,6 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
         tuner = tune.Tuner.restore(
             os.path.dirname(tuner_save_path),
             trainable=algorithm,
-            # param_space=algorithm_configuration,
             resume_unfinished=True,
             resume_errored=True,
             restart_errored=True,
@@ -140,4 +139,4 @@ if __name__ == '__main__':
     from configurations.experimentation.ant import ant
     from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
 
-    reinforcement_learning_training(bipedal_walker)
+    reinforcement_learning_training(cartpole)
