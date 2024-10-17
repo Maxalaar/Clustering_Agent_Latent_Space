@@ -26,6 +26,6 @@ bipedal_walker.reinforcement_learning_configuration.mini_batch_size_per_learner 
 # }
 bipedal_walker.reinforcement_learning_configuration.architecture_name = 'transformer'
 
-bipedal_walker.reinforcement_learning_configuration.clip_all_parameter = 0.1
-bipedal_walker.reinforcement_learning_configuration.clip_policy_parameter = 0.1
-bipedal_walker.reinforcement_learning_configuration.clip_value_function_parameter = 0.1
+# bipedal_walker.reinforcement_learning_configuration.clip_all_parameter = 0.1
+# bipedal_walker.reinforcement_learning_configuration.clip_policy_parameter = 0.1
+# bipedal_walker.reinforcement_learning_configuration.clip_value_function_parameter = 0.1

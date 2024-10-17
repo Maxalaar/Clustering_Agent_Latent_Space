@@ -4,10 +4,7 @@ from configurations.structure.reinforcement_learning_configuration import Reinfo
 
 basic_reinforcement_learning_configuration = ReinforcementLearningConfiguration()
 basic_reinforcement_learning_configuration.architecture_name = 'dense'
-basic_reinforcement_learning_configuration.architecture_configuration = {
-    'activation_function': torch.nn.ReLU(),
-    'configuration_hidden_layers': [64, 64],
-}
+basic_reinforcement_learning_configuration.architecture_configuration = {}
 
 basic_reinforcement_learning_configuration.number_gpu = 1
 basic_reinforcement_learning_configuration.number_gpus_per_learner = 1

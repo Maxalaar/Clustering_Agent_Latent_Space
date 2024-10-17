@@ -7,7 +7,7 @@ from ray.rllib.algorithms import Algorithm, AlgorithmConfig
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from models.architectures.rienforcement.register_architectures import register_architectures
+from models.architectures.rllib.register_architectures import register_architectures
 from utilities.find_best_checkpoints_path import find_best_checkpoints_path
 from utilities.register_video_environment_creator import register_video_environment_creator
 
@@ -77,4 +77,4 @@ if __name__ == '__main__':
     from configurations.experimentation.ant import ant
     from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
 
-    video_episode_generation(bipedal_walker)
+    video_episode_generation(cartpole)

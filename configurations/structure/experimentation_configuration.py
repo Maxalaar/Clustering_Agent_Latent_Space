@@ -22,11 +22,17 @@ class ExperimentationConfiguration:
         self.environment_name: str = environment_name
         self.environment_configuration: dict = environment_configuration
 
+        # Reinforcement Learning
         self.reinforcement_learning_storage_path: Path = self.experimentation_storage_path / 'reinforcement_learning'
         self.reinforcement_learning_configuration: Optional[ReinforcementLearningConfiguration] = basic_reinforcement_learning_configuration.clone()
 
+        # Video
         self.video_episodes_storage_path: Path = self.video_path / 'episodes'
         self.video_episodes_generation_configuration: Optional[VideoEpisodesGenerationConfiguration] = VideoEpisodesGenerationConfiguration()
 
-        self.trajectory_dataset_file: Path = self.dataset_path / 'trajectory_dataset.h5'
+        # Trajectory Dataset
+        self.trajectory_dataset_file_path: Path = self.dataset_path / 'trajectory_dataset.h5'
         self.trajectory_dataset_generation_configuration: Optional[TrajectoryDatasetGenerationConfiguration] = TrajectoryDatasetGenerationConfiguration()
+
+        # Surrogate Policy Training
+        self.surrogate_policy_training_storage_path: Path = self.experimentation_storage_path / 'surrogate_policy_training'

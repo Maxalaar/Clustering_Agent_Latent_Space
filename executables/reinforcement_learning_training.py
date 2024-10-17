@@ -9,7 +9,7 @@ from ray.rllib.algorithms import AlgorithmConfig, Algorithm
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from models.architectures.rienforcement.register_architectures import register_architectures
+from models.architectures.rllib.register_architectures import register_architectures
 
 
 def reinforcement_learning_training(experimentation_configuration: ExperimentationConfiguration):
@@ -138,5 +138,6 @@ if __name__ == '__main__':
     from configurations.experimentation.lunar_lander import lunar_lander
     from configurations.experimentation.ant import ant
     from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
+    from configurations.experimentation.test_new_architecture import test_new_architecture
 
-    reinforcement_learning_training(cartpole)
+    reinforcement_learning_training(lunar_lander)

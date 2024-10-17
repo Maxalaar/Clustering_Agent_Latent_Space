@@ -10,7 +10,7 @@ from pathlib import Path
 from ray.rllib.algorithms import Algorithm, AlgorithmConfig
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from models.architectures.rienforcement.register_architectures import register_architectures
+from models.architectures.rllib.register_architectures import register_architectures
 from utilities.find_best_checkpoints_path import find_best_checkpoints_path
 from ray.rllib.algorithms.callbacks import DefaultCallbacks
 
@@ -35,7 +35,7 @@ class SystemMutex:
 def trajectory_dataset_generation(experimentation_configuration: ExperimentationConfiguration, save_rendering: bool = False):
     class SaveTrajectoryCallback(DefaultCallbacks):
         def __init__(self):
-            self.path_file: Path = experimentation_configuration.trajectory_dataset_file
+            self.path_file: Path = experimentation_configuration.trajectory_dataset_file_path
 
         def on_sample_end(
                 self,

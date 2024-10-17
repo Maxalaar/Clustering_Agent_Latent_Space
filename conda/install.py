@@ -17,6 +17,7 @@ if __name__ == '__main__':
         'conda install -c conda-forge::tensorboard --yes',
         'conda install conda-forge::moviepy --yes',
         'conda install h5py --yes',
+        'conda install conda-forge::pytorch-lightning --yes'
 
         'pip install gymnasium==1.0.0',
         'pip install gymnasium[box2d]',
