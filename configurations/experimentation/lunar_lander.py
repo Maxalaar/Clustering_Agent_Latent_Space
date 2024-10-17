@@ -7,3 +7,7 @@ lunar_lander = ExperimentationConfiguration(
 )
 lunar_lander.reinforcement_learning_configuration.train_batch_size = 40_000
 lunar_lander.reinforcement_learning_configuration.mini_batch_size_per_learner = 10_000
+
+lunar_lander.trajectory_dataset_generation_configuration.minimal_number_episodes = 100_000
+lunar_lander.trajectory_dataset_generation_configuration.number_environment_runners = 10
+lunar_lander.trajectory_dataset_generation_configuration.number_environment_per_environment_runners = 4

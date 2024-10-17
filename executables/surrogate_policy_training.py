@@ -1,6 +1,7 @@
 from typing import Optional
 
 import h5py
+import numpy as np
 import pytorch_lightning as pl
 from torch.utils.data import Dataset
 from pathlib import Path
@@ -17,7 +18,10 @@ def get_h5_shapes(h5_file_path: Path, dataset_name: str):
     with h5py.File(h5_file_path, 'r') as file:
         if dataset_name in file:
             dataset = file[dataset_name]
-            shape = dataset.shape
+            if len(dataset.shape) > 1:
+                shape = dataset.shape[1:]
+            else:
+                shape = (np.max(dataset) + 1,)
         else:
             print('Dataset ' + str(dataset_name) + ' not found in the file.')
     return shape
@@ -73,7 +77,9 @@ class H5DataModule(pl.LightningDataModule):
         if self.output_dataset_name is not None :
             self.output_shape = get_h5_shapes(self.h5_file_path, self.output_dataset_name)
 
-        self.train_dataset, self.test_dataset = random_split(dataset, [int(len(dataset) * (1 - self.validation_split)), int(len(dataset) * self.validation_split)])
+        test_dataset_size = int(len(dataset) * self.validation_split)
+
+        self.train_dataset, self.test_dataset = random_split(dataset, [len(dataset) - test_dataset_size, test_dataset_size])
 
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.number_workers)
@@ -96,15 +102,15 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
     data_module.setup()
 
     architecture = Dense(
-        input_dimension=data_module.input_shape,
-        output_dimension=data_module.output_shape,
+        input_dimension=np.prod(data_module.input_shape),
+        output_dimension=np.prod(data_module.output_shape),
         cluster_space_size=16,
         projection_clustering_space_shape=[128, 64, 32],
         projection_action_space_shape=[32, 64, 128],
         learning_rate=1e-4,
     )
 
-    logger = TensorBoardLogger(experimentation_configuration.surrogate_policy_training_storage_path, name='tensorboard')
+    logger = TensorBoardLogger(experimentation_configuration.surrogate_policy_storage_path.parent, name=experimentation_configuration.surrogate_policy_storage_path.name)
     checkpoint_callback = ModelCheckpoint(
         every_n_epochs=1,
     )

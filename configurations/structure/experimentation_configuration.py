@@ -34,5 +34,5 @@ class ExperimentationConfiguration:
         self.trajectory_dataset_file_path: Path = self.dataset_path / 'trajectory_dataset.h5'
         self.trajectory_dataset_generation_configuration: Optional[TrajectoryDatasetGenerationConfiguration] = TrajectoryDatasetGenerationConfiguration()
 
-        # Surrogate Policy Training
-        self.surrogate_policy_training_storage_path: Path = self.experimentation_storage_path / 'surrogate_policy_training'
+        # Surrogate Policy
+        self.surrogate_policy_storage_path: Path = self.experimentation_storage_path / 'surrogate_policy'
