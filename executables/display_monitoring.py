@@ -68,6 +68,15 @@ if __name__ == "__main__":
         'ray/tune/info/learner/default_policy/mean_td_error',
     ]
 
+    list_supervised = [
+        'pytorch_lightning/-action_loss_train',
+        'pytorch_lightning/-clusterization_loss_train',
+        'pytorch_lightning/-total_loss_train',
+        'pytorch_lightning/-action_loss_validation',
+        'pytorch_lightning/-clusterization_loss_validation',
+        'pytorch_lightning/-total_loss_validation',
+    ]
+
     process = Process(target=run_tensorboard)
     process.start()
 
@@ -80,4 +89,5 @@ if __name__ == "__main__":
         # Open monitoring dashboards
         webbrowser.open_new('http://127.0.0.1:8265')
         webbrowser.open(list_to_url(list_simulation))
+        webbrowser.open(list_to_url(list_supervised))
         webbrowser.open(list_to_url(list_learning))

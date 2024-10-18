@@ -61,6 +61,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
     if type(algorithm_configuration) is PPOConfig:
         algorithm_configuration: PPOConfig
         algorithm_configuration.training(
+            use_gae=True,
             mini_batch_size_per_learner=reinforcement_learning_configuration.mini_batch_size_per_learner,
             sgd_minibatch_size=reinforcement_learning_configuration.mini_batch_size_per_learner,
             num_sgd_iter=reinforcement_learning_configuration.num_sgd_iter,
@@ -140,4 +141,4 @@ if __name__ == '__main__':
     from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
     from configurations.experimentation.test_new_architecture import test_new_architecture
 
-    reinforcement_learning_training(lunar_lander)
+    reinforcement_learning_training(bipedal_walker)

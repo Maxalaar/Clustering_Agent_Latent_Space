@@ -1,9 +1,10 @@
+from time import sleep
 from typing import Optional
 
 import h5py
 import numpy as np
 import pytorch_lightning as pl
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, IterableDataset
 from pathlib import Path
 from torch.utils.data import DataLoader, random_split
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -30,25 +31,60 @@ def get_h5_shapes(h5_file_path: Path, dataset_name: str):
 class H5Dataset(Dataset):
     def __init__(self, h5_file_path: Path, input_dataset_name: str, output_dataset_name: Optional[str] = None):
         super().__init__()
+        print('New H5Dataset')
         self.h5_file_path: Path = h5_file_path
         self.input_dataset_name: str = input_dataset_name
         self.output_dataset_name: Optional[str] = output_dataset_name
 
+        # with h5py.File(self.h5_file_path, 'r') as h5_file:
+        #     self.data_len = h5_file[self.input_dataset_name].shape[0]
+
         with h5py.File(self.h5_file_path, 'r') as h5_file:
             self.data_len = h5_file[self.input_dataset_name].shape[0]
+            self.input_data = np.array(h5_file[self.input_dataset_name])
+            self.output_data = np.array(h5_file[self.output_dataset_name])
 
     def __len__(self):
         return self.data_len
 
     def __getitem__(self, idx):
-        with h5py.File(self.h5_file_path, 'r') as h5_file:
-            input_data = h5_file[self.input_dataset_name][idx]
+        # with h5py.File(self.h5_file_path, 'r') as h5_file:
+        #     input_data = h5_file[self.input_dataset_name][idx]
+        #
+        #     if self.output_dataset_name is not None:
+        #         output_data = h5_file[self.output_dataset_name][idx]
+        #         return input_data, output_data
+        #
+        #     return input_data
+        return self.input_data[idx], self.output_data[idx]
 
-            if self.output_dataset_name is not None:
-                output_data = h5_file[self.output_dataset_name][idx]
-                return input_data, output_data
-
-            return input_data
+# class H5Dataset(Dataset):
+#     def __init__(self, h5_file_path: Path, input_dataset_name: str, output_dataset_name: Optional[str] = None):
+#         super().__init__()
+#         self.h5_file_path: Path = h5_file_path
+#         self.input_dataset_name: str = input_dataset_name
+#         self.output_dataset_name: Optional[str] = output_dataset_name
+#
+#         # Ouverture du fichier HDF5
+#         self.h5_file = h5py.File(self.h5_file_path, 'r')
+#         self.data_len = self.h5_file[self.input_dataset_name].shape[0]
+#
+#     def __len__(self):
+#         return self.data_len
+#
+#     def __getitem__(self, idx):
+#         # Accéder aux données directement à partir du fichier HDF5
+#         input_data = self.h5_file[self.input_dataset_name][idx]
+#
+#         if self.output_dataset_name is not None:
+#             output_data = self.h5_file[self.output_dataset_name][idx]
+#             return input_data, output_data
+#
+#         return input_data
+#
+#     def __del__(self):
+#         # Fermer le fichier HDF5 lorsque l'objet est détruit
+#         self.h5_file.close()
 
 
 class H5DataModule(pl.LightningDataModule):
@@ -67,19 +103,20 @@ class H5DataModule(pl.LightningDataModule):
         self.test_dataset: Optional[H5Dataset] = None
 
     def setup(self, stage=None):
-        dataset = H5Dataset(
+        self.input_shape = get_h5_shapes(self.h5_file_path, self.input_dataset_name)
+        self.train_dataset = H5Dataset(
             h5_file_path=self.h5_file_path,
             input_dataset_name=self.input_dataset_name,
             output_dataset_name=self.output_dataset_name,
         )
 
-        self.input_shape = get_h5_shapes(self.h5_file_path, self.input_dataset_name)
         if self.output_dataset_name is not None :
             self.output_shape = get_h5_shapes(self.h5_file_path, self.output_dataset_name)
-
-        test_dataset_size = int(len(dataset) * self.validation_split)
-
-        self.train_dataset, self.test_dataset = random_split(dataset, [len(dataset) - test_dataset_size, test_dataset_size])
+            self.test_dataset = H5Dataset(
+                h5_file_path=self.h5_file_path,
+                input_dataset_name=self.input_dataset_name,
+                output_dataset_name=self.output_dataset_name,
+            )
 
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.number_workers)
@@ -96,7 +133,7 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         h5_file_path=experimentation_configuration.trajectory_dataset_file_path,
         input_dataset_name='observation',
         output_dataset_name='action',
-        batch_size=20_000,
+        batch_size=100_000,
         number_workers=5,
     )
     data_module.setup()
@@ -110,7 +147,11 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         learning_rate=1e-4,
     )
 
-    logger = TensorBoardLogger(experimentation_configuration.surrogate_policy_storage_path.parent, name=experimentation_configuration.surrogate_policy_storage_path.name)
+    logger = TensorBoardLogger(
+        save_dir=experimentation_configuration.surrogate_policy_storage_path.parent,
+        prefix='pytorch_lightning/',
+        name=experimentation_configuration.surrogate_policy_storage_path.name,
+    )
     checkpoint_callback = ModelCheckpoint(
         every_n_epochs=1,
     )
@@ -133,4 +174,4 @@ if __name__ == '__main__':
     from configurations.experimentation.ant import ant
     from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
 
-    surrogate_policy_training(cartpole)
+    surrogate_policy_training(lunar_lander)

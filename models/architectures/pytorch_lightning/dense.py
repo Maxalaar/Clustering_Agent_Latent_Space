@@ -53,16 +53,16 @@ class Dense(pl.LightningModule):
 
         y_hat = self(x)
         y = y.to(y_hat.device).long()
-        prediction_loss = self.prediction_loss_function(y_hat, y)
+        action_loss = self.prediction_loss_function(y_hat, y)
 
         if self.clusterization_loss_function is None:
             clustering_loss = 0
         else:
             clustering_loss = self.clusterization_loss_function(self.embedding_in_clustering_space, **self.clusterization_loss_function_arguments)
 
-        total_loss = prediction_loss + clustering_loss
+        total_loss = action_loss + clustering_loss
 
-        self.log('prediction_loss_train', prediction_loss, on_epoch=True)
+        self.log('action_loss_train', action_loss, on_epoch=True)
         self.log('clusterization_loss_train', clustering_loss, on_epoch=True)
         self.log('total_loss_train', total_loss, on_epoch=True)
 
@@ -73,16 +73,16 @@ class Dense(pl.LightningModule):
 
         y_hat = self(x)
         y = y.to(y_hat.device).long()
-        prediction_loss = self.prediction_loss_function(y_hat, y)
+        action_loss = self.prediction_loss_function(y_hat, y)
 
         if self.clusterization_loss_function is None:
             clustering_loss = 0
         else:
             clustering_loss = self.clusterization_loss_function(self.embedding_in_clustering_space, **self.clusterization_loss_function_arguments)
 
-        total_loss = prediction_loss + clustering_loss
+        total_loss = action_loss + clustering_loss
 
-        self.log('prediction_loss_validation', prediction_loss, on_epoch=True)
+        self.log('action_loss_validation', action_loss, on_epoch=True)
         self.log('clusterization_loss_validation', clustering_loss, on_epoch=True)
         self.log('total_loss_validation', total_loss, on_epoch=True)
 

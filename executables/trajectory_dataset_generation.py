@@ -124,4 +124,4 @@ if __name__ == '__main__':
     from configurations.experimentation.ant import ant
     from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
 
-    trajectory_dataset_generation(cartpole)
+    trajectory_dataset_generation(lunar_lander)
