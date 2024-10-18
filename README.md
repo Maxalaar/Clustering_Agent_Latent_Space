@@ -18,11 +18,22 @@ After activating the environment, set the PYTHONPATH variable to the current dir
 
 ```bash
 conda env config vars set PYTHONPATH='.'
+conda activate
+conda activate Clustering_Agent_Latent_Space
 ```
 
-4. **Install Packages:**
+4. **Packages:**
+
+Restore packages:
 ```bash
-python ./conda/restore.py
+cd ./conda/
+python ./restore.py
+```
+
+Or install packages:
+```bash
+cd ./conda/
+python ./install.py
 ```
 
 # Remove Conda Environment

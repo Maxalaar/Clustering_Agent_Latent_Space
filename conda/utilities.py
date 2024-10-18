@@ -55,7 +55,7 @@ def save_conda_environment(path):
 
 def restore_conda_environment(configuration_path):
     try:
-        subprocess.run(['conda', 'env', 'create', '--file', configuration_path], check=True)
+        subprocess.run(['conda', 'env', 'update', '--file', configuration_path, '--prune'], check=True)
         print(f'The environment has been successfully restored from {configuration_path}.')
     except subprocess.CalledProcessError as error:
         print(f'An error occurred while restoring the environment: {str(error)}.')
