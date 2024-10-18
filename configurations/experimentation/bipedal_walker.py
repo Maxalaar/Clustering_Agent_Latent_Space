@@ -11,6 +11,7 @@ bipedal_walker = ExperimentationConfiguration(
 bipedal_walker.reinforcement_learning_configuration.number_gpu = 1
 bipedal_walker.reinforcement_learning_configuration.number_gpus_per_learner = 1
 
+bipedal_walker.reinforcement_learning_configuration.number_environment_runners = 8
 bipedal_walker.reinforcement_learning_configuration.ray_local_mode = False
 
 # https://github.com/DLR-RM/rl-baselines3-zoo/blob/master/hyperparams/ppo.yml
