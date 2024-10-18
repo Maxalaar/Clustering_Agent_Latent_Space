@@ -61,7 +61,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
     if type(algorithm_configuration) is PPOConfig:
         algorithm_configuration: PPOConfig
         algorithm_configuration.training(
-            use_gae=True,
+            use_gae=reinforcement_learning_configuration.use_generalized_advantage_estimator,
             mini_batch_size_per_learner=reinforcement_learning_configuration.mini_batch_size_per_learner,
             sgd_minibatch_size=reinforcement_learning_configuration.mini_batch_size_per_learner,
             num_sgd_iter=reinforcement_learning_configuration.num_sgd_iter,

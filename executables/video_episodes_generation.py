@@ -77,4 +77,4 @@ if __name__ == '__main__':
     from configurations.experimentation.ant import ant
     from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
 
-    video_episode_generation(lunar_lander)
+    video_episode_generation(bipedal_walker)

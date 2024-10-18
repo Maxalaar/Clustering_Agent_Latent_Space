@@ -25,6 +25,7 @@ class ReinforcementLearningConfiguration:
         self.train_batch_size: int = NotProvided
         self.learning_rate: float = NotProvided
         # PPO only
+        self.use_generalized_advantage_estimator: bool = NotProvided
         self.mini_batch_size_per_learner: int = NotProvided
         self.num_sgd_iter: int = NotProvided
         self.lambda_gae: float = NotProvided

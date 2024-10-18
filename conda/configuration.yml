@@ -458,3 +458,5 @@ dependencies:
       - swig==4.2.1
       - tensorstore==0.1.66
       - toolz==1.0.0
+variables:
+  PYTHONPATH: .
