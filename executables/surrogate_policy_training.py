@@ -20,6 +20,33 @@ from environments.register_environments import register_environments
 from models.architectures.pytorch_lightning.surrogate_policy import SurrogatePolicy
 
 
+def display_h5_info(h5_file_path: Path):
+    try:
+        # Open the HDF5 file in read mode
+        with h5py.File(h5_file_path, 'r') as h5_file:
+            # Display the file name
+            print(f"File Information: {h5_file_path}\n")
+
+            # Display groups and datasets
+            def inspect_group(group, indent=0):
+                for key in group.keys():
+                    item = group[key]
+                    print(" " * indent + f"{key}:")
+                    if isinstance(item, h5py.Group):
+                        print(" " * (indent + 2) + "Group")
+                        inspect_group(item, indent + 4)
+                    elif isinstance(item, h5py.Dataset):
+                        print(" " * (indent + 2) + f"Dataset - Shape: {item.shape}, Dtype: {item.dtype}")
+                        # Display dataset attributes
+                        for attr in item.attrs:
+                            print(" " * (indent + 4) + f"Attribute '{attr}': {item.attrs[attr]}")
+
+            inspect_group(h5_file)
+            print()
+    except Exception as error:
+        raise RuntimeError(f"Failed to process the file: {error}")
+
+
 def get_h5_shapes(h5_file_path: Path, dataset_name: str):
     shape = None
     with h5py.File(h5_file_path, 'r') as file:
@@ -34,6 +61,17 @@ def get_h5_shapes(h5_file_path: Path, dataset_name: str):
     return shape
 
 
+def padding(chunk: np.ndarray, target_size: int):
+    duplications = chunk.shape[0] // target_size
+    remainder = chunk.shape[0] % target_size
+
+    expanded_chunk = np.tile(chunk, (duplications, 1))
+    if remainder > 0:
+        expanded_chunk = np.vstack([expanded_chunk, chunk[:remainder]])
+
+    return expanded_chunk
+
+
 class H5Dataset(Dataset):
     def __init__(self, file_path: Path, chunk_size: int, input_dataset_name: str, output_dataset_name: Optional[str] = None):
         self.file_path: Path = file_path
@@ -45,45 +83,52 @@ class H5Dataset(Dataset):
         if output_dataset_name is not None:
             self.output_dataset = self.h5_file[output_dataset_name]
 
-        self.idx_current_chunk_start = None
-        self.idx_current_chunk_stop = None
+        self.idx_chunk_start = None
+        self.idx_chunk_stop = None
 
         if len(self.input_dataset) != len(self.output_dataset):
             raise ValueError(f"Error: input_dataset length ({len(self.input_dataset)}) does not match output_dataset length ({len(self.output_dataset)}).")
         self.dataset_size = len(self.input_dataset)
 
-        self.input_current_chunk_data: Optional[np.ndarray] = None
-        self.output_current_chunk_data: Optional[np.ndarray] = None
+        self.input_chunk: Optional[np.ndarray] = None
+        self.output_chunk: Optional[np.ndarray] = None
 
     def load_chunk(self, idx):
-        # self.idx_current_chunk_start = (idx[0] // self.chunk_size) * self.chunk_size
-        self.idx_current_chunk_start = (idx // self.chunk_size) * self.chunk_size
-        self.idx_current_chunk_stop = min(self.idx_current_chunk_start + self.chunk_size, self.dataset_size)
+        self.idx_chunk_start = (idx[0] // self.chunk_size) * self.chunk_size
 
-        self.input_current_chunk_data = np.array(self.input_dataset[self.idx_current_chunk_start:self.idx_current_chunk_stop])
+        need_to_padding = False
+        if self.idx_chunk_start + self.chunk_size > self.dataset_size:
+            need_to_padding = True
+
+        self.idx_chunk_stop = min(self.idx_chunk_start + self.chunk_size, self.dataset_size)
+
+        self.input_chunk = np.array(self.input_dataset[self.idx_chunk_start:self.idx_chunk_stop])
         if self.output_dataset is not None:
-            self.output_current_chunk_data = np.array(self.output_dataset[self.idx_current_chunk_start:self.idx_current_chunk_stop])
+            self.output_chunk = np.array(self.output_dataset[self.idx_chunk_start:self.idx_chunk_stop])
+
+        if need_to_padding:
+            batch_size = idx[1] - idx[0] + 1
+            self.input_chunk = padding(self.input_chunk, batch_size)
+            if self.output_dataset is not None:
+                self.output_chunk = padding(self.output_chunk, batch_size)
 
     def __len__(self):
         return self.dataset_size
 
     def __getitem__(self, idx):
-        # idx = np.array(idx)
 
-        if self.idx_current_chunk_start is None:
+        if self.idx_chunk_start is None:
             self.load_chunk(idx)
 
-        # idx_in_current_chunk = (self.idx_current_chunk_start <= idx) & (idx < self.idx_current_chunk_stop)
-        # if not np.all(idx_in_current_chunk):
-        #     self.load_chunk(idx)
-        if not self.idx_current_chunk_start <= idx < self.idx_current_chunk_stop:
+        idx_in_current_chunk = (self.idx_chunk_start <= idx) & (idx < self.idx_chunk_stop)
+        if not np.all(idx_in_current_chunk):
             self.load_chunk(idx)
 
-        local_idx = idx - self.idx_current_chunk_start
+        local_idx = idx - self.idx_chunk_start
         if self.output_dataset is not None:
-            return self.input_current_chunk_data[local_idx], self.output_current_chunk_data[local_idx]
+            return self.input_chunk[local_idx], self.output_chunk[local_idx]
         else:
-            return self.input_current_chunk_data[local_idx]
+            return self.input_chunk[local_idx]
 
 
 class BatchSampler(Sampler):
@@ -93,22 +138,10 @@ class BatchSampler(Sampler):
         self.batch_size = batch_size
 
     def __iter__(self):
-        return (range(i, min(i + self.batch_size, self.dataset_size)) for i in range(0, self.dataset_size, self.batch_size))
+        return (np.array([i, i + self.batch_size - 1]) for i in range(0, self.dataset_size, self.batch_size))
 
     def __len__(self):
-        return (self.dataset_size + self.batch_size - 1) // self.batch_size
-
-
-# def collate_fn_padding(batch):
-#     # print('oki')
-#     # # Trouve la taille maximale dans le batch
-#     # batch_size = len(batch)
-#     #
-#     # # Applique du padding pour que tous les éléments aient la même taille
-#     # batch_padded = [F.pad(item, (0, max_size[1] - item.size(1), 0, max_size[0] - item.size(0))) for item in batch]
-#     print(type(batch))
-#     print(batch)
-#     return torch.stack(batch)
+        return ((self.dataset_size + self.batch_size - 1) // self.batch_size) + 1
 
 
 class H5DataModule(pl.LightningDataModule):
@@ -162,38 +195,31 @@ class H5DataModule(pl.LightningDataModule):
     def train_dataloader(self):
         return DataLoader(
             self.train_dataset,
-            batch_size=self.batch_size,
             num_workers=self.number_workers,
-            # sampler=BatchSampler(dataset_size=len(self.train_dataset), batch_size=self.batch_size),
-            # collate_fn=collate_fn_padding,
-            # drop_last=True,
+            sampler=BatchSampler(dataset_size=len(self.train_dataset), batch_size=self.batch_size),
         )
 
     def validation_dataloader(self):
         return DataLoader(
             self.test_dataset,
-            batch_size=self.batch_size,
             num_workers=self.number_workers,
-            # sampler=BatchSampler(dataset_size=len(self.test_dataset), batch_size=self.batch_size),
-            # collate_fn=collate_fn_padding,
-            # drop_last=True,
+            sampler=BatchSampler(dataset_size=len(self.test_dataset), batch_size=self.batch_size),
         )
 
     def test_dataloader(self):
         return DataLoader(
             self.test_dataset,
-            batch_size=self.batch_size,
             num_workers=self.number_workers,
-            # sampler=BatchSampler(dataset_size=len(self.test_dataset), batch_size=self.batch_size),
-            # collate_fn=collate_fn_padding,
-            # drop_last=True,
+            sampler=BatchSampler(dataset_size=len(self.test_dataset), batch_size=self.batch_size),
         )
 
 
 def surrogate_policy_training(experimentation_configuration: ExperimentationConfiguration):
+    display_h5_info(experimentation_configuration.trajectory_dataset_file_path)
     ray.init()
     register_environments()
     environment_creator = _Registry().get('env_creator', experimentation_configuration.environment_name)
+    torch.set_float32_matmul_precision('medium')
 
     environment = environment_creator(experimentation_configuration.environment_configuration)
 
@@ -203,7 +229,7 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         output_dataset_name='action_logit',
         chunk_size=100_000,
         batch_size=20_000,
-        number_workers=10,
+        number_workers=2,
     )
     data_module.setup()
 
@@ -222,11 +248,12 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         name=experimentation_configuration.surrogate_policy_storage_path.name,
     )
     checkpoint_callback = ModelCheckpoint(
-        every_n_epochs=1000,
+        every_n_epochs=50,
     )
     trainer = pl.Trainer(
+        max_epochs=-1,
         logger=logger,
-        check_val_every_n_epoch=10000000,
+        check_val_every_n_epoch=50,
         callbacks=[checkpoint_callback],
     )
     trainer.fit(

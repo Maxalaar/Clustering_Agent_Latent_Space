@@ -145,6 +145,4 @@ if __name__ == '__main__':
     from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
     from configurations.experimentation.test_new_architecture import test_new_architecture
 
-    from configurations.experimentation.marvine.marvine_ant import marvine_ant
-
-    reinforcement_learning_training(taxi)
+    reinforcement_learning_training(cartpole)
