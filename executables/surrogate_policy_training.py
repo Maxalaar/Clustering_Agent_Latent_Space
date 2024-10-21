@@ -1,17 +1,23 @@
 from time import sleep
 from typing import Optional
+import torch.nn.functional as F
 
 import h5py
 import numpy as np
 import pytorch_lightning as pl
+import ray
+from ray.rllib.evaluation.rollout_worker import torch
+from ray.tune.registry import _Registry
 from torch.utils.data import Dataset, IterableDataset
 from pathlib import Path
 from torch.utils.data import DataLoader, random_split
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
+from torch.utils.data import Sampler
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
-from models.architectures.pytorch_lightning.dense import Dense
+from environments.register_environments import register_environments
+from models.architectures.pytorch_lightning.surrogate_policy import SurrogatePolicy
 
 
 def get_h5_shapes(h5_file_path: Path, dataset_name: str):
@@ -29,73 +35,105 @@ def get_h5_shapes(h5_file_path: Path, dataset_name: str):
 
 
 class H5Dataset(Dataset):
-    def __init__(self, h5_file_path: Path, input_dataset_name: str, output_dataset_name: Optional[str] = None):
-        super().__init__()
-        print('New H5Dataset')
-        self.h5_file_path: Path = h5_file_path
-        self.input_dataset_name: str = input_dataset_name
-        self.output_dataset_name: Optional[str] = output_dataset_name
+    def __init__(self, file_path: Path, chunk_size: int, input_dataset_name: str, output_dataset_name: Optional[str] = None):
+        self.file_path: Path = file_path
+        self.h5_file = h5py.File(self.file_path, 'r')
+        self.chunk_size: int = chunk_size
 
-        # with h5py.File(self.h5_file_path, 'r') as h5_file:
-        #     self.data_len = h5_file[self.input_dataset_name].shape[0]
+        self.input_dataset = self.h5_file[input_dataset_name]
+        self.output_dataset = None
+        if output_dataset_name is not None:
+            self.output_dataset = self.h5_file[output_dataset_name]
 
-        with h5py.File(self.h5_file_path, 'r') as h5_file:
-            self.data_len = h5_file[self.input_dataset_name].shape[0]
-            self.input_data = np.array(h5_file[self.input_dataset_name])
-            self.output_data = np.array(h5_file[self.output_dataset_name])
+        self.idx_current_chunk_start = None
+        self.idx_current_chunk_stop = None
+
+        if len(self.input_dataset) != len(self.output_dataset):
+            raise ValueError(f"Error: input_dataset length ({len(self.input_dataset)}) does not match output_dataset length ({len(self.output_dataset)}).")
+        self.dataset_size = len(self.input_dataset)
+
+        self.input_current_chunk_data: Optional[np.ndarray] = None
+        self.output_current_chunk_data: Optional[np.ndarray] = None
+
+    def load_chunk(self, idx):
+        # self.idx_current_chunk_start = (idx[0] // self.chunk_size) * self.chunk_size
+        self.idx_current_chunk_start = (idx // self.chunk_size) * self.chunk_size
+        self.idx_current_chunk_stop = min(self.idx_current_chunk_start + self.chunk_size, self.dataset_size)
+
+        self.input_current_chunk_data = np.array(self.input_dataset[self.idx_current_chunk_start:self.idx_current_chunk_stop])
+        if self.output_dataset is not None:
+            self.output_current_chunk_data = np.array(self.output_dataset[self.idx_current_chunk_start:self.idx_current_chunk_stop])
 
     def __len__(self):
-        return self.data_len
+        return self.dataset_size
 
     def __getitem__(self, idx):
-        # with h5py.File(self.h5_file_path, 'r') as h5_file:
-        #     input_data = h5_file[self.input_dataset_name][idx]
-        #
-        #     if self.output_dataset_name is not None:
-        #         output_data = h5_file[self.output_dataset_name][idx]
-        #         return input_data, output_data
-        #
-        #     return input_data
-        return self.input_data[idx], self.output_data[idx]
+        # idx = np.array(idx)
 
-# class H5Dataset(Dataset):
-#     def __init__(self, h5_file_path: Path, input_dataset_name: str, output_dataset_name: Optional[str] = None):
-#         super().__init__()
-#         self.h5_file_path: Path = h5_file_path
-#         self.input_dataset_name: str = input_dataset_name
-#         self.output_dataset_name: Optional[str] = output_dataset_name
-#
-#         # Ouverture du fichier HDF5
-#         self.h5_file = h5py.File(self.h5_file_path, 'r')
-#         self.data_len = self.h5_file[self.input_dataset_name].shape[0]
-#
-#     def __len__(self):
-#         return self.data_len
-#
-#     def __getitem__(self, idx):
-#         # Accéder aux données directement à partir du fichier HDF5
-#         input_data = self.h5_file[self.input_dataset_name][idx]
-#
-#         if self.output_dataset_name is not None:
-#             output_data = self.h5_file[self.output_dataset_name][idx]
-#             return input_data, output_data
-#
-#         return input_data
-#
-#     def __del__(self):
-#         # Fermer le fichier HDF5 lorsque l'objet est détruit
-#         self.h5_file.close()
+        if self.idx_current_chunk_start is None:
+            self.load_chunk(idx)
+
+        # idx_in_current_chunk = (self.idx_current_chunk_start <= idx) & (idx < self.idx_current_chunk_stop)
+        # if not np.all(idx_in_current_chunk):
+        #     self.load_chunk(idx)
+        if not self.idx_current_chunk_start <= idx < self.idx_current_chunk_stop:
+            self.load_chunk(idx)
+
+        local_idx = idx - self.idx_current_chunk_start
+        if self.output_dataset is not None:
+            return self.input_current_chunk_data[local_idx], self.output_current_chunk_data[local_idx]
+        else:
+            return self.input_current_chunk_data[local_idx]
+
+
+class BatchSampler(Sampler):
+    def __init__(self, dataset_size, batch_size):
+        super().__init__()
+        self.dataset_size = dataset_size
+        self.batch_size = batch_size
+
+    def __iter__(self):
+        return (range(i, min(i + self.batch_size, self.dataset_size)) for i in range(0, self.dataset_size, self.batch_size))
+
+    def __len__(self):
+        return (self.dataset_size + self.batch_size - 1) // self.batch_size
+
+
+# def collate_fn_padding(batch):
+#     # print('oki')
+#     # # Trouve la taille maximale dans le batch
+#     # batch_size = len(batch)
+#     #
+#     # # Applique du padding pour que tous les éléments aient la même taille
+#     # batch_padded = [F.pad(item, (0, max_size[1] - item.size(1), 0, max_size[0] - item.size(0))) for item in batch]
+#     print(type(batch))
+#     print(batch)
+#     return torch.stack(batch)
 
 
 class H5DataModule(pl.LightningDataModule):
-    def __init__(self, h5_file_path: Path, input_dataset_name: str, output_dataset_name: Optional[str] = None, batch_size: int = 64, validation_split: float = 0.2, number_workers: int = 1):
+    def __init__(
+            self,
+            h5_file_path: Path,
+            input_dataset_name: str,
+            output_dataset_name: Optional[str] = None,
+            batch_size: int = 64,
+            chunk_size: int = 64,
+            validation_split: float = 0.2,
+            number_workers: int = 1,
+    ):
         super().__init__()
+
+        if chunk_size < batch_size:
+            raise ValueError(f"Error: chunk_size ({chunk_size}) cannot be smaller than batch_size ({batch_size}).")
+
         self.h5_file_path: Path = h5_file_path
         self.input_dataset_name: str = input_dataset_name
         self.output_dataset_name: Optional[str] = output_dataset_name
         self.batch_size: int = batch_size
         self.validation_split = validation_split
         self.number_workers: int = number_workers
+        self.chunk_size: int = chunk_size
 
         self.input_shape: Optional[tuple] = None
         self.output_shape: Optional[tuple] = None
@@ -104,41 +142,72 @@ class H5DataModule(pl.LightningDataModule):
 
     def setup(self, stage=None):
         self.input_shape = get_h5_shapes(self.h5_file_path, self.input_dataset_name)
+        if self.output_dataset_name is not None:
+            self.output_shape = get_h5_shapes(self.h5_file_path, self.output_dataset_name)
+
         self.train_dataset = H5Dataset(
-            h5_file_path=self.h5_file_path,
+            file_path=self.h5_file_path,
             input_dataset_name=self.input_dataset_name,
             output_dataset_name=self.output_dataset_name,
+            chunk_size=self.chunk_size,
         )
 
-        if self.output_dataset_name is not None :
-            self.output_shape = get_h5_shapes(self.h5_file_path, self.output_dataset_name)
-            self.test_dataset = H5Dataset(
-                h5_file_path=self.h5_file_path,
-                input_dataset_name=self.input_dataset_name,
-                output_dataset_name=self.output_dataset_name,
-            )
+        self.test_dataset = H5Dataset(
+            file_path=self.h5_file_path,
+            input_dataset_name=self.input_dataset_name,
+            output_dataset_name=self.output_dataset_name,
+            chunk_size=self.chunk_size,
+        )
 
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.number_workers)
+        return DataLoader(
+            self.train_dataset,
+            batch_size=self.batch_size,
+            num_workers=self.number_workers,
+            # sampler=BatchSampler(dataset_size=len(self.train_dataset), batch_size=self.batch_size),
+            # collate_fn=collate_fn_padding,
+            # drop_last=True,
+        )
 
     def validation_dataloader(self):
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, num_workers=self.number_workers)
+        return DataLoader(
+            self.test_dataset,
+            batch_size=self.batch_size,
+            num_workers=self.number_workers,
+            # sampler=BatchSampler(dataset_size=len(self.test_dataset), batch_size=self.batch_size),
+            # collate_fn=collate_fn_padding,
+            # drop_last=True,
+        )
 
     def test_dataloader(self):
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, num_workers=self.number_workers)
+        return DataLoader(
+            self.test_dataset,
+            batch_size=self.batch_size,
+            num_workers=self.number_workers,
+            # sampler=BatchSampler(dataset_size=len(self.test_dataset), batch_size=self.batch_size),
+            # collate_fn=collate_fn_padding,
+            # drop_last=True,
+        )
 
 
 def surrogate_policy_training(experimentation_configuration: ExperimentationConfiguration):
+    ray.init()
+    register_environments()
+    environment_creator = _Registry().get('env_creator', experimentation_configuration.environment_name)
+
+    environment = environment_creator(experimentation_configuration.environment_configuration)
+
     data_module = H5DataModule(
         h5_file_path=experimentation_configuration.trajectory_dataset_file_path,
         input_dataset_name='observation',
-        output_dataset_name='action',
-        batch_size=100_000,
-        number_workers=5,
+        output_dataset_name='action_logit',
+        chunk_size=100_000,
+        batch_size=20_000,
+        number_workers=10,
     )
     data_module.setup()
 
-    architecture = Dense(
+    surrogate_policy = SurrogatePolicy(
         input_dimension=np.prod(data_module.input_shape),
         output_dimension=np.prod(data_module.output_shape),
         cluster_space_size=16,
@@ -153,15 +222,15 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         name=experimentation_configuration.surrogate_policy_storage_path.name,
     )
     checkpoint_callback = ModelCheckpoint(
-        every_n_epochs=1,
+        every_n_epochs=1000,
     )
     trainer = pl.Trainer(
         logger=logger,
-        check_val_every_n_epoch=5,
+        check_val_every_n_epoch=10000000,
         callbacks=[checkpoint_callback],
     )
     trainer.fit(
-        model=architecture,
+        model=surrogate_policy,
         train_dataloaders=data_module.train_dataloader(),
         val_dataloaders=data_module.validation_dataloader(),
     )

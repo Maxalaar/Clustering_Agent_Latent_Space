@@ -1,4 +1,3 @@
-import torch
 import pytorch_lightning as pl
 from torch import nn
 from torch.optim import Adam
@@ -6,7 +5,7 @@ from torch.optim import Adam
 from models.architectures.create_dense_architecture import create_dense_architecture
 
 
-class Dense(pl.LightningModule):
+class SurrogatePolicy(pl.LightningModule):
     def __init__(
             self,
             input_dimension,
@@ -18,10 +17,11 @@ class Dense(pl.LightningModule):
             clusterization_loss_function=None,
             clusterization_loss_function_arguments=None,
     ):
-        super(Dense, self).__init__()
+        super(SurrogatePolicy, self).__init__()
 
         self.save_hyperparameters()
-        self.prediction_loss_function = nn.CrossEntropyLoss()
+
+        self.prediction_loss_function = nn.MSELoss()
         self.clusterization_loss_function = clusterization_loss_function
         self.clusterization_loss_function_arguments = clusterization_loss_function_arguments
         self.activation_function = nn.LeakyReLU()
@@ -52,7 +52,7 @@ class Dense(pl.LightningModule):
         x, y = batch
 
         y_hat = self(x)
-        y = y.to(y_hat.device).long()
+        y = y.to(y_hat.device)
         action_loss = self.prediction_loss_function(y_hat, y)
 
         if self.clusterization_loss_function is None:
@@ -72,7 +72,7 @@ class Dense(pl.LightningModule):
         x, y = batch
 
         y_hat = self(x)
-        y = y.to(y_hat.device).long()
+        y = y.to(y_hat.device)
         action_loss = self.prediction_loss_function(y_hat, y)
 
         if self.clusterization_loss_function is None:

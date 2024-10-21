@@ -8,10 +8,9 @@ from ray.rllib.utils.from_config import NotProvided
 
 
 class ReinforcementLearningConfiguration:
-    def __init__(self, algorithm: str = 'PPO'):
+    def __init__(self, algorithm_name: str = 'PPO'):
         # Generale
-        self.ray_local_mode: bool = False
-        self.algorithm: str = algorithm
+        self.algorithm_name: str = algorithm_name
 
         # Framework
         self.framework: str = 'torch'
@@ -24,6 +23,8 @@ class ReinforcementLearningConfiguration:
         self.architecture_configuration: dict = NotProvided
         self.train_batch_size: int = NotProvided
         self.learning_rate: float = NotProvided
+        self.grad_clip: float = NotProvided
+        self.exploration_configuration: dict = NotProvided
         # PPO only
         self.use_generalized_advantage_estimator: bool = NotProvided
         self.mini_batch_size_per_learner: int = NotProvided
@@ -34,7 +35,7 @@ class ReinforcementLearningConfiguration:
         self.clip_all_parameter: float = NotProvided
 
         # Environment runners
-        self.batch_mode: str = 'complete_episodes'
+        self.batch_mode: str = NotProvided
         self.number_environment_runners: int = NotProvided
         self.number_environment_per_environment_runners: int = NotProvided
         self.number_cpus_per_environment_runners: int = NotProvided
@@ -62,7 +63,7 @@ class ReinforcementLearningConfiguration:
         self.number_checkpoint_to_keep: Optional[int] = None
         self.checkpoint_score_attribute: Optional[str] = None
         self.checkpoint_score_order: str = 'max'
-        self.checkpoint_frequency: int = None
+        self.checkpoint_frequency: int = 0
         self.checkpoint_at_end: Optional[bool] = None
 
     def to_yaml_file(self, directory: Path):

@@ -1,5 +1,4 @@
 from torch.nn import LeakyReLU
-
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 
 

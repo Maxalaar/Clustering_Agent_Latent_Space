@@ -15,12 +15,13 @@ class ExperimentationConfiguration:
             environment_configuration = {}
 
         self.experimentation_name: str = experimentation_name
-        self.experimentation_storage_path: Path = Path.cwd().parent / 'experiments' / self.experimentation_name
+        self.experimentation_storage_path: Path = Path.cwd() / 'experiments' / self.experimentation_name
         self.video_path: Path = self.experimentation_storage_path / 'videos'
         self.dataset_path: Path = self.experimentation_storage_path / 'datasets'
 
         self.environment_name: str = environment_name
         self.environment_configuration: dict = environment_configuration
+        self.ray_local_mode: bool = False
 
         # Reinforcement Learning
         self.reinforcement_learning_storage_path: Path = self.experimentation_storage_path / 'reinforcement_learning'

@@ -34,7 +34,7 @@ def video_episode_generation(experimentation_configuration: ExperimentationConfi
     best_checkpoints_path: Path = find_best_checkpoints_path(experimentation_configuration)
     algorithm: Algorithm = Algorithm.from_checkpoint(
         path=str(best_checkpoints_path),
-        trainable=experimentation_configuration.reinforcement_learning_configuration.algorithm,
+        trainable=experimentation_configuration.reinforcement_learning_configuration.algorithm_name,
     )
     algorithm_configuration: AlgorithmConfig = algorithm.config.copy(copy_frozen=False)
     del algorithm
@@ -76,5 +76,6 @@ if __name__ == '__main__':
     from configurations.experimentation.bipedal_walker import bipedal_walker
     from configurations.experimentation.ant import ant
     from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
+    from configurations.experimentation.marvine.marvine_ant import marvine_ant
 
-    video_episode_generation(bipedal_walker)
+    video_episode_generation(pong_survivor_two_balls)

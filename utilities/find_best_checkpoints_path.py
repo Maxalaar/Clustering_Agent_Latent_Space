@@ -1,7 +1,8 @@
 from pathlib import Path
 
+import ray
 from ray.air import Result
-from ray.tune import Tuner
+from ray.tune import Tuner, ExperimentAnalysis
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 
@@ -9,13 +10,13 @@ from configurations.structure.experimentation_configuration import Experimentati
 def find_best_checkpoints_path(
         experimentation_configuration: ExperimentationConfiguration,
 ):
-    tuner: Tuner = Tuner.restore(
-        path=str(experimentation_configuration.reinforcement_learning_storage_path),
-        trainable=experimentation_configuration.reinforcement_learning_configuration.algorithm,
+    analysis = ExperimentAnalysis(experimentation_configuration.reinforcement_learning_storage_path)
+    metric = 'evaluation/env_runners/episode_reward_mean'
+
+    best_checkpoint = analysis.get_best_checkpoint(
+        trial=analysis.get_best_trial(metric=metric, mode='max'),
+        metric=metric,
+        mode='max'
     )
 
-    result_grid = tuner.get_results()
-    best_result: Result = result_grid.get_best_result()
-
-    path_checkpoint: Path = best_result.best_checkpoints[0][0].path
-    return path_checkpoint
+    return best_checkpoint.path

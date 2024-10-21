@@ -3,6 +3,7 @@ import torch
 from configurations.structure.reinforcement_learning_configuration import ReinforcementLearningConfiguration
 
 basic_reinforcement_learning_configuration = ReinforcementLearningConfiguration()
+basic_reinforcement_learning_configuration.batch_mode = 'complete_episodes'
 basic_reinforcement_learning_configuration.architecture_name = 'dense'
 basic_reinforcement_learning_configuration.architecture_configuration = {}
 

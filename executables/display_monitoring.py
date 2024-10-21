@@ -8,7 +8,6 @@ import requests
 
 def run_tensorboard():
     path = os.getcwd()
-    path = os.path.dirname(path)
     print(path)
     os.system('tensorboard --bind_all --logdir ' + str(path) + '/experiments/')
 

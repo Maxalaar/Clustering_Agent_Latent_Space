@@ -14,7 +14,7 @@ class InformationWrapper(gym.Wrapper):
     ) -> tuple[WrapperObsType, dict[str, Any]]:
         observation, information = self.env.reset(**kwargs)
         if self.save_rendering:
-            information['render'] = self.env.render()
+            information['rendering'] = self.env.render()
 
         return observation, information
 
@@ -22,7 +22,6 @@ class InformationWrapper(gym.Wrapper):
         observation, reward, done, truncated, information = self.env.step(action)
 
         if self.save_rendering:
-            information['render'] = self.env.render()
-        information['action'] = action
+            information['rendering'] = self.env.render()
 
         return observation, reward, done, truncated, information

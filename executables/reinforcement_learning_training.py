@@ -13,13 +13,13 @@ from models.architectures.rllib.register_architectures import register_architect
 
 
 def reinforcement_learning_training(experimentation_configuration: ExperimentationConfiguration):
-    reinforcement_learning_configuration = experimentation_configuration.reinforcement_learning_configuration
-    reinforcement_learning_configuration.to_yaml_file(experimentation_configuration.reinforcement_learning_storage_path)
-
     ray_initialization = False
     if not ray.is_initialized():
-        ray.init(local_mode=experimentation_configuration.reinforcement_learning_configuration.ray_local_mode)
+        ray.init(local_mode=experimentation_configuration.ray_local_mode)
         ray_initialization = True
+
+    reinforcement_learning_configuration = experimentation_configuration.reinforcement_learning_configuration
+    reinforcement_learning_configuration.to_yaml_file(experimentation_configuration.reinforcement_learning_storage_path)
 
     register_environments()
     register_architectures()
@@ -27,14 +27,14 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
     algorithm: Algorithm
     algorithm_configuration: AlgorithmConfig
 
-    if reinforcement_learning_configuration.algorithm == 'PPO':
+    if reinforcement_learning_configuration.algorithm_name == 'PPO':
         algorithm = PPO
         algorithm_configuration = PPOConfig()
-    elif reinforcement_learning_configuration.algorithm == 'DQN':
+    elif reinforcement_learning_configuration.algorithm_name == 'DQN':
         algorithm = DQN
         algorithm_configuration = DQNConfig()
     else:
-        raise ValueError('Unsupported algorithm ' + str(reinforcement_learning_configuration.algorithm) + '.')
+        raise ValueError('Unsupported algorithm ' + str(reinforcement_learning_configuration.algorithm_name) + '.')
 
     algorithm_configuration.framework(reinforcement_learning_configuration.framework)
     algorithm_configuration.resources(num_gpus=reinforcement_learning_configuration.number_gpu)
@@ -54,9 +54,12 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
             }
         )
     algorithm_configuration.training(
+        grad_clip=reinforcement_learning_configuration.grad_clip,
         train_batch_size=reinforcement_learning_configuration.train_batch_size,
         lr=reinforcement_learning_configuration.learning_rate,
     )
+    if reinforcement_learning_configuration.exploration_configuration is not NotProvided:
+        algorithm_configuration.exploration_config = reinforcement_learning_configuration.exploration_configuration
 
     if type(algorithm_configuration) is PPOConfig:
         algorithm_configuration: PPOConfig
@@ -135,10 +138,13 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 
 if __name__ == '__main__':
     from configurations.experimentation.cartpole import cartpole
+    from configurations.experimentation.taxi import taxi
     from configurations.experimentation.bipedal_walker import bipedal_walker
     from configurations.experimentation.lunar_lander import lunar_lander
     from configurations.experimentation.ant import ant
     from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
     from configurations.experimentation.test_new_architecture import test_new_architecture
 
-    reinforcement_learning_training(bipedal_walker)
+    from configurations.experimentation.marvine.marvine_ant import marvine_ant
+
+    reinforcement_learning_training(taxi)

@@ -4,7 +4,7 @@ To set up the required environment for this project, follow these steps:
 
 1. **Create a Conda Environment:**
 ```bash
-conda create --name Clustering_Agent_Latent_Space
+conda create --name Clustering_Agent_Latent_Space python=3.11
 ```
 
 2. **Activate the Environment**:
@@ -24,7 +24,7 @@ conda activate Clustering_Agent_Latent_Space
 
 4. **Packages:**
 
-Restore packages:
+Restore packages (best option) :
 ```bash
 cd ./conda/
 python ./restore.py
@@ -32,9 +32,10 @@ python ./restore.py
 
 Or install packages:
 ```bash
-cd ./conda/
-python ./install.py
+python ./conda/install.py
 ```
+
+
 
 # Remove Conda Environment
 
