@@ -3,4 +3,10 @@ from ray.rllib.utils.from_config import NotProvided
 
 class SurrogatePolicyTrainingConfiguration:
     def __init__(self):
-        pass
+        self.architecture_name: str
+        self.architecture_configuration: dict
+        self.learning_rate: float
+        self.batch_size: int
+        self.validation_split: float
+        self.chunk_size: int
+        self.data_loader_number_workers: int

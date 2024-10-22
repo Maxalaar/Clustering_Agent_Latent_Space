@@ -20,6 +20,8 @@ if __name__ == '__main__':
         'conda install conda-forge::gymnasium[all] --yes',
         'pip install gymnasium[box2d]',
         'pip install gymnasium[mujoco]',
+        'pip install flappy-bird-gymnasium',
+        'pip install tetris-gymnasium --no-deps',
 
         # 'sudo apt install swig',
         # 'pip install gymnasium==1.0.0',

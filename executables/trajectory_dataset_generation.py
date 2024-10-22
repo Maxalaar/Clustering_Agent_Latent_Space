@@ -57,7 +57,7 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
                 self.increment_episode_id(local_episode_id)
                 self.save('episode_current_timestep', samples['default_policy']['t'])
                 self.save('observation', samples['default_policy']['obs'])
-                self.save('action_logit', samples['default_policy']['action_dist_inputs'])
+                self.save('action_distribution_inputs', samples['default_policy']['action_dist_inputs'])
                 self.save('action', samples['default_policy']['actions'])
                 self.save('prediction_value_function', samples['default_policy']['vf_preds'])
                 self.save('value_bootstrapped', samples['default_policy']['values_bootstrapped'])

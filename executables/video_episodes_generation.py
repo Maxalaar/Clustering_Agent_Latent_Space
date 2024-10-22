@@ -76,5 +76,7 @@ if __name__ == '__main__':
     from configurations.experimentation.bipedal_walker import bipedal_walker
     from configurations.experimentation.ant import ant
     from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
+    from configurations.experimentation.flappy_bird import flappy_bird
+    from configurations.experimentation.tetris import tetris
 
-    video_episode_generation(bipedal_walker)
+    video_episode_generation(flappy_bird)

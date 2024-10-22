@@ -1,6 +1,4 @@
-from time import sleep
 from typing import Optional
-import torch.nn.functional as F
 
 import h5py
 import numpy as np
@@ -8,9 +6,9 @@ import pytorch_lightning as pl
 import ray
 from ray.rllib.evaluation.rollout_worker import torch
 from ray.tune.registry import _Registry
-from torch.utils.data import Dataset, IterableDataset
+from torch.utils.data import Dataset, Subset
 from pathlib import Path
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torch.utils.data import Sampler
@@ -226,9 +224,9 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
     data_module = H5DataModule(
         h5_file_path=experimentation_configuration.trajectory_dataset_file_path,
         input_dataset_name='observation',
-        output_dataset_name='action_logit',
-        chunk_size=100_000,
+        output_dataset_name='action_distribution_inputs',
         batch_size=20_000,
+        chunk_size=100_000,
         number_workers=2,
     )
     data_module.setup()
