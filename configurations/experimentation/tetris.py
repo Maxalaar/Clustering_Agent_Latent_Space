@@ -14,5 +14,6 @@ tetris.reinforcement_learning_configuration.architecture_configuration = {
 }
 
 tetris.reinforcement_learning_configuration.number_environment_runners = 8
-tetris.reinforcement_learning_configuration.train_batch_size = 80_000
-tetris.reinforcement_learning_configuration.mini_batch_size_per_learner = 20_000
+# tetris.reinforcement_learning_configuration.batch_mode = 'truncate_episodes'
+# tetris.reinforcement_learning_configuration.train_batch_size = 80_000
+# tetris.reinforcement_learning_configuration.mini_batch_size_per_learner = 20_000
