@@ -262,6 +262,6 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
 
 
 if __name__ == '__main__':
-    from configurations.experimentation.lunar_lander import lunar_lander
+    import configurations.list_configurations
 
-    surrogate_policy_training(lunar_lander)
+    surrogate_policy_training(configurations.list_configurations.lunar_lander)

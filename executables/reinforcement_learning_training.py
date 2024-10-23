@@ -137,6 +137,6 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 
 
 if __name__ == '__main__':
-    from configurations.experimentation.flappy_bird import flappy_bird
+    import configurations.list_configurations
 
-    reinforcement_learning_training(flappy_bird)
+    reinforcement_learning_training(configurations.list_configurations.tetris)

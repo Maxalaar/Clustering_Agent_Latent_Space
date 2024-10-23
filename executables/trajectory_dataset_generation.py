@@ -145,6 +145,6 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
 
 
 if __name__ == '__main__':
-    from configurations.experimentation.lunar_lander import lunar_lander
+    import configurations.list_configurations
 
-    trajectory_dataset_generation(lunar_lander)
+    trajectory_dataset_generation(configurations.list_configurations.lunar_lander)
