@@ -2,7 +2,7 @@ import pytorch_lightning as pl
 from torch import nn
 from torch.optim import Adam
 
-from models.architectures.create_dense_architecture import create_dense_architecture
+from utilities.create_dense_architecture import create_dense_architecture
 
 
 class SurrogatePolicy(pl.LightningModule):

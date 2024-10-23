@@ -7,9 +7,9 @@ from ray.rllib.algorithms import Algorithm, AlgorithmConfig
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from models.architectures.rllib.register_architectures import register_architectures
-from utilities.find_best_checkpoints_path import find_best_checkpoints_path
-from utilities.register_video_environment_creator import register_video_environment_creator
+from rllib.register_architectures import register_architectures
+from rllib.find_best_checkpoints_path import find_best_checkpoints_path
+from rllib.register_video_environment_creator import register_video_environment_creator
 
 
 def delete_non_videos(path: Path):
@@ -71,12 +71,6 @@ def video_episode_generation(experimentation_configuration: ExperimentationConfi
 
 
 if __name__ == '__main__':
-    from configurations.experimentation.cartpole import cartpole
-    from configurations.experimentation.lunar_lander import lunar_lander
-    from configurations.experimentation.bipedal_walker import bipedal_walker
-    from configurations.experimentation.ant import ant
-    from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
     from configurations.experimentation.flappy_bird import flappy_bird
-    from configurations.experimentation.tetris import tetris
 
     video_episode_generation(flappy_bird)

@@ -1,8 +1,8 @@
 from ray.rllib.models import ModelCatalog
 
-from models.architectures.rllib.attention import Attention
-from models.architectures.rllib.dense import Dense
-from models.architectures.rllib.transformer import Transformer
+from rllib.architectures.attention import Attention
+from rllib.architectures.dense import Dense
+from rllib.architectures.transformer import Transformer
 
 
 def register_architectures():

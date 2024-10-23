@@ -6,7 +6,7 @@ import pytorch_lightning as pl
 import ray
 from ray.rllib.evaluation.rollout_worker import torch
 from ray.tune.registry import _Registry
-from torch.utils.data import Dataset, Subset
+from torch.utils.data import Dataset
 from pathlib import Path
 from torch.utils.data import DataLoader
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -15,7 +15,7 @@ from torch.utils.data import Sampler
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from models.architectures.pytorch_lightning.surrogate_policy import SurrogatePolicy
+from lightning.surrogate_policy import SurrogatePolicy
 
 
 def display_h5_info(h5_file_path: Path):
@@ -262,10 +262,6 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
 
 
 if __name__ == '__main__':
-    from configurations.experimentation.cartpole import cartpole
-    from configurations.experimentation.bipedal_walker import bipedal_walker
     from configurations.experimentation.lunar_lander import lunar_lander
-    from configurations.experimentation.ant import ant
-    from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
 
     surrogate_policy_training(lunar_lander)

@@ -9,7 +9,7 @@ from ray.rllib.algorithms import AlgorithmConfig, Algorithm
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from models.architectures.rllib.register_architectures import register_architectures
+from rllib.register_architectures import register_architectures
 
 
 def reinforcement_learning_training(experimentation_configuration: ExperimentationConfiguration):
@@ -137,14 +137,6 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 
 
 if __name__ == '__main__':
-    from configurations.experimentation.cartpole import cartpole
-    from configurations.experimentation.taxi import taxi
-    from configurations.experimentation.bipedal_walker import bipedal_walker
-    from configurations.experimentation.lunar_lander import lunar_lander
-    from configurations.experimentation.ant import ant
-    from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
-    from configurations.experimentation.test_new_architecture import test_new_architecture
-    from configurations.experimentation.tetris import tetris
     from configurations.experimentation.flappy_bird import flappy_bird
 
     reinforcement_learning_training(flappy_bird)

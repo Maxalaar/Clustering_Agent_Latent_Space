@@ -3,7 +3,7 @@ import torch
 from torch import nn
 from ray.rllib.models.torch.torch_modelv2 import TorchModelV2
 
-from models.architectures.create_dense_architecture import create_dense_architecture
+from utilities.create_dense_architecture import create_dense_architecture
 
 
 class Transformer(TorchModelV2, nn.Module):

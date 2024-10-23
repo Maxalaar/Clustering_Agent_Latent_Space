@@ -11,10 +11,10 @@ from ray.rllib.algorithms.callbacks import DefaultCallbacks
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from models.architectures.rllib.register_architectures import register_architectures
-from utilities.find_best_checkpoints_path import find_best_checkpoints_path
+from rllib.register_architectures import register_architectures
+from rllib.find_best_checkpoints_path import find_best_checkpoints_path
 
-from utilities.register_information_environment_creator import register_information_environment_creator
+from rllib.register_information_environment_creator import register_information_environment_creator
 
 
 class SystemMutex:
@@ -145,10 +145,6 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
 
 
 if __name__ == '__main__':
-    from configurations.experimentation.cartpole import cartpole
     from configurations.experimentation.lunar_lander import lunar_lander
-    from configurations.experimentation.bipedal_walker import bipedal_walker
-    from configurations.experimentation.ant import ant
-    from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
 
     trajectory_dataset_generation(lunar_lander)
