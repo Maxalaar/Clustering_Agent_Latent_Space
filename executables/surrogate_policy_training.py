@@ -1,5 +1,4 @@
-from typing import Optional
-
+from datetime import timedelta
 
 import numpy as np
 import pytorch_lightning as pl
@@ -7,13 +6,12 @@ import ray
 from ray.rllib.evaluation.rollout_worker import torch
 from ray.tune.registry import _Registry
 
-from torch.utils.data import DataLoader
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 
-
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
+from lightning.clustering_loss_functions.kmeans_loss import kmeans_loss
 from lightning.h5_data_module import H5DataModule
 from lightning.surrogate_policy import SurrogatePolicy
 from utilities.display_h5_file_information import display_h5_file_information
@@ -34,7 +32,7 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         output_dataset_name='action_distribution_inputs',
         batch_size=20_000,
         chunk_size=100_000,
-        number_workers=2,
+        number_workers=10,
     )
     data_module.setup()
 
@@ -45,6 +43,10 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         projection_clustering_space_shape=[128, 64, 32],
         projection_action_space_shape=[32, 64, 128],
         learning_rate=1e-4,
+        clusterization_loss_function=kmeans_loss,
+        clusterization_loss_function_arguments={
+            'number_cluster': 4,
+        },
     )
 
     logger = TensorBoardLogger(
@@ -53,7 +55,8 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         name=experimentation_configuration.surrogate_policy_storage_path.name,
     )
     checkpoint_callback = ModelCheckpoint(
-        every_n_epochs=50,
+        # every_n_epochs=50,
+        train_time_interval=timedelta(minutes=10)
     )
     trainer = pl.Trainer(
         max_epochs=-1,
@@ -71,4 +74,4 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    surrogate_policy_training(configurations.list_experimentation_configurations.lunar_lander)
+    surrogate_policy_training(configurations.list_experimentation_configurations.pong_survivor_two_balls)

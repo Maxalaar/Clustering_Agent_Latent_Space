@@ -68,12 +68,12 @@ if __name__ == "__main__":
     ]
 
     list_supervised = [
+        'pytorch_lightning/-total_loss_train_epoch',
         'pytorch_lightning/-action_loss_train_epoch',
-        # 'pytorch_lightning/-clusterization_loss_train',
-        # 'pytorch_lightning/-total_loss_train',
-        # 'pytorch_lightning/-action_loss_validation',
-        # 'pytorch_lightning/-clusterization_loss_validation',
-        # 'pytorch_lightning/-total_loss_validation',
+        'pytorch_lightning/-clusterization_loss_train_epoch',
+        'pytorch_lightning/-action_loss_validation_epoch',
+        'pytorch_lightning/-clusterization_loss_validation_epoch',
+        'pytorch_lightning/-total_loss_validation_epoch',
     ]
 
     process = Process(target=run_tensorboard)

@@ -18,18 +18,14 @@ if __name__ == '__main__':
         'conda install h5py --yes',
         'conda install conda-forge::pytorch-lightning --yes',
         'conda install conda-forge::gymnasium --yes',
-        "conda install -c rapidsai -c conda-forge -c nvidia rapids=24.10 python=3.11 'cuda-version>=12.0,<=12.5' --yes",
+        'conda install -c rapidsai -c conda-forge -c nvidia rapids=24.10 python=3.11 cuda-version=12.1 --yes',
+        'conda install bokeh::bokeh --yes',
+        'conda install selenium --yes',
+        'pip install gymnasium==1.0.0',
         'pip install gymnasium[box2d]',
         'pip install gymnasium[mujoco]',
         'pip install flappy-bird-gymnasium',
         'pip install tetris-gymnasium',
-
-        # 'sudo apt install swig',
-        # 'pip install gymnasium==1.0.0',
-        # 'pip install gymnasium[box2d]',
-        # 'pip install gymnasium[mujoco]',
-        # 'pip install "numpy<2"',
-        # ? -> pip install -U numpy pandas
     ]
 
     # Execute conda commands

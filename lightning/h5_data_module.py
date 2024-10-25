@@ -1,10 +1,12 @@
 from pathlib import Path
 from typing import Optional
 
+import numpy as np
 import pytorch_lightning as pl
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, SequentialSampler, Subset
 
 from lightning.batch_sampler import BatchSampler
+from lightning.classic_dataset import ClassicDataset
 from lightning.h5_dataset import H5Dataset
 from utilities.get_h5_shapes import get_h5_shapes
 
@@ -35,45 +37,51 @@ class H5DataModule(pl.LightningDataModule):
 
         self.input_shape: Optional[tuple] = None
         self.output_shape: Optional[tuple] = None
+        self.dataset: Optional[H5Dataset] = None
         self.train_dataset: Optional[H5Dataset] = None
-        self.test_dataset: Optional[H5Dataset] = None
+        self.validation_dataset: Optional[H5Dataset] = None
 
     def setup(self, stage=None):
         self.input_shape = get_h5_shapes(self.h5_file_path, self.input_dataset_name)
         if self.output_dataset_name is not None:
             self.output_shape = get_h5_shapes(self.h5_file_path, self.output_dataset_name)
 
-        self.train_dataset = H5Dataset(
+        self.dataset = ClassicDataset(
             file_path=self.h5_file_path,
             input_dataset_name=self.input_dataset_name,
             output_dataset_name=self.output_dataset_name,
-            chunk_size=self.chunk_size,
+            # chunk_size=self.chunk_size,
         )
-
-        self.test_dataset = H5Dataset(
-            file_path=self.h5_file_path,
-            input_dataset_name=self.input_dataset_name,
-            output_dataset_name=self.output_dataset_name,
-            chunk_size=self.chunk_size,
-        )
+        # dataset_size = len(self.dataset)
+        # indices = np.arange(dataset_size)
+        # split = int(np.floor(self.validation_split * dataset_size))
+        # train_indices, val_indices = indices[split:], indices[:split]
+        # self.train_dataset = Subset(self.dataset, train_indices)
+        # self.validation_dataset = Subset(self.dataset, val_indices)
 
     def train_dataloader(self):
         return DataLoader(
-            self.train_dataset,
+            self.dataset,
             num_workers=self.number_workers,
-            sampler=BatchSampler(dataset_size=len(self.train_dataset), batch_size=self.batch_size),
+            # shuffle=True,
+            batch_size=self.batch_size,
+            # sampler=BatchSampler(dataset_size=len(self.train_dataset), batch_size=self.batch_size),
         )
 
     def validation_dataloader(self):
         return DataLoader(
-            self.test_dataset,
+            self.dataset,
             num_workers=self.number_workers,
-            sampler=BatchSampler(dataset_size=len(self.test_dataset), batch_size=self.batch_size),
+            # shuffle=True,
+            batch_size=self.batch_size,
+            # sampler=BatchSampler(dataset_size=len(self.validation_dataset), batch_size=self.batch_size),
         )
 
     def test_dataloader(self):
         return DataLoader(
-            self.test_dataset,
+            self.dataset,
             num_workers=self.number_workers,
-            sampler=BatchSampler(dataset_size=len(self.test_dataset), batch_size=self.batch_size),
+            # shuffle=True,
+            batch_size=self.batch_size,
+            # sampler=BatchSampler(dataset_size=len(self.validation_dataset), batch_size=self.batch_size),
         )

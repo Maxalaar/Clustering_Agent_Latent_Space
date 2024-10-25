@@ -14,8 +14,13 @@ conda activate Clustering_Agent_Latent_Space
 
 3. **Set Environment Variables:**
 
-After activating the environment, set the PYTHONPATH variable to the current directory:
+Move to project directory :
 
+```bash
+cd .../Clustering_Agent_Latent_Space
+```
+
+After activating the environment, set the PYTHONPATH variable to the current directory:
 ```bash
 conda env config vars set PYTHONPATH='.'
 conda activate
@@ -35,10 +40,20 @@ Or install packages:
 python ./conda/install.py
 ```
 
-
-
 # Remove Conda Environment
 
 ```bash
 conda remove -n Clustering_Agent_Latent_Space --all
+```
+
+# GPU
+
+Find the best available version of CUDA on your computer :
+```bash
+nvidia-smi
+```
+
+Find the version of CUDA currently installed
+```bash
+nvcc --version
 ```
