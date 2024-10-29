@@ -21,17 +21,17 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
     )
     data_module.setup()
 
-    surrogate_policy = SurrogatePolicy.load_from_checkpoint(model_checkpoint_path)
+    surrogate_policy: SurrogatePolicy = SurrogatePolicy.load_from_checkpoint(model_checkpoint_path)
     surrogate_policy.eval()
     embeddings_in_clustering_space = []
 
     with torch.no_grad():
-        for i, batch in enumerate(islice(data_module.train_dataloader(), 2)):
+        for i, batch in enumerate(islice(data_module.train_dataloader(), 1)):
             batch = batch.to(surrogate_policy.device)
             embeddings_in_clustering_space.append(surrogate_policy.projection_clustering_space(batch))
 
     embeddings_in_clustering_space = torch.cat(embeddings_in_clustering_space, dim=0)
-    kmeans = KMeans(n_clusters=4)
+    kmeans = KMeans(n_clusters=surrogate_policy.clusterization_loss.number_cluster)
     kmeans.fit(embeddings_in_clustering_space)
     cluster_labels = kmeans.predict(embeddings_in_clustering_space)
 
@@ -53,5 +53,5 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    model_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/pong_survivor_tow_balls/surrogate_policy/version_4/checkpoints/epoch=394-step=22459.ckpt'
+    model_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/pong_survivor_tow_balls/surrogate_policy/version_9/checkpoints/epoch=142-step=8147.ckpt'
     latent_space_analysis(configurations.list_experimentation_configurations.pong_survivor_two_balls, model_checkpoint_path)

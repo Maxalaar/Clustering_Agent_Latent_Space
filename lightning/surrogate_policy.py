@@ -1,3 +1,5 @@
+from typing import Optional
+
 import pytorch_lightning as pl
 import torch
 from torch import nn
@@ -15,16 +17,15 @@ class SurrogatePolicy(pl.LightningModule):
             projection_clustering_space_shape,
             projection_action_space_shape,
             learning_rate,
-            clusterization_loss_function=None,
-            clusterization_loss_function_arguments=None,
+            clusterization_loss=None,
+            clusterization_loss_configuration: Optional[dict] = None,
     ):
         super(SurrogatePolicy, self).__init__()
 
         self.save_hyperparameters()
 
         self.prediction_loss_function = nn.MSELoss()
-        self.clusterization_loss_function = clusterization_loss_function
-        self.clusterization_loss_function_arguments = clusterization_loss_function_arguments
+        self.clusterization_loss = clusterization_loss(logger=self.log, **clusterization_loss_configuration)
         self.activation_function = nn.LeakyReLU()
         self.learning_rate = learning_rate
         self.cluster_space_size = cluster_space_size
@@ -45,27 +46,22 @@ class SurrogatePolicy(pl.LightningModule):
         )
 
     def forward(self, x):
-        # x = torch.squeeze(x, dim=0)
         self.embeddings_in_clustering_space = self.projection_clustering_space(x)
         action = self.projection_action_space(self.embeddings_in_clustering_space)
         return action
 
     def training_step(self, batch, batch_idx):
         x, y = batch
-        # x = torch.squeeze(x, dim=0)
-        # y = torch.squeeze(y, dim=0)
 
         y_hat = self(x)
         y = y.to(y_hat.device)
         action_loss = self.prediction_loss_function(y_hat, y)
 
-        if self.clusterization_loss_function is None:
+        if self.clusterization_loss is None:
             clustering_loss = 0
         else:
-            clustering_loss = self.clusterization_loss_function(
+            clustering_loss = self.clusterization_loss(
                 embeddings=self.embeddings_in_clustering_space,
-                logger=self.log,
-                **self.clusterization_loss_function_arguments,
             )
 
         total_loss = action_loss + clustering_loss
@@ -83,10 +79,12 @@ class SurrogatePolicy(pl.LightningModule):
         y = y.to(y_hat.device)
         action_loss = self.prediction_loss_function(y_hat, y)
 
-        if self.clusterization_loss_function is None:
+        if self.clusterization_loss is None:
             clustering_loss = 0
         else:
-            clustering_loss = self.clusterization_loss_function(self.embeddings_in_clustering_space, **self.clusterization_loss_function_arguments)
+            clustering_loss = self.clusterization_loss(
+                embeddings=self.embeddings_in_clustering_space,
+            )
 
         total_loss = action_loss + clustering_loss
 

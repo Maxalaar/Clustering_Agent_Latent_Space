@@ -11,7 +11,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from lightning.clustering_loss_functions.kmeans_loss import kmeans_loss
+from lightning.clustering_loss_functions.kmeans_loss import KMeansLoss
 from lightning.h5_data_module import H5DataModule
 from lightning.surrogate_policy import SurrogatePolicy
 from utilities.display_h5_file_information import display_h5_file_information
@@ -32,7 +32,7 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         output_dataset_name='action_distribution_inputs',
         batch_size=20_000,
         chunk_size=100_000,
-        number_workers=10,
+        number_workers=4,
     )
     data_module.setup()
 
@@ -43,8 +43,8 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         projection_clustering_space_shape=[128, 64, 32],
         projection_action_space_shape=[32, 64, 128],
         learning_rate=1e-4,
-        clusterization_loss_function=kmeans_loss,
-        clusterization_loss_function_arguments={
+        clusterization_loss=KMeansLoss,
+        clusterization_loss_configuration={
             'number_cluster': 4,
         },
     )

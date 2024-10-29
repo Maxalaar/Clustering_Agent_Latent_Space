@@ -1,12 +1,9 @@
 from pathlib import Path
 from typing import Optional
 
-import numpy as np
 import pytorch_lightning as pl
-from torch.utils.data import DataLoader, SequentialSampler, Subset
+from torch.utils.data import DataLoader
 
-from lightning.batch_sampler import BatchSampler
-from lightning.classic_dataset import ClassicDataset
 from lightning.h5_dataset import H5Dataset
 from utilities.get_h5_shapes import get_h5_shapes
 
@@ -46,11 +43,11 @@ class H5DataModule(pl.LightningDataModule):
         if self.output_dataset_name is not None:
             self.output_shape = get_h5_shapes(self.h5_file_path, self.output_dataset_name)
 
-        self.dataset = ClassicDataset(
+        self.dataset = H5Dataset(
             file_path=self.h5_file_path,
             input_dataset_name=self.input_dataset_name,
             output_dataset_name=self.output_dataset_name,
-            # chunk_size=self.chunk_size,
+            chunk_size=self.chunk_size,
         )
         # dataset_size = len(self.dataset)
         # indices = np.arange(dataset_size)
@@ -63,25 +60,19 @@ class H5DataModule(pl.LightningDataModule):
         return DataLoader(
             self.dataset,
             num_workers=self.number_workers,
-            # shuffle=True,
             batch_size=self.batch_size,
-            # sampler=BatchSampler(dataset_size=len(self.train_dataset), batch_size=self.batch_size),
         )
 
     def validation_dataloader(self):
         return DataLoader(
             self.dataset,
             num_workers=self.number_workers,
-            # shuffle=True,
             batch_size=self.batch_size,
-            # sampler=BatchSampler(dataset_size=len(self.validation_dataset), batch_size=self.batch_size),
         )
 
     def test_dataloader(self):
         return DataLoader(
             self.dataset,
             num_workers=self.number_workers,
-            # shuffle=True,
             batch_size=self.batch_size,
-            # sampler=BatchSampler(dataset_size=len(self.validation_dataset), batch_size=self.batch_size),
         )
