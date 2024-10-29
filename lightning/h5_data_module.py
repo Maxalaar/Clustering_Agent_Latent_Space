@@ -5,6 +5,7 @@ import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 
 from lightning.h5_dataset import H5Dataset
+from lightning.h5_mini_chunk_dataset import H5MiniChunkDataset
 from utilities.get_h5_shapes import get_h5_shapes
 
 
@@ -43,11 +44,12 @@ class H5DataModule(pl.LightningDataModule):
         if self.output_dataset_name is not None:
             self.output_shape = get_h5_shapes(self.h5_file_path, self.output_dataset_name)
 
-        self.dataset = H5Dataset(
+        self.dataset = H5MiniChunkDataset(
             file_path=self.h5_file_path,
             input_dataset_name=self.input_dataset_name,
             output_dataset_name=self.output_dataset_name,
-            chunk_size=self.chunk_size,
+            mini_chunk_size=self.chunk_size,
+            number_mini_chunk=2,
         )
         # dataset_size = len(self.dataset)
         # indices = np.arange(dataset_size)

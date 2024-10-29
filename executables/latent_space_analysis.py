@@ -53,5 +53,5 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    model_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/pong_survivor_tow_balls/surrogate_policy/version_9/checkpoints/epoch=142-step=8147.ckpt'
+    model_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/pong_survivor_tow_balls/surrogate_policy/version_11/checkpoints/epoch=888-step=50659.ckpt'
     latent_space_analysis(configurations.list_experimentation_configurations.pong_survivor_two_balls, model_checkpoint_path)

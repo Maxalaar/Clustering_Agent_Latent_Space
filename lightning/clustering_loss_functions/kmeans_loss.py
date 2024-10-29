@@ -10,7 +10,7 @@ class KMeansLoss(nn.Module):
             self, number_cluster: int,
             margin_between_clusters: int = 10,
             sliding_centroids: bool = True,
-            centroid_learning_rate: float = 0.2,
+            centroid_learning_rate: float = 0.05,
             logger=None,
     ):
         super(KMeansLoss, self).__init__()
