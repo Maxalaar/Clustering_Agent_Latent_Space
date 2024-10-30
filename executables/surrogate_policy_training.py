@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import numpy as np
 import pytorch_lightning as pl
 import ray
@@ -11,7 +9,6 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from lightning.clustering_loss_functions.kmeans_loss import KMeansLoss
 from lightning.h5_data_module import H5DataModule
 from lightning.surrogate_policy import SurrogatePolicy
 from utilities.display_h5_file_information import display_h5_file_information
@@ -30,23 +27,20 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         h5_file_path=experimentation_configuration.trajectory_dataset_file_path,
         input_dataset_name='observation',
         output_dataset_name='action_distribution_inputs',
-        batch_size=20_000,
-        chunk_size=100_000,
-        number_workers=4,
+        batch_size=experimentation_configuration.surrogate_policy_training_configuration.batch_size,
+        mini_chunk_size=experimentation_configuration.surrogate_policy_training_configuration.mini_chunk_size,
+        number_mini_chunks=experimentation_configuration.surrogate_policy_training_configuration.number_mini_chunks,
+        number_workers=experimentation_configuration.surrogate_policy_training_configuration.data_loader_number_workers,
     )
     data_module.setup()
 
     surrogate_policy = SurrogatePolicy(
         input_dimension=np.prod(data_module.input_shape),
         output_dimension=np.prod(data_module.output_shape),
-        cluster_space_size=16,
-        projection_clustering_space_shape=[128, 64, 32],
-        projection_action_space_shape=[32, 64, 128],
-        learning_rate=1e-4,
-        clusterization_loss=KMeansLoss,
-        clusterization_loss_configuration={
-            'number_cluster': 4,
-        },
+        architecture_configuration=experimentation_configuration.surrogate_policy_training_configuration.architecture_configuration,
+        learning_rate=experimentation_configuration.surrogate_policy_training_configuration.learning_rate,
+        clusterization_loss=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss,
+        clusterization_loss_configuration=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss_configuration,
     )
 
     logger = TensorBoardLogger(
@@ -55,13 +49,12 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         name=experimentation_configuration.surrogate_policy_storage_path.name,
     )
     checkpoint_callback = ModelCheckpoint(
-        # every_n_epochs=50,
-        train_time_interval=timedelta(minutes=10)
+        train_time_interval=experimentation_configuration.surrogate_policy_training_configuration.model_checkpoint_time_interval,
     )
     trainer = pl.Trainer(
         max_epochs=-1,
         logger=logger,
-        check_val_every_n_epoch=50,
+        check_val_every_n_epoch=experimentation_configuration.surrogate_policy_training_configuration.evaluation_every_n_epoch,
         callbacks=[checkpoint_callback],
     )
     trainer.fit(

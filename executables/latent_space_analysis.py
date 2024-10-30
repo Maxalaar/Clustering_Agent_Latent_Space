@@ -16,7 +16,7 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
         h5_file_path=experimentation_configuration.trajectory_dataset_file_path,
         input_dataset_name='observation',
         batch_size=50_000,
-        chunk_size=300_000,
+        mini_chunk_size=300_000,
         number_workers=2,
     )
     data_module.setup()

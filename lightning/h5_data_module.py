@@ -16,14 +16,15 @@ class H5DataModule(pl.LightningDataModule):
             input_dataset_name: str,
             output_dataset_name: Optional[str] = None,
             batch_size: int = 64,
-            chunk_size: int = 64,
+            mini_chunk_size: int = 64,
+            number_mini_chunks: int = 2,
             validation_split: float = 0.2,
             number_workers: int = 1,
     ):
         super().__init__()
 
-        if chunk_size < batch_size:
-            raise ValueError(f"Error: chunk_size ({chunk_size}) cannot be smaller than batch_size ({batch_size}).")
+        if mini_chunk_size < batch_size:
+            raise ValueError(f"Error: mini_chunk_size ({mini_chunk_size}) cannot be smaller than batch_size ({batch_size}).")
 
         self.h5_file_path: Path = h5_file_path
         self.input_dataset_name: str = input_dataset_name
@@ -31,7 +32,8 @@ class H5DataModule(pl.LightningDataModule):
         self.batch_size: int = batch_size
         self.validation_split = validation_split
         self.number_workers: int = number_workers
-        self.chunk_size: int = chunk_size
+        self.number_mini_chunks = number_mini_chunks
+        self.mini_chunk_size: int = mini_chunk_size
 
         self.input_shape: Optional[tuple] = None
         self.output_shape: Optional[tuple] = None
@@ -48,8 +50,8 @@ class H5DataModule(pl.LightningDataModule):
             file_path=self.h5_file_path,
             input_dataset_name=self.input_dataset_name,
             output_dataset_name=self.output_dataset_name,
-            mini_chunk_size=self.chunk_size,
-            number_mini_chunk=2,
+            mini_chunk_size=self.mini_chunk_size,
+            number_mini_chunk=self.number_mini_chunks,
         )
         # dataset_size = len(self.dataset)
         # indices = np.arange(dataset_size)

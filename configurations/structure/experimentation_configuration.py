@@ -3,6 +3,7 @@ from typing import Optional
 
 from configurations.reinforcement_learning.basic_reinforcement_learning_configuration import basic_reinforcement_learning_configuration
 from configurations.structure.reinforcement_learning_configuration import ReinforcementLearningConfiguration
+from configurations.structure.surrogate_policy_training_configuration import SurrogatePolicyTrainingConfiguration
 from configurations.structure.trajectory_dataset_generation_configuration import \
     TrajectoryDatasetGenerationConfiguration
 from configurations.structure.video_episodes_generation_configuration import VideoEpisodesGenerationConfiguration
@@ -37,3 +38,4 @@ class ExperimentationConfiguration:
 
         # Surrogate Policy
         self.surrogate_policy_storage_path: Path = self.experimentation_storage_path / 'surrogate_policy'
+        self.surrogate_policy_training_configuration: Optional[SurrogatePolicyTrainingConfiguration] = SurrogatePolicyTrainingConfiguration()

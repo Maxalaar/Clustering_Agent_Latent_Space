@@ -1,7 +1,6 @@
 from typing import Optional
 
 import pytorch_lightning as pl
-import torch
 from torch import nn
 from torch.optim import Adam
 
@@ -13,10 +12,8 @@ class SurrogatePolicy(pl.LightningModule):
             self,
             input_dimension,
             output_dimension,
-            cluster_space_size,
-            projection_clustering_space_shape,
-            projection_action_space_shape,
-            learning_rate,
+            architecture_configuration: Optional[dict] = None,
+            learning_rate: float = 1e-4,
             clusterization_loss=None,
             clusterization_loss_configuration: Optional[dict] = None,
     ):
@@ -28,19 +25,19 @@ class SurrogatePolicy(pl.LightningModule):
         self.clusterization_loss = clusterization_loss(logger=self.log, **clusterization_loss_configuration)
         self.activation_function = nn.LeakyReLU()
         self.learning_rate = learning_rate
-        self.cluster_space_size = cluster_space_size
+        self.cluster_space_size = architecture_configuration.get('cluster_space_size', 16)
         self.embeddings_in_clustering_space = None
 
         self.projection_clustering_space = create_dense_architecture(
             input_dimension,
-            projection_clustering_space_shape,
+            architecture_configuration.get('projection_clustering_space_shape', [128, 64, 32]),
             self.cluster_space_size,
             self.activation_function,
         )
 
         self.projection_action_space = create_dense_architecture(
             self.cluster_space_size,
-            projection_action_space_shape,
+            architecture_configuration.get('projection_action_space_shape', [32, 64, 128]),
             output_dimension,
             self.activation_function,
         )
