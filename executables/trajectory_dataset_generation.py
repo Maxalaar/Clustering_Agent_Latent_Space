@@ -1,3 +1,6 @@
+from turtledemo.sorting_animate import qsort
+from typing import Optional
+
 import ray
 import warnings
 import h5py
@@ -6,15 +9,15 @@ import hashlib
 import numpy as np
 from pathlib import Path
 
+from ray.rllib import BaseEnv
 from ray.rllib.algorithms import Algorithm, AlgorithmConfig
 from ray.rllib.algorithms.callbacks import DefaultCallbacks
+from ray.rllib.evaluation.episode_v2 import EpisodeV2
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
 from rllib.register_architectures import register_architectures
 from rllib.find_best_checkpoints_path import find_best_checkpoints_path
-
-from rllib.register_information_environment_creator import register_information_environment_creator
 
 
 class SystemMutex:
@@ -36,6 +39,30 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
         def __init__(self):
             self.path_file: Path = experimentation_configuration.trajectory_dataset_file_path
             self.save_rendering: bool = experimentation_configuration.trajectory_dataset_generation_configuration.save_rendering
+            self.rendering_by_episode_id: dict = {}
+            self.image_compression_function = experimentation_configuration.trajectory_dataset_generation_configuration.image_compression_function
+            self.image_compression_configuration = experimentation_configuration.trajectory_dataset_generation_configuration.image_compression_configuration
+
+        def on_episode_created(
+                self,
+                episode: EpisodeV2,
+                **kwargs,
+        ) -> None:
+            self.rendering_by_episode_id[episode.episode_id] = []
+
+        def on_episode_step(
+                self,
+                episode: EpisodeV2,
+                env_index: int,
+                base_env: BaseEnv,
+                **kwargs,
+        ) -> None:
+            rending = base_env.get_sub_environments()[env_index].render()
+
+            if self.image_compression_function is not None:
+                rending = self.image_compression_function(image=rending, **self.image_compression_configuration)
+
+            self.rendering_by_episode_id[episode.episode_id].append(rending)
 
         def on_sample_end(
                 self,
@@ -65,7 +92,12 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
 
                 if self.save_rendering:
                     self.increment_episode_id_with_rendering(local_episode_id)
-                    self.save('rendering', np.stack([info['rendering'] for info in samples['default_policy']['infos'][1:]]))
+
+                    rendering = []
+                    for episode_id in ordered_unique_values:
+                        rendering.extend(self.rendering_by_episode_id[episode_id])
+
+                    self.save('rendering', np.stack(rendering))
 
         def increment_episode_id(self, local_episode_id):
             with h5py.File(self.path_file, 'a') as h5_file:
@@ -112,12 +144,6 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
     algorithm_configuration: AlgorithmConfig = algorithm.config.copy(copy_frozen=False)
     del algorithm
 
-    information_environment_name = register_information_environment_creator(
-        environment_name=algorithm_configuration.env,
-        save_rendering=experimentation_configuration.trajectory_dataset_generation_configuration.save_rendering,
-    )
-
-    algorithm_configuration.environment(env=information_environment_name)
     if experimentation_configuration.trajectory_dataset_generation_configuration.save_rendering:
         algorithm_configuration.env_config.update({'render_mode': 'rgb_array'})
     algorithm_configuration.learners(num_learners=0)
