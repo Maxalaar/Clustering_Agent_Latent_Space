@@ -10,7 +10,7 @@ import numpy as np
 from pathlib import Path
 
 from ray.rllib import BaseEnv
-from ray.rllib.algorithms import Algorithm, AlgorithmConfig
+from ray.rllib.algorithms import Algorithm, AlgorithmConfig, PPOConfig
 from ray.rllib.algorithms.callbacks import DefaultCallbacks
 from ray.rllib.evaluation.episode_v2 import EpisodeV2
 
@@ -37,8 +37,12 @@ class SystemMutex:
 def trajectory_dataset_generation(experimentation_configuration: ExperimentationConfiguration):
     class SaveTrajectoryCallback(DefaultCallbacks):
         def __init__(self):
-            self.path_file: Path = experimentation_configuration.trajectory_dataset_file_path
             self.save_rendering: bool = experimentation_configuration.trajectory_dataset_generation_configuration.save_rendering
+            if self.save_rendering:
+                self.path_file: Path = experimentation_configuration.trajectory_dataset_with_rending_file_path
+            else:
+                self.path_file: Path = experimentation_configuration.trajectory_dataset_file_path
+
             self.rendering_by_episode_id: dict = {}
             self.image_compression_function = experimentation_configuration.trajectory_dataset_generation_configuration.image_compression_function
             self.image_compression_configuration = experimentation_configuration.trajectory_dataset_generation_configuration.image_compression_configuration
@@ -48,7 +52,8 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
                 episode: EpisodeV2,
                 **kwargs,
         ) -> None:
-            self.rendering_by_episode_id[episode.episode_id] = []
+            if self.save_rendering:
+                self.rendering_by_episode_id[episode.episode_id] = []
 
         def on_episode_step(
                 self,
@@ -57,12 +62,13 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
                 base_env: BaseEnv,
                 **kwargs,
         ) -> None:
-            rending = base_env.get_sub_environments()[env_index].render()
+            if self.save_rendering:
+                rending = base_env.get_sub_environments()[env_index].render()
 
-            if self.image_compression_function is not None:
-                rending = self.image_compression_function(image=rending, **self.image_compression_configuration)
+                if self.image_compression_function is not None:
+                    rending = self.image_compression_function(image=rending, **self.image_compression_configuration)
 
-            self.rendering_by_episode_id[episode.episode_id].append(rending)
+                self.rendering_by_episode_id[episode.episode_id].append(rending)
 
         def on_sample_end(
                 self,
@@ -96,6 +102,7 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
                     rendering = []
                     for episode_id in ordered_unique_values:
                         rendering.extend(self.rendering_by_episode_id[episode_id])
+                        del self.rendering_by_episode_id[episode_id]
 
                     self.save('rendering', np.stack(rendering))
 
@@ -150,6 +157,13 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
     algorithm_configuration.training(
         train_batch_size=experimentation_configuration.trajectory_dataset_generation_configuration.minimal_steps_per_iteration,
     )
+    if type(algorithm_configuration) is PPOConfig:
+        algorithm_configuration: PPOConfig
+        algorithm_configuration.training(
+            mini_batch_size_per_learner=experimentation_configuration.trajectory_dataset_generation_configuration.minimal_steps_per_iteration,
+            sgd_minibatch_size=experimentation_configuration.trajectory_dataset_generation_configuration.minimal_steps_per_iteration,
+        )
+
     algorithm_configuration.env_runners(
         explore=False,
         num_env_runners=experimentation_configuration.trajectory_dataset_generation_configuration.number_environment_runners,
@@ -173,4 +187,4 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    trajectory_dataset_generation(configurations.list_experimentation_configurations.pong_survivor_two_balls)
+    trajectory_dataset_generation(configurations.list_experimentation_configurations.ant)

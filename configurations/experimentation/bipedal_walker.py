@@ -1,6 +1,6 @@
 from torch.nn import LeakyReLU
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
-
+from lightning.clustering_loss.new_kmeans_loss import NewKMeansLoss
 
 bipedal_walker = ExperimentationConfiguration(
     experimentation_name='bipedal_walker',
@@ -29,3 +29,24 @@ bipedal_walker.reinforcement_learning_configuration.architecture_configuration =
     'configuration_hidden_layers': [512, 512, 512],
     'activation_function': LeakyReLU(),
 }
+
+# Dataset
+# bipedal_walker.trajectory_dataset_generation_configuration.number_environment_runners = 10
+# bipedal_walker.trajectory_dataset_generation_configuration.number_gpus_per_environment_runners = 1/bipedal_walker.trajectory_dataset_generation_configuration.number_environment_runners
+# bipedal_walker.trajectory_dataset_generation_configuration.number_iterations = 300
+# bipedal_walker.trajectory_dataset_generation_configuration.minimal_steps_per_iteration = 10_000
+
+bipedal_walker.trajectory_dataset_generation_configuration.number_environment_runners = 1
+bipedal_walker.trajectory_dataset_generation_configuration.number_iterations = 1
+bipedal_walker.trajectory_dataset_generation_configuration.minimal_steps_per_iteration = 10000
+bipedal_walker.trajectory_dataset_generation_configuration.save_rendering = True
+
+# Surrogate Policy Training
+bipedal_walker.surrogate_policy_training_configuration.batch_size = 20_000
+bipedal_walker.surrogate_policy_training_configuration.mini_chunk_size = 100_000
+bipedal_walker.surrogate_policy_training_configuration.number_mini_chunks = 2
+bipedal_walker.surrogate_policy_training_configuration.clusterization_loss_coefficient = 1.0
+bipedal_walker.surrogate_policy_training_configuration.clusterization_loss = NewKMeansLoss
+bipedal_walker.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
+    'number_cluster': 4,
+})

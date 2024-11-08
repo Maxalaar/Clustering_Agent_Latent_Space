@@ -1,5 +1,6 @@
 from typing import Optional
 
+import torch
 import pytorch_lightning as pl
 from torch import nn
 from torch.optim import Adam
@@ -14,6 +15,7 @@ class SurrogatePolicy(pl.LightningModule):
             output_dimension,
             architecture_configuration: Optional[dict] = None,
             learning_rate: float = 1e-4,
+            clusterization_loss_coefficient: float = 1,
             clusterization_loss=None,
             clusterization_loss_configuration: Optional[dict] = None,
     ):
@@ -22,6 +24,7 @@ class SurrogatePolicy(pl.LightningModule):
         self.save_hyperparameters()
 
         self.prediction_loss_function = nn.MSELoss()
+        self.clusterization_loss_coefficient = clusterization_loss_coefficient
         self.clusterization_loss = clusterization_loss(logger=self.log, **clusterization_loss_configuration)
         self.activation_function = nn.LeakyReLU()
         self.learning_rate = learning_rate
@@ -42,15 +45,20 @@ class SurrogatePolicy(pl.LightningModule):
             self.activation_function,
         )
 
-    def forward(self, x):
+    def forward(self, x, use_noise: bool = False):
         self.embeddings_in_clustering_space = self.projection_clustering_space(x)
+
+        # if use_noise:
+        #     gaussian_noise = torch.randn_like(self.embeddings_in_clustering_space) * 0.1
+        #     self.embeddings_in_clustering_space = gaussian_noise + self.embeddings_in_clustering_space
+
         action = self.projection_action_space(self.embeddings_in_clustering_space)
         return action
 
     def training_step(self, batch, batch_idx):
         x, y = batch
 
-        y_hat = self(x)
+        y_hat = self(x, use_noise=True)
         y = y.to(y_hat.device)
         action_loss = self.prediction_loss_function(y_hat, y)
 
@@ -59,9 +67,10 @@ class SurrogatePolicy(pl.LightningModule):
         else:
             clustering_loss = self.clusterization_loss(
                 embeddings=self.embeddings_in_clustering_space,
+                current_global_step=self.global_step,
             )
 
-        total_loss = action_loss + clustering_loss
+        total_loss = action_loss + self.clusterization_loss_coefficient * clustering_loss
 
         self.log('action_loss_train', action_loss, on_epoch=True)
         self.log('clusterization_loss_train', clustering_loss, on_epoch=True)
@@ -81,6 +90,7 @@ class SurrogatePolicy(pl.LightningModule):
         else:
             clustering_loss = self.clusterization_loss(
                 embeddings=self.embeddings_in_clustering_space,
+                current_global_step=self.global_step,
             )
 
         total_loss = action_loss + clustering_loss

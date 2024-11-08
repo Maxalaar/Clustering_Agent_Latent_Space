@@ -7,8 +7,13 @@ import ot
 
 class KMeansLoss(nn.Module):
     def __init__(
-            self, number_cluster: int,
-            margin_between_clusters: int = 10,
+            self,
+            number_cluster: int,
+            lightning_module=None,
+            margin_between_clusters: float = 4.0,
+            margin_intra_cluster: float = 0.1,
+            attraction_loss_coefficient: float = 1.0,
+            repulsion_loss_coefficient: float = 1.0,
             sliding_centroids: bool = True,
             centroid_learning_rate: float = 0.05,
             logger=None,
@@ -20,7 +25,10 @@ class KMeansLoss(nn.Module):
         self.cluster_labels = None
         self.sliding_centroids = sliding_centroids
         self.centroid_learning_rate: float = centroid_learning_rate
+        self.attraction_loss_coefficient: float = attraction_loss_coefficient
+        self.repulsion_loss_coefficient: float = repulsion_loss_coefficient
         self.margin_between_clusters = margin_between_clusters
+        self.margin_intra_cluster = margin_intra_cluster
 
     def compute_new_centroid(self, embeddings):
         device = embeddings.device
@@ -59,7 +67,7 @@ class KMeansLoss(nn.Module):
 
                 self.cluster_labels[torch.nonzero(new_cluster_labels == idx_centroid_to_match).squeeze(dim=1)] = i
 
-    def forward(self, embeddings: torch.Tensor):
+    def forward(self, embeddings: torch.Tensor, current_global_step):
         self.compute_new_centroid(embeddings)
 
         device = embeddings.device
@@ -76,20 +84,35 @@ class KMeansLoss(nn.Module):
 
             # Attraction and repulsion terms
             attraction_distances = torch.cdist(points_current_cluster, current_centroid)
-            attraction_loss += torch.mean(attraction_distances ** 2)
+            attraction_loss += torch.mean(F.relu(attraction_distances) ** 2)   #  - self.margin_intra_cluster
 
             repulsion_distances = torch.cdist(points_current_cluster, other_centroids)
             repulsion_loss += torch.mean(F.relu(self.margin_between_clusters - repulsion_distances) ** 2)
 
+
             # Intra-cluster distance
             distance_intra_cluster += torch.mean(torch.norm(points_current_cluster - current_centroid, dim=1)).item()
 
-        total_loss = attraction_loss + repulsion_loss
+        # step_no_loss = 0
+        # step_scale = 40_000
+        # start_value = 0.5
+        # maximum_value = 1.0
+        # if current_global_step < step_no_loss:
+        #     global_loss_coefficient = 0.0
+        # else:
+        #     global_loss_coefficient = start_value + (1 - start_value) * (current_global_step - step_no_loss) / step_scale
+        #     if global_loss_coefficient > maximum_value:
+        #         global_loss_coefficient = maximum_value
+        #
+        global_loss_coefficient = 1.0
+
+        total_loss = global_loss_coefficient * (self.attraction_loss_coefficient * attraction_loss + self.repulsion_loss_coefficient * repulsion_loss) / self.number_cluster
 
         # Logging
         if self.logger:
             matrix_distance_centroids = torch.cdist(self.centroids, self.centroids).triu(diagonal=1)
             distance_centroids = matrix_distance_centroids[matrix_distance_centroids != 0]
+            self.logger('global_loss_coefficient', global_loss_coefficient, on_epoch=True)
             self.logger('kmeans_loss_average_distance_centroids', torch.mean(distance_centroids).item(), on_epoch=True)
             self.logger('kmeans_loss_min_distance_centroids', distance_centroids.min().item(), on_epoch=True)
             self.logger('kmeans_loss_max_distance_centroids', distance_centroids.max().item(), on_epoch=True)

@@ -1,6 +1,6 @@
 from copy import deepcopy
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional, List, Callable
 import yaml
 
 from ray.rllib.algorithms.callbacks import DefaultCallbacks
@@ -25,6 +25,7 @@ class ReinforcementLearningConfiguration:
         self.learning_rate: float = NotProvided
         self.grad_clip: float = NotProvided
         self.exploration_configuration: dict = NotProvided
+        self.learner_connector: Callable = NotProvided
         # PPO only
         self.use_generalized_advantage_estimator: bool = NotProvided
         self.mini_batch_size_per_learner: int = NotProvided

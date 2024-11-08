@@ -16,8 +16,8 @@ class H5DataModule(pl.LightningDataModule):
             input_dataset_name: str,
             output_dataset_name: Optional[str] = None,
             batch_size: int = 64,
-            mini_chunk_size: int = 64,
             number_mini_chunks: int = 2,
+            mini_chunk_size: int = 64,
             validation_split: float = 0.2,
             number_workers: int = 1,
     ):

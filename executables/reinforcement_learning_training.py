@@ -4,6 +4,10 @@ import ray
 from ray import air, tune
 from ray.rllib.algorithms.ppo import PPOConfig, PPO
 from ray.rllib.algorithms.dqn import DQNConfig, DQN
+from ray.rllib.connectors.env_to_module import FlattenObservations
+from ray.rllib.core.rl_module import RLModuleSpec
+from ray.rllib.examples.rl_modules.classes.tiny_atari_cnn_rlm import TinyAtariCNN
+from ray.rllib.examples.connectors.classes.count_based_curiosity import CountBasedCuriosity
 from ray.rllib.utils.from_config import NotProvided
 from ray.rllib.algorithms import AlgorithmConfig, Algorithm
 
@@ -53,10 +57,22 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
                 'custom_model_config': reinforcement_learning_configuration.architecture_configuration,
             }
         )
+        # algorithm_configuration.rl_module(
+        #     rl_module_spec=RLModuleSpec(
+        #         module_class=reinforcement_learning_configuration.architecture_name,
+        #         # Feel free to specify your own `model_config` settings below.
+        #         # The `model_config` defined here will be available inside your
+        #         # custom RLModule class through the `self.model_config`
+        #         # property.
+        #         model_config_dict=,
+        #     ),
+        # )
+
     algorithm_configuration.training(
         grad_clip=reinforcement_learning_configuration.grad_clip,
         train_batch_size=reinforcement_learning_configuration.train_batch_size,
         lr=reinforcement_learning_configuration.learning_rate,
+        learner_connector=reinforcement_learning_configuration.learner_connector,
     )
     if reinforcement_learning_configuration.exploration_configuration is not NotProvided:
         algorithm_configuration.exploration_config = reinforcement_learning_configuration.exploration_configuration
@@ -72,6 +88,8 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
             grad_clip=reinforcement_learning_configuration.clip_all_parameter,
             clip_param=reinforcement_learning_configuration.clip_policy_parameter,
             vf_clip_param=reinforcement_learning_configuration.clip_value_function_parameter,
+            # learner_connector=lambda env: CountBasedCuriosity(),
+            # add_default_connectors_to_learner_pipeline=True,
         )
 
     # Environment runners
@@ -81,6 +99,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
         num_envs_per_env_runner=reinforcement_learning_configuration.number_environment_per_environment_runners,
         num_cpus_per_env_runner=reinforcement_learning_configuration.number_cpus_per_environment_runners,
         num_gpus_per_env_runner=reinforcement_learning_configuration.number_gpus_per_environment_runners,
+        # env_to_module_connector=lambda env: FlattenObservations(),
     )
 
     # Learners
@@ -101,6 +120,12 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
     # Callbacks
     if reinforcement_learning_configuration.callback is not NotProvided:
         algorithm_configuration.callbacks(reinforcement_learning_configuration.callback)
+
+    # New API Stack
+    algorithm_configuration.api_stack(
+        enable_rl_module_and_learner=False,
+        enable_env_runner_and_connector_v2=False,
+    )
 
     tuner_save_path = os.path.join(experimentation_configuration.experimentation_storage_path, str(experimentation_configuration.reinforcement_learning_storage_path), 'tuner.pkl')
     if os.path.exists(tuner_save_path):
@@ -139,4 +164,4 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    reinforcement_learning_training(configurations.list_experimentation_configurations.pong_survivor_two_balls)
+    reinforcement_learning_training(configurations.list_experimentation_configurations.flappy_bird)

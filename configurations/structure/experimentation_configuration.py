@@ -34,8 +34,12 @@ class ExperimentationConfiguration:
 
         # Trajectory Dataset
         self.trajectory_dataset_file_path: Path = self.dataset_path / 'trajectory_dataset.h5'
+        self.trajectory_dataset_with_rending_file_path: Path = self.dataset_path / 'trajectory_dataset_with_rending.h5'
         self.trajectory_dataset_generation_configuration: Optional[TrajectoryDatasetGenerationConfiguration] = TrajectoryDatasetGenerationConfiguration()
 
         # Surrogate Policy
         self.surrogate_policy_storage_path: Path = self.experimentation_storage_path / 'surrogate_policy'
         self.surrogate_policy_training_configuration: Optional[SurrogatePolicyTrainingConfiguration] = SurrogatePolicyTrainingConfiguration()
+
+        # Latent Space Analysis
+        self.latent_space_analysis_storage_path: Path = self.experimentation_storage_path / 'latent_space_analysis'

@@ -6,4 +6,20 @@ pong_survivor_one_ball = ExperimentationConfiguration(
     experimentation_name='pong_survivor_one_ball',
     environment_name='PongSurvivor',
 )
+pong_survivor_one_ball.ray_local_mode = False
+
 pong_survivor_one_ball.environment_configuration = classic_one_ball
+pong_survivor_one_ball.reinforcement_learning_configuration.train_batch_size = 40_000
+pong_survivor_one_ball.reinforcement_learning_configuration.mini_batch_size_per_learner = 10_000
+pong_survivor_one_ball.surrogate_policy_training_configuration.clusterization_loss_configuration = {'number_cluster': 2}
+
+# pong_survivor_one_ball.trajectory_dataset_generation_configuration.number_environment_runners = 10
+# pong_survivor_one_ball.trajectory_dataset_generation_configuration.number_gpus_per_environment_runners = 1/10
+# pong_survivor_one_ball.trajectory_dataset_generation_configuration.number_iterations = 200
+# pong_survivor_one_ball.trajectory_dataset_generation_configuration.minimal_steps_per_iteration = 10_000
+
+pong_survivor_one_ball.trajectory_dataset_generation_configuration.save_rendering = True
+pong_survivor_one_ball.trajectory_dataset_generation_configuration.number_environment_runners = 5
+pong_survivor_one_ball.trajectory_dataset_generation_configuration.number_gpus_per_environment_runners = 1/5
+pong_survivor_one_ball.trajectory_dataset_generation_configuration.number_iterations = 20
+pong_survivor_one_ball.trajectory_dataset_generation_configuration.minimal_steps_per_iteration = 1000

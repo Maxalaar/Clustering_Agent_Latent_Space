@@ -1,4 +1,6 @@
 from datetime import timedelta
+from pathlib import Path
+import yaml
 
 from lightning.clustering_loss.kmeans_loss import KMeansLoss
 
@@ -13,7 +15,8 @@ class SurrogatePolicyTrainingConfiguration:
         self.learning_rate: float = 1e-4
         self.batch_size: int = 20_000
         self.clusterization_loss = KMeansLoss
-        self.clusterization_loss_configuration = {}
+        self.clusterization_loss_coefficient: float = 1.0
+        self.clusterization_loss_configuration: dict = {}
 
         self.number_mini_chunks: int = 2
         self.mini_chunk_size: int = 100_000
@@ -21,4 +24,12 @@ class SurrogatePolicyTrainingConfiguration:
 
         self.model_checkpoint_time_interval = timedelta(minutes=10)
         self.evaluation_every_n_epoch = 10
+
+    def to_yaml_file(self, directory: Path):
+        directory.mkdir(parents=True, exist_ok=True)
+        file_path = directory / 'surrogate_policy_training_configuration.yaml'
+        configuration_dictionary = {key: value for key, value in self.__dict__.items()}
+
+        with open(file_path, 'w') as file:
+            yaml.dump(configuration_dictionary, file)
 

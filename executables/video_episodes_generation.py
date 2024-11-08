@@ -70,4 +70,4 @@ def video_episode_generation(experimentation_configuration: ExperimentationConfi
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    video_episode_generation(configurations.list_experimentation_configurations.flappy_bird)
+    video_episode_generation(configurations.list_experimentation_configurations.ant)

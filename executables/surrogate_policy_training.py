@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pytorch_lightning as pl
 import ray
@@ -39,6 +41,7 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         output_dimension=np.prod(data_module.output_shape),
         architecture_configuration=experimentation_configuration.surrogate_policy_training_configuration.architecture_configuration,
         learning_rate=experimentation_configuration.surrogate_policy_training_configuration.learning_rate,
+        clusterization_loss_coefficient=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss_coefficient,
         clusterization_loss=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss,
         clusterization_loss_configuration=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss_configuration,
     )
@@ -48,6 +51,8 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         prefix='pytorch_lightning/',
         name=experimentation_configuration.surrogate_policy_storage_path.name,
     )
+    experimentation_configuration.surrogate_policy_training_configuration.to_yaml_file(Path(logger.log_dir))
+
     checkpoint_callback = ModelCheckpoint(
         train_time_interval=experimentation_configuration.surrogate_policy_training_configuration.model_checkpoint_time_interval,
     )
@@ -67,4 +72,4 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    surrogate_policy_training(configurations.list_experimentation_configurations.pong_survivor_two_balls)
+    surrogate_policy_training(configurations.list_experimentation_configurations.ant)
