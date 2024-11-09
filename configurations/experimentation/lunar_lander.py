@@ -1,5 +1,4 @@
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
-from lightning.clustering_loss.new_kmeans_loss import NewKMeansLoss
 
 lunar_lander = ExperimentationConfiguration(
     experimentation_name='lunar_lander',
@@ -34,7 +33,6 @@ lunar_lander.trajectory_dataset_generation_configuration.save_rendering = True
 lunar_lander.surrogate_policy_training_configuration.batch_size = 20_000
 lunar_lander.surrogate_policy_training_configuration.mini_chunk_size = 100_000
 lunar_lander.surrogate_policy_training_configuration.number_mini_chunks = 2
-lunar_lander.surrogate_policy_training_configuration.clusterization_loss = NewKMeansLoss
 lunar_lander.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
     'number_cluster': 4,
     # 'sliding_centroids': True,

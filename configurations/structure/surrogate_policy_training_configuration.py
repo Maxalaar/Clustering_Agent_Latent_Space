@@ -2,7 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 import yaml
 
-from lightning.clustering_loss.kmeans_loss import KMeansLoss
+from lightning.clustering_loss.kmeans_loss import KmeansLoss
 
 
 class SurrogatePolicyTrainingConfiguration:
@@ -14,7 +14,7 @@ class SurrogatePolicyTrainingConfiguration:
         }
         self.learning_rate: float = 1e-4
         self.batch_size: int = 20_000
-        self.clusterization_loss = KMeansLoss
+        self.clusterization_loss = KmeansLoss
         self.clusterization_loss_coefficient: float = 1.0
         self.clusterization_loss_configuration: dict = {}
 

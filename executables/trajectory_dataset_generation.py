@@ -1,11 +1,9 @@
 from turtledemo.sorting_animate import qsort
-from typing import Optional
+from typing import Optional, Dict
 
 import ray
 import warnings
 import h5py
-import fcntl
-import hashlib
 import numpy as np
 from pathlib import Path
 
@@ -20,28 +18,51 @@ from rllib.register_architectures import register_architectures
 from rllib.find_best_checkpoints_path import find_best_checkpoints_path
 
 
-class SystemMutex:
-    def __init__(self, name):
-        self.name = name
+@ray.remote
+class H5FileHandler:
+    def __init__(self, path_file: Path):
+        path_file.parent.mkdir(parents=True, exist_ok=True)
+        self.file = h5py.File(path_file, 'a')
 
-    def __enter__(self):
-        lock_id = hashlib.md5(self.name.encode('utf8')).hexdigest()
-        self.fp = open(f'/tmp/.lock-{lock_id}.lck', 'wb')
-        fcntl.flock(self.fp.fileno(), fcntl.LOCK_EX)
+    def get_last_episode_id(self):
+        if 'episode_id' in self.file:
+            return self.file['episode_id'][-1]
+        else:
+            return -1
 
-    def __exit__(self, _type, value, tb):
-        fcntl.flock(self.fp.fileno(), fcntl.LOCK_UN)
-        self.fp.close()
+    def write(self, episodes_id, dataset_dictionary: Dict[str, np.ndarray]):
+        global_episode_id = episodes_id + self.get_last_episode_id() + 1
+        dataset_dictionary['episodes_id'] = global_episode_id
+
+        for dataset_name in dataset_dictionary.keys():
+            data = dataset_dictionary[dataset_name]
+
+            if dataset_name in self.file:
+                dataset = self.file[dataset_name]
+                dataset.resize((dataset.shape[0] + data.shape[0]), axis=0)
+                dataset[-data.shape[0]:] = data
+            else:
+                max_shape = (None,) + data.shape[1:]
+                self.file.create_dataset(dataset_name, data=data, maxshape=max_shape)
 
 
 def trajectory_dataset_generation(experimentation_configuration: ExperimentationConfiguration):
+    warnings.filterwarnings('ignore', category=DeprecationWarning)
+    ray.init(local_mode=experimentation_configuration.ray_local_mode)
+    register_environments()
+    register_architectures()
+
+    save_rendering: bool = experimentation_configuration.trajectory_dataset_generation_configuration.save_rendering
+    if save_rendering:
+        path_file: Path = experimentation_configuration.trajectory_dataset_with_rending_file_path
+    else:
+        path_file: Path = experimentation_configuration.trajectory_dataset_file_path
+    h5_file_handler = H5FileHandler.remote(path_file)
+
     class SaveTrajectoryCallback(DefaultCallbacks):
         def __init__(self):
             self.save_rendering: bool = experimentation_configuration.trajectory_dataset_generation_configuration.save_rendering
-            if self.save_rendering:
-                self.path_file: Path = experimentation_configuration.trajectory_dataset_with_rending_file_path
-            else:
-                self.path_file: Path = experimentation_configuration.trajectory_dataset_file_path
+            self.h5_file_handler: H5FileHandler = h5_file_handler
 
             self.rendering_by_episode_id: dict = {}
             self.image_compression_function = experimentation_configuration.trajectory_dataset_generation_configuration.image_compression_function
@@ -77,71 +98,31 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
                 metrics_logger=None,
                 **kwargs,
         ):
-            with SystemMutex('critical-save-section'):
-                unique_values, indices = np.unique(samples['default_policy']['eps_id'], return_index=True)
-                sorted_indices = np.argsort(indices)
-                ordered_unique_values = unique_values[sorted_indices]
-                local_episode_id = np.zeros_like(samples['default_policy']['eps_id'])
-                for i, value in enumerate(ordered_unique_values):
-                    local_episode_id[samples['default_policy']['eps_id'] == value] = i
+            unique_values, indices = np.unique(samples['default_policy']['eps_id'], return_index=True)
+            sorted_indices = np.argsort(indices)
+            ordered_unique_values = unique_values[sorted_indices]
+            local_episode_id = np.zeros_like(samples['default_policy']['eps_id'])
+            for i, value in enumerate(ordered_unique_values):
+                local_episode_id[samples['default_policy']['eps_id'] == value] = i
 
-                self.path_file.parent.mkdir(parents=True, exist_ok=True)
+            dataset_dictionary = {
+                'episode_current_timestep': samples['default_policy']['t'],
+                'observation': samples['default_policy']['obs'],
+                'action_distribution_inputs': samples['default_policy']['action_dist_inputs'],
+                'action': samples['default_policy']['actions'],
+                'prediction_value_function': samples['default_policy']['vf_preds'],
+                'value_bootstrapped': samples['default_policy']['values_bootstrapped'],
+                'real_value': samples['default_policy']['value_targets'],
+            }
 
-                self.increment_episode_id(local_episode_id)
-                self.save('episode_current_timestep', samples['default_policy']['t'])
-                self.save('observation', samples['default_policy']['obs'])
-                self.save('action_distribution_inputs', samples['default_policy']['action_dist_inputs'])
-                self.save('action', samples['default_policy']['actions'])
-                self.save('prediction_value_function', samples['default_policy']['vf_preds'])
-                self.save('value_bootstrapped', samples['default_policy']['values_bootstrapped'])
-                self.save('real_value', samples['default_policy']['value_targets'])
+            if self.save_rendering:
+                rendering = []
+                for episode_id in ordered_unique_values:
+                    rendering.extend(self.rendering_by_episode_id[episode_id])
+                    del self.rendering_by_episode_id[episode_id]
+                dataset_dictionary['rendering'] = np.stack(rendering)
 
-                if self.save_rendering:
-                    self.increment_episode_id_with_rendering(local_episode_id)
-
-                    rendering = []
-                    for episode_id in ordered_unique_values:
-                        rendering.extend(self.rendering_by_episode_id[episode_id])
-                        del self.rendering_by_episode_id[episode_id]
-
-                    self.save('rendering', np.stack(rendering))
-
-        def increment_episode_id(self, local_episode_id):
-            with h5py.File(self.path_file, 'a') as h5_file:
-                if 'episode_id' in h5_file:
-                    last_episode_id = h5_file['episode_id'][-1]
-                else:
-                    last_episode_id = -1
-            h5_file.close()
-
-            global_episode_id = local_episode_id + last_episode_id + 1
-            self.save('episode_id', global_episode_id)
-
-        def increment_episode_id_with_rendering(self, local_episode_id):
-            with h5py.File(self.path_file, 'a') as h5_file:
-                if 'episode_id_with_rendering' in h5_file:
-                    last_episode_id = h5_file['episode_id_with_rendering'][-1]
-                else:
-                    last_episode_id = -1
-            h5_file.close()
-
-            global_episode_id = local_episode_id + last_episode_id + 1
-            self.save('episode_id', global_episode_id)
-
-        def save(self, dataset_name: str, data):
-            with h5py.File(self.path_file, 'a') as h5file:
-                if dataset_name in h5file:
-                    dataset = h5file[dataset_name]
-                    dataset.resize((dataset.shape[0] + data.shape[0]), axis=0)
-                    dataset[-data.shape[0]:] = data
-                else:
-                    max_shape = (None,) + data.shape[1:]
-                    h5file.create_dataset(dataset_name, data=data, maxshape=max_shape)
-
-    warnings.filterwarnings('ignore', category=DeprecationWarning)
-    ray.init(local_mode=experimentation_configuration.ray_local_mode)
-    register_environments()
-    register_architectures()
+            self.h5_file_handler.write.remote(local_episode_id, dataset_dictionary)
 
     best_checkpoints_path: Path = find_best_checkpoints_path(experimentation_configuration)
     algorithm: Algorithm = Algorithm.from_checkpoint(

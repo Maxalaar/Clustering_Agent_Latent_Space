@@ -15,7 +15,6 @@ class SurrogatePolicy(pl.LightningModule):
             output_dimension,
             architecture_configuration: Optional[dict] = None,
             learning_rate: float = 1e-4,
-            clusterization_loss_coefficient: float = 1,
             clusterization_loss=None,
             clusterization_loss_configuration: Optional[dict] = None,
     ):
@@ -24,7 +23,6 @@ class SurrogatePolicy(pl.LightningModule):
         self.save_hyperparameters()
 
         self.prediction_loss_function = nn.MSELoss()
-        self.clusterization_loss_coefficient = clusterization_loss_coefficient
         self.clusterization_loss = clusterization_loss(logger=self.log, **clusterization_loss_configuration)
         self.activation_function = nn.LeakyReLU()
         self.learning_rate = learning_rate

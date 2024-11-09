@@ -1,6 +1,5 @@
 from torch.nn import LeakyReLU
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
-from lightning.clustering_loss.new_kmeans_loss import NewKMeansLoss
 
 bipedal_walker = ExperimentationConfiguration(
     experimentation_name='bipedal_walker',
@@ -46,7 +45,6 @@ bipedal_walker.surrogate_policy_training_configuration.batch_size = 20_000
 bipedal_walker.surrogate_policy_training_configuration.mini_chunk_size = 100_000
 bipedal_walker.surrogate_policy_training_configuration.number_mini_chunks = 2
 bipedal_walker.surrogate_policy_training_configuration.clusterization_loss_coefficient = 1.0
-bipedal_walker.surrogate_policy_training_configuration.clusterization_loss = NewKMeansLoss
 bipedal_walker.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
     'number_cluster': 4,
 })

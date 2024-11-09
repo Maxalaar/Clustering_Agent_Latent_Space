@@ -1,6 +1,5 @@
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.pong_survivor.configurations import classic_two_balls
-from lightning.clustering_loss.new_kmeans_loss import NewKMeansLoss
 
 pong_survivor_two_balls = ExperimentationConfiguration(
     experimentation_name='pong_survivor_tow_balls',
@@ -27,7 +26,6 @@ pong_survivor_two_balls.surrogate_policy_training_configuration.batch_size = 20_
 pong_survivor_two_balls.surrogate_policy_training_configuration.mini_chunk_size = 100_000
 pong_survivor_two_balls.surrogate_policy_training_configuration.number_mini_chunks = 2
 pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_loss_coefficient = 1.0
-pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_loss = NewKMeansLoss
 pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
     'number_cluster': 4,
     # 'sliding_centroids': True,
