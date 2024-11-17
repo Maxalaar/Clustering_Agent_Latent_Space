@@ -4,16 +4,19 @@ import shutil
 from typing import Optional
 
 import numpy as np
+import ray
 import torch
 from itertools import islice
 from PIL import Image
 
 from cuml import KMeans, TSNE, UMAP
+from ray.tune.registry import _Registry
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.metrics import accuracy_score
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
+from environments.register_environments import register_environments
 from lightning.h5_data_module import H5DataModule
 from lightning.surrogate_policy import SurrogatePolicy
 
@@ -31,7 +34,7 @@ def get_observations(
     display_h5_file_information(trajectory_dataset_file_path)
     data_module = H5DataModule(
         h5_file_path=trajectory_dataset_file_path,
-        input_dataset_name='observation',
+        input_dataset_name='observations',
         batch_size=10_000,
         number_mini_chunks=4,
         mini_chunk_size=50_000,
@@ -105,7 +108,7 @@ def train_decision_tree(
     decision_tree.fit(x_train, y_train)
     predict_y_test = decision_tree.predict(x_test)
     accuracy_value = accuracy_score(y_test, predict_y_test)
-    information = 'Decision tree (observations -> cluster), accuracy: ' + str(accuracy_value) + '\n'
+    information = 'Decision tree (observations -> clusters), accuracy: ' + str(accuracy_value) + '\n'
     print(information)
     with open(save_path / 'information.txt', 'a') as file:
         file.write(information)
@@ -122,7 +125,7 @@ def get_observations_with_rending(
     display_h5_file_information(trajectory_dataset_with_rending_file_path)
     data_module = H5DataModule(
         h5_file_path=trajectory_dataset_with_rending_file_path,
-        output_dataset_name='observation',
+        output_dataset_name='observations',
         input_dataset_name='rendering',
         batch_size=2000,
         number_mini_chunks=2,
@@ -133,7 +136,7 @@ def get_observations_with_rending(
     observations = []
     renderings = []
 
-    for i, batch in enumerate(islice(data_module.train_dataloader(), 100)):
+    for i, batch in enumerate(islice(data_module.train_dataloader(), 5)):
         observations.append(batch[1])
         renderings.append(batch[0])
 
@@ -180,6 +183,11 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
         shutil.rmtree(experimentation_configuration.latent_space_analysis_storage_path)
     os.makedirs(experimentation_configuration.latent_space_analysis_storage_path, exist_ok=True)
 
+    ray.init()
+    register_environments()
+    environment_creator = _Registry().get('env_creator', experimentation_configuration.environment_name)
+    environment = environment_creator(experimentation_configuration.environment_configuration)
+
     surrogate_policy: SurrogatePolicy = SurrogatePolicy.load_from_checkpoint(model_checkpoint_path)
     surrogate_policy.eval()
     information = 'Surrogate policy checkpoint path: ' + str(model_checkpoint_path) + '\n'
@@ -208,11 +216,7 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
     train_decision_tree(
         observations=observations,
         cluster_labels=cluster_labels,
-        # feature_names=[
-        #     'ball_1_x', 'ball_1_y', 'ball_1_velocity_x', 'ball_1_velocity_y',
-        #     'ball_2_x', 'ball_2_y', 'ball_2_velocity_x', 'ball_2_velocity_y',
-        #     'paddle_x', 'paddle_y', 'time'
-        # ],
+        feature_names=getattr(environment, 'observation_feature_names', None),
         save_path=experimentation_configuration.latent_space_analysis_storage_path,
     )
     representation_clusters(
@@ -227,5 +231,5 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    model_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/ant/surrogate_policy/version_0/checkpoints/epoch=114-step=17500.ckpt'
-    latent_space_analysis(configurations.list_experimentation_configurations.ant, model_checkpoint_path)
+    model_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/pong_survivor_tow_balls/surrogate_policy/version_1/checkpoints/epoch=954-step=143217.ckpt'
+    latent_space_analysis(configurations.list_experimentation_configurations.pong_survivor_two_balls, model_checkpoint_path)

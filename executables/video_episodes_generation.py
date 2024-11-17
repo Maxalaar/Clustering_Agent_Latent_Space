@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 import warnings
 
@@ -7,31 +6,16 @@ from ray.rllib.algorithms import Algorithm, AlgorithmConfig
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from rllib.register_architectures import register_architectures
-from rllib.find_best_checkpoints_path import find_best_checkpoints_path
+from rllib.find_best_checkpoint_path import find_best_checkpoint_path
 from rllib.register_video_environment_creator import register_video_environment_creator
-
-
-def delete_non_videos(path: Path):
-    video_extensions = {'.mp4', '.avi', '.mkv', '.mov', '.wmv', '.flv', '.mpeg', '.webm'}
-
-    for filename in os.listdir(path):
-        file_path = os.path.join(path, filename)
-
-        if os.path.isfile(file_path):
-            _, ext = os.path.splitext(filename)
-
-            if ext.lower() not in video_extensions:
-                os.remove(file_path)
 
 
 def video_episode_generation(experimentation_configuration: ExperimentationConfiguration):
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     ray.init(local_mode=False)
     register_environments()
-    register_architectures()
 
-    best_checkpoints_path: Path = find_best_checkpoints_path(experimentation_configuration)
+    best_checkpoints_path: Path = find_best_checkpoint_path(experimentation_configuration)
     algorithm: Algorithm = Algorithm.from_checkpoint(
         path=str(best_checkpoints_path),
         trainable=experimentation_configuration.reinforcement_learning_configuration.algorithm_name,
@@ -70,4 +54,4 @@ def video_episode_generation(experimentation_configuration: ExperimentationConfi
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    video_episode_generation(configurations.list_experimentation_configurations.ant)
+    video_episode_generation(configurations.list_experimentation_configurations.pong_survivor_two_balls)

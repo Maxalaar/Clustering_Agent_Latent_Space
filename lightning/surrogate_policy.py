@@ -23,7 +23,10 @@ class SurrogatePolicy(pl.LightningModule):
         self.save_hyperparameters()
 
         self.prediction_loss_function = nn.MSELoss()
-        self.clusterization_loss = clusterization_loss(logger=self.log, **clusterization_loss_configuration)
+        if clusterization_loss is not None:
+            self.clusterization_loss = clusterization_loss(logger=self.log, **clusterization_loss_configuration)
+        else:
+            self.clusterization_loss = None
         self.activation_function = nn.LeakyReLU()
         self.learning_rate = learning_rate
         self.cluster_space_size = architecture_configuration.get('cluster_space_size', 16)
@@ -68,7 +71,7 @@ class SurrogatePolicy(pl.LightningModule):
                 current_global_step=self.global_step,
             )
 
-        total_loss = action_loss + self.clusterization_loss_coefficient * clustering_loss
+        total_loss = action_loss + clustering_loss
 
         self.log('action_loss_train', action_loss, on_epoch=True)
         self.log('clusterization_loss_train', clustering_loss, on_epoch=True)

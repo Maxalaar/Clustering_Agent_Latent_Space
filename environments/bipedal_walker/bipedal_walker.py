@@ -10,13 +10,6 @@ class BipedalWalker(gym.Env):
         self.render_mode = environment_configuration.get('render_mode', None)
         self.environment = gym.make('BipedalWalker-v3', render_mode=self.render_mode)
 
-        # self.observation_space = self.environment.observation_space
-        # self.observation_space = Box(
-        #     np.array([-2*3.1415927, -5., -5., -5., -3.1415927, -5., -3.1415927, -5., -0., -3.1415927, -5., -3.1415927, -5., -0., -1., -1., -1., -1., -1., -1., -1., -1., -1., -1.]),
-        #     np.array([2*3.1415927, 5., 5., 5., 3.1415927, 5., 3.1415927, 5., 5., 3.1415927, 5., 3.1415927, 5., 5., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.]),
-        #     (24,),
-        #     np.float32
-        # )
         self.observation_space = Box(
             low=np.NINF,
             high=np.PINF,
@@ -24,6 +17,37 @@ class BipedalWalker(gym.Env):
             dtype=np.float32
         )
         self.action_space = self.environment.action_space
+
+        self.observation_feature_names = [
+            # Hull
+            'hull_angle_speed',
+            'hull_angular_velocity',
+            'hull_horizontal_speed',
+            'hull_vertical_speed',
+            # leg 0
+            'joint_0_angle',
+            'joint_0_speed',
+            'joint_1_angle',
+            'joint_1_speed',
+            'leg_0_contact_ground',
+            # leg 1
+            'joint_2_angle',
+            'joint_2_speed',
+            'joint_3_angle',
+            'joint_3_speed',
+            'leg_1_contact_ground',
+            # Lidar
+            'lidar_0',
+            'lidar_1',
+            'lidar_2',
+            'lidar_3',
+            'lidar_4',
+            'lidar_5',
+            'lidar_6',
+            'lidar_7',
+            'lidar_8',
+            'lidar_9',
+        ]
 
     def reset(self, seed=None, options=None):
         observation, info = self.environment.reset(seed=seed, options=options)

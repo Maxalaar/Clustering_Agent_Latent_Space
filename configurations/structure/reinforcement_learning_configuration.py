@@ -4,6 +4,7 @@ from typing import Optional, List, Callable
 import yaml
 
 from ray.rllib.algorithms.callbacks import DefaultCallbacks
+from ray.rllib.core.rl_module import RLModule
 from ray.rllib.utils.from_config import NotProvided
 
 
@@ -19,8 +20,9 @@ class ReinforcementLearningConfiguration:
         self.number_gpu: int = NotProvided
 
         # Training
-        self.architecture_name: str = NotProvided
-        self.architecture_configuration: dict = NotProvided
+        self.flatten_observations: bool = True
+        self.architecture: Optional[RLModule] = None
+        self.architecture_configuration: Optional[dict] = None
         self.train_batch_size: int = NotProvided
         self.learning_rate: float = NotProvided
         self.grad_clip: float = NotProvided
@@ -28,15 +30,15 @@ class ReinforcementLearningConfiguration:
         self.learner_connector: Callable = NotProvided
         # PPO only
         self.use_generalized_advantage_estimator: bool = NotProvided
-        self.mini_batch_size_per_learner: int = NotProvided
-        self.num_sgd_iter: int = NotProvided
+        self.minibatch_size: int = NotProvided
+        self.number_epochs: int = NotProvided
         self.lambda_gae: float = NotProvided
         self.clip_policy_parameter: float = NotProvided
         self.clip_value_function_parameter: float = NotProvided
         self.clip_all_parameter: float = NotProvided
 
         # Environment runners
-        self.batch_mode: str = NotProvided
+        self.batch_mode: str = 'complete_episodes'
         self.number_environment_runners: int = NotProvided
         self.number_environment_per_environment_runners: int = NotProvided
         self.number_cpus_per_environment_runners: int = NotProvided
@@ -48,10 +50,10 @@ class ReinforcementLearningConfiguration:
         self.number_gpus_per_learner: int = NotProvided
 
         # Evaluation
-        self.evaluation_interval: int = NotProvided
+        self.evaluation_interval: int = 50
         self.evaluation_num_environment_runners: int = NotProvided
         self.evaluation_duration_unit: str = NotProvided
-        self.evaluation_duration: int = NotProvided
+        self.evaluation_duration: int = 100
         self.evaluation_parallel_to_training: bool = NotProvided
 
         # Callbacks
@@ -61,10 +63,10 @@ class ReinforcementLearningConfiguration:
         self.stopping_criterion: Optional[dict] = None
 
         # Checkpoint Configuration
-        self.number_checkpoint_to_keep: Optional[int] = None
-        self.checkpoint_score_attribute: Optional[str] = None
+        self.number_checkpoint_to_keep: Optional[int] = 10
+        self.checkpoint_score_attribute: Optional[str] = 'evaluation/env_runners/episode_return_mean'
         self.checkpoint_score_order: str = 'max'
-        self.checkpoint_frequency: int = 0
+        self.checkpoint_frequency: int = 50
         self.checkpoint_at_end: Optional[bool] = None
 
     def to_yaml_file(self, directory: Path):

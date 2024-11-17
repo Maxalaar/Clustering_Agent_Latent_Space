@@ -7,7 +7,7 @@ class KmeansLoss(nn.Module):
     def __init__(
             self,
             number_cluster: int,
-            margin_between_clusters: float = 4.0,
+            margin_between_clusters: float,
             logger=None,
     ):
         super(KmeansLoss, self).__init__()

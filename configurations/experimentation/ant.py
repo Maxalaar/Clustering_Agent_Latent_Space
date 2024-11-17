@@ -5,6 +5,8 @@ ant = ExperimentationConfiguration(
     environment_name='AntRllib',
 )
 
+ant.ray_local_mode = True
+
 # Learning
 # marvine_ant.reinforcement_learning_configuration.grad_clip = 0.5
 ant.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
@@ -14,7 +16,7 @@ ant.reinforcement_learning_configuration.lambda_gae = 0.95
 # ant.reinforcement_learning_configuration.mini_batch_size_per_learner = 64 * 4
 
 ant.reinforcement_learning_configuration.train_batch_size = 80_000
-ant.reinforcement_learning_configuration.mini_batch_size_per_learner = 20_000
+ant.reinforcement_learning_configuration.minibatch_size = 20_000
 # ant.reinforcement_learning_configuration.number_gpus_per_learner = 0
 
 ant.reinforcement_learning_configuration.clip_all_parameter = 2.0
@@ -24,8 +26,8 @@ ant.reinforcement_learning_configuration.clip_value_function_parameter = 2.0
 # Dataset
 ant.trajectory_dataset_generation_configuration.number_environment_runners = 10
 # ant.trajectory_dataset_generation_configuration.number_gpus_per_environment_runners = 1/ant.trajectory_dataset_generation_configuration.number_environment_runners
-ant.trajectory_dataset_generation_configuration.number_iterations = 1000
-ant.trajectory_dataset_generation_configuration.minimal_steps_per_iteration = 10_000
+ant.trajectory_dataset_generation_configuration.number_iterations = 5
+ant.trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 10_000
 #
 # ant.trajectory_dataset_generation_configuration.number_environment_runners = 1
 # ant.trajectory_dataset_generation_configuration.number_iterations = 1

@@ -10,7 +10,6 @@ class LunarLander(gym.Env):
         self.render_mode = environment_configuration.get('render_mode', None)
         self.environment = gym.make('LunarLander-v3', render_mode=self.render_mode)
 
-        # self.observation_space = self.environment.observation_space
         self.observation_space= Box(
             low=np.NINF,
             high=np.PINF,
@@ -18,6 +17,17 @@ class LunarLander(gym.Env):
             dtype=np.float32
         )
         self.action_space = self.environment.action_space
+
+        self.observation_feature_names = [
+            'lander_coordinate_x',
+            'lander_coordinate_y',
+            'linear_velocity_x',
+            'linear_velocity_y',
+            'angle',
+            'angular_velocity',
+            'leg_0_contact_ground',
+            'leg_1_contact_ground',
+        ]
 
     def reset(self, seed=None, options=None):
         observation, info = self.environment.reset(seed=seed, options=options)

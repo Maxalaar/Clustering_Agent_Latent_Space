@@ -2,7 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 import yaml
 
-from lightning.clustering_loss.kmeans_loss import KmeansLoss
+from lightning.kmeans_loss import KmeansLoss
 
 
 class SurrogatePolicyTrainingConfiguration:
@@ -15,12 +15,11 @@ class SurrogatePolicyTrainingConfiguration:
         self.learning_rate: float = 1e-4
         self.batch_size: int = 20_000
         self.clusterization_loss = KmeansLoss
-        self.clusterization_loss_coefficient: float = 1.0
         self.clusterization_loss_configuration: dict = {}
 
         self.number_mini_chunks: int = 2
         self.mini_chunk_size: int = 100_000
-        self.data_loader_number_workers: int = 4
+        self.data_loader_number_workers: int = 2
 
         self.model_checkpoint_time_interval = timedelta(minutes=10)
         self.evaluation_every_n_epoch = 10

@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import Optional
 
-from configurations.reinforcement_learning.basic_reinforcement_learning_configuration import basic_reinforcement_learning_configuration
 from configurations.structure.reinforcement_learning_configuration import ReinforcementLearningConfiguration
 from configurations.structure.surrogate_policy_training_configuration import SurrogatePolicyTrainingConfiguration
 from configurations.structure.trajectory_dataset_generation_configuration import \
@@ -26,7 +25,7 @@ class ExperimentationConfiguration:
 
         # Reinforcement Learning
         self.reinforcement_learning_storage_path: Path = self.experimentation_storage_path / 'reinforcement_learning'
-        self.reinforcement_learning_configuration: Optional[ReinforcementLearningConfiguration] = basic_reinforcement_learning_configuration.clone()
+        self.reinforcement_learning_configuration: Optional[ReinforcementLearningConfiguration] = ReinforcementLearningConfiguration()
 
         # Video
         self.video_episodes_storage_path: Path = self.video_path / 'episodes'

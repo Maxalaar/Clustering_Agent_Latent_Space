@@ -1,32 +1,24 @@
-import os
-
 import ray
 from ray import air, tune
+from ray.rllib.algorithms.dreamerv3 import DreamerV3, DreamerV3Config
 from ray.rllib.algorithms.ppo import PPOConfig, PPO
 from ray.rllib.algorithms.dqn import DQNConfig, DQN
 from ray.rllib.connectors.env_to_module import FlattenObservations
-from ray.rllib.core.rl_module import RLModuleSpec
-from ray.rllib.examples.rl_modules.classes.tiny_atari_cnn_rlm import TinyAtariCNN
-from ray.rllib.examples.connectors.classes.count_based_curiosity import CountBasedCuriosity
 from ray.rllib.utils.from_config import NotProvided
 from ray.rllib.algorithms import AlgorithmConfig, Algorithm
+from ray.rllib.core.rl_module.rl_module import RLModuleSpec
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from rllib.register_architectures import register_architectures
 
 
 def reinforcement_learning_training(experimentation_configuration: ExperimentationConfiguration):
-    ray_initialization = False
-    if not ray.is_initialized():
-        ray.init(local_mode=experimentation_configuration.ray_local_mode)
-        ray_initialization = True
+    ray.init(local_mode=experimentation_configuration.ray_local_mode)
 
     reinforcement_learning_configuration = experimentation_configuration.reinforcement_learning_configuration
     reinforcement_learning_configuration.to_yaml_file(experimentation_configuration.reinforcement_learning_storage_path)
 
     register_environments()
-    register_architectures()
 
     algorithm: Algorithm
     algorithm_configuration: AlgorithmConfig
@@ -37,6 +29,9 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
     elif reinforcement_learning_configuration.algorithm_name == 'DQN':
         algorithm = DQN
         algorithm_configuration = DQNConfig()
+    elif reinforcement_learning_configuration.algorithm_name == 'DreamerV3':
+        algorithm = DreamerV3
+        algorithm_configuration = DreamerV3Config()
     else:
         raise ValueError('Unsupported algorithm ' + str(reinforcement_learning_configuration.algorithm_name) + '.')
 
@@ -49,25 +44,15 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
         env_config=experimentation_configuration.environment_configuration,
     )
 
-    # Training
-    if reinforcement_learning_configuration.architecture_name is not NotProvided:
-        algorithm_configuration.training(
-            model={
-                'custom_model': reinforcement_learning_configuration.architecture_name,
-                'custom_model_config': reinforcement_learning_configuration.architecture_configuration,
-            }
-        )
-        # algorithm_configuration.rl_module(
-        #     rl_module_spec=RLModuleSpec(
-        #         module_class=reinforcement_learning_configuration.architecture_name,
-        #         # Feel free to specify your own `model_config` settings below.
-        #         # The `model_config` defined here will be available inside your
-        #         # custom RLModule class through the `self.model_config`
-        #         # property.
-        #         model_config_dict=,
-        #     ),
-        # )
+    # Reinforcement Learning module
+    algorithm_configuration.rl_module(
+        rl_module_spec=RLModuleSpec(
+            module_class=reinforcement_learning_configuration.architecture,
+            model_config=reinforcement_learning_configuration.architecture_configuration,
+        ),
+    )
 
+    # Training
     algorithm_configuration.training(
         grad_clip=reinforcement_learning_configuration.grad_clip,
         train_batch_size=reinforcement_learning_configuration.train_batch_size,
@@ -81,9 +66,8 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
         algorithm_configuration: PPOConfig
         algorithm_configuration.training(
             use_gae=reinforcement_learning_configuration.use_generalized_advantage_estimator,
-            mini_batch_size_per_learner=reinforcement_learning_configuration.mini_batch_size_per_learner,
-            sgd_minibatch_size=reinforcement_learning_configuration.mini_batch_size_per_learner,
-            num_sgd_iter=reinforcement_learning_configuration.num_sgd_iter,
+            minibatch_size=reinforcement_learning_configuration.minibatch_size,
+            num_epochs=reinforcement_learning_configuration.number_epochs,
             lambda_=reinforcement_learning_configuration.lambda_gae,
             grad_clip=reinforcement_learning_configuration.clip_all_parameter,
             clip_param=reinforcement_learning_configuration.clip_policy_parameter,
@@ -99,8 +83,12 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
         num_envs_per_env_runner=reinforcement_learning_configuration.number_environment_per_environment_runners,
         num_cpus_per_env_runner=reinforcement_learning_configuration.number_cpus_per_environment_runners,
         num_gpus_per_env_runner=reinforcement_learning_configuration.number_gpus_per_environment_runners,
-        # env_to_module_connector=lambda env: FlattenObservations(),
     )
+
+    if reinforcement_learning_configuration.flatten_observations:
+        algorithm_configuration.env_runners(
+            env_to_module_connector=lambda env: FlattenObservations(),
+        )
 
     # Learners
     algorithm_configuration.learners(
@@ -123,45 +111,31 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 
     # New API Stack
     algorithm_configuration.api_stack(
-        enable_rl_module_and_learner=False,
-        enable_env_runner_and_connector_v2=False,
+        enable_rl_module_and_learner=True,
+        enable_env_runner_and_connector_v2=True,
     )
 
-    tuner_save_path = os.path.join(experimentation_configuration.experimentation_storage_path, str(experimentation_configuration.reinforcement_learning_storage_path), 'tuner.pkl')
-    if os.path.exists(tuner_save_path):
-        tuner = tune.Tuner.restore(
-            os.path.dirname(tuner_save_path),
-            trainable=algorithm,
-            resume_unfinished=True,
-            resume_errored=True,
-            restart_errored=True,
-        )
-
-    else:
-        tuner = tune.Tuner(
-            trainable=algorithm,
-            param_space=algorithm_configuration,
-            run_config=air.RunConfig(
-                name=str(experimentation_configuration.reinforcement_learning_storage_path),
-                storage_path=str(experimentation_configuration.experimentation_storage_path),
-                stop=reinforcement_learning_configuration.stopping_criterion,
-                checkpoint_config=air.CheckpointConfig(
-                    num_to_keep=reinforcement_learning_configuration.number_checkpoint_to_keep,
-                    checkpoint_score_attribute=reinforcement_learning_configuration.checkpoint_score_attribute,
-                    checkpoint_score_order=reinforcement_learning_configuration.checkpoint_score_order,
-                    checkpoint_frequency=reinforcement_learning_configuration.checkpoint_frequency,
-                    checkpoint_at_end=True,
-                )
-            ),
-        )
+    tuner = tune.Tuner(
+        trainable=algorithm,
+        param_space=algorithm_configuration,
+        run_config=air.RunConfig(
+            name=str(experimentation_configuration.reinforcement_learning_storage_path),
+            storage_path=str(experimentation_configuration.experimentation_storage_path),
+            stop=reinforcement_learning_configuration.stopping_criterion,
+            checkpoint_config=air.CheckpointConfig(
+                num_to_keep=reinforcement_learning_configuration.number_checkpoint_to_keep,
+                checkpoint_score_attribute=reinforcement_learning_configuration.checkpoint_score_attribute,
+                checkpoint_score_order=reinforcement_learning_configuration.checkpoint_score_order,
+                checkpoint_frequency=reinforcement_learning_configuration.checkpoint_frequency,
+                checkpoint_at_end=True,
+            )
+        ),
+    )
 
     tuner.fit()
-
-    if ray_initialization:
-        ray.shutdown()
 
 
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    reinforcement_learning_training(configurations.list_experimentation_configurations.flappy_bird)
+    reinforcement_learning_training(configurations.list_experimentation_configurations.pong_survivor_two_balls)

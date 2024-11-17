@@ -60,6 +60,7 @@ class PongSurvivor(gym.Env):
         self.action_space = gym.spaces.Discrete(3)
         self.observation_space = self._get_observation_space()
 
+        self.metadata = {'render_modes': ['rgb_array']}
         self.render_mode = environment_configuration.get('render_mode', 'rgb_array')
         self.render_environment = None
         self.display_arrows = environment_configuration.get('display_arrows', True)
@@ -73,6 +74,7 @@ class PongSurvivor(gym.Env):
         self.reset()
 
     def reset(self, *, seed=None, options=None):
+        self.spec.max_episode_steps = int(self.max_time / (self.time_step * (self.frame_skip + 1)))
         self._current_time_steps = 0
 
         self.terminated = False
@@ -107,7 +109,8 @@ class PongSurvivor(gym.Env):
             if self.render_environment is None:
                 self.render_environment = RenderEnvironment(self)
 
-            return self.render_environment.render()
+            rendering = self.render_environment.render()
+            return rendering
 
     def _get_observation_space(self):
         observation_space = {}

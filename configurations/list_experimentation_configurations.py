@@ -1,7 +1,6 @@
 from configurations.experimentation.ant import ant
 from configurations.experimentation.pong_survivor_one_ball import pong_survivor_one_ball
 from configurations.experimentation.pong_survivor_two_balls import pong_survivor_two_balls
-from configurations.experimentation.test_new_architecture import test_new_architecture
 from configurations.experimentation.tetris import tetris
 from configurations.experimentation.flappy_bird import flappy_bird
 from configurations.experimentation.lunar_lander import lunar_lander

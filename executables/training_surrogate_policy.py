@@ -27,7 +27,7 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
 
     data_module = H5DataModule(
         h5_file_path=experimentation_configuration.trajectory_dataset_file_path,
-        input_dataset_name='observation',
+        input_dataset_name='observations',
         output_dataset_name='action_distribution_inputs',
         batch_size=experimentation_configuration.surrogate_policy_training_configuration.batch_size,
         mini_chunk_size=experimentation_configuration.surrogate_policy_training_configuration.mini_chunk_size,
@@ -41,7 +41,6 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         output_dimension=np.prod(data_module.output_shape),
         architecture_configuration=experimentation_configuration.surrogate_policy_training_configuration.architecture_configuration,
         learning_rate=experimentation_configuration.surrogate_policy_training_configuration.learning_rate,
-        clusterization_loss_coefficient=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss_coefficient,
         clusterization_loss=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss,
         clusterization_loss_configuration=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss_configuration,
     )
@@ -72,4 +71,4 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    surrogate_policy_training(configurations.list_experimentation_configurations.ant)
+    surrogate_policy_training(configurations.list_experimentation_configurations.pong_survivor_two_balls)
