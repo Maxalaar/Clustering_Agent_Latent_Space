@@ -7,6 +7,8 @@ import numpy as np
 
 class LunarLander(gym.Env):
     def __init__(self, environment_configuration: Optional[dict] = None):
+        self.metadata = {'render_modes': ['rgb_array']}
+
         self.render_mode = environment_configuration.get('render_mode', None)
         self.environment = gym.make('LunarLander-v3', render_mode=self.render_mode)
 
@@ -18,7 +20,7 @@ class LunarLander(gym.Env):
         )
         self.action_space = self.environment.action_space
 
-        self.observation_feature_names = [
+        self.observation_labels = [
             'lander_coordinate_x',
             'lander_coordinate_y',
             'linear_velocity_x',

@@ -7,6 +7,8 @@ from gymnasium.spaces import Box
 
 class BipedalWalker(gym.Env):
     def __init__(self, environment_configuration: Optional[dict] = None):
+        self.metadata = {'render_modes': ['rgb_array']}
+
         self.render_mode = environment_configuration.get('render_mode', None)
         self.environment = gym.make('BipedalWalker-v3', render_mode=self.render_mode)
 
@@ -18,7 +20,7 @@ class BipedalWalker(gym.Env):
         )
         self.action_space = self.environment.action_space
 
-        self.observation_feature_names = [
+        self.observation_labels = [
             # Hull
             'hull_angle_speed',
             'hull_angular_velocity',

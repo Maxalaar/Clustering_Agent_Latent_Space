@@ -25,17 +25,18 @@ class ReinforcementLearningConfiguration:
         self.architecture_configuration: Optional[dict] = None
         self.train_batch_size: int = NotProvided
         self.learning_rate: float = NotProvided
-        self.grad_clip: float = NotProvided
         self.exploration_configuration: dict = NotProvided
         self.learner_connector: Callable = NotProvided
+        self.number_epochs: int = NotProvided
+        self.gradient_clip: float = NotProvided
+        self.gradient_clip_by: str = NotProvided
+
         # PPO only
         self.use_generalized_advantage_estimator: bool = NotProvided
         self.minibatch_size: int = NotProvided
-        self.number_epochs: int = NotProvided
         self.lambda_gae: float = NotProvided
-        self.clip_policy_parameter: float = NotProvided
-        self.clip_value_function_parameter: float = NotProvided
         self.clip_all_parameter: float = NotProvided
+        self.clip_value_function_parameter: float = NotProvided
 
         # Environment runners
         self.batch_mode: str = 'complete_episodes'

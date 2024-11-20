@@ -1,11 +1,12 @@
 from typing import Optional
 
-import flappy_bird_gymnasium
 import gymnasium as gym
 
 
 class FlappyBird(gym.Env):
     def __init__(self, environment_configuration: Optional[dict] = None):
+        self.metadata = {'render_modes': ['rgb_array']}
+
         self.render_mode = environment_configuration.get('render_mode', None)
         self.environment = gym.make('FlappyBird-v0', render_mode=self.render_mode, use_lidar=False)
 

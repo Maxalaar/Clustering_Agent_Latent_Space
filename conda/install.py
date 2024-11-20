@@ -24,6 +24,7 @@ if __name__ == '__main__':
         'conda install -c rapidsai -c conda-forge -c nvidia rapids=24.10 python=3.11 cuda-version=12.1 --yes',
         'conda install bokeh::bokeh --yes',
         'conda install selenium --yes',
+        'conda install conda-forge::imbalanced-learn --yes'
         'pip install gymnasium==1.0.0',
         'pip install gymnasium[box2d]',
         'pip install gymnasium[mujoco]',

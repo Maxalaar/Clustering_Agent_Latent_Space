@@ -18,10 +18,6 @@ pong_survivor_one_ball.reinforcement_learning_configuration.number_gpus_per_lear
 pong_survivor_one_ball.reinforcement_learning_configuration.train_batch_size = 40_000
 pong_survivor_one_ball.reinforcement_learning_configuration.minibatch_size = 10_000
 
-# Surrogate Policy Training
-# pong_survivor_one_ball.surrogate_policy_training_configuration.clusterization_loss = None
-pong_survivor_one_ball.surrogate_policy_training_configuration.clusterization_loss_configuration = {'number_cluster': 2}
-
 # Trajectory Dataset Generation
 pong_survivor_one_ball.trajectory_dataset_generation_configuration.number_environment_runners = 10
 pong_survivor_one_ball.trajectory_dataset_generation_configuration.number_gpus_per_environment_runners = 1/10
@@ -35,6 +31,7 @@ pong_survivor_one_ball.trajectory_dataset_generation_configuration.minimal_steps
 # pong_survivor_one_ball.trajectory_dataset_generation_configuration.minimal_steps_per_iteration = 1000
 
 # Surrogate Policy Training
+# pong_survivor_one_ball.surrogate_policy_training_configuration.clusterization_loss = None
 pong_survivor_one_ball.surrogate_policy_training_configuration.batch_size = 20_000
 pong_survivor_one_ball.surrogate_policy_training_configuration.mini_chunk_size = 100_000
 pong_survivor_one_ball.surrogate_policy_training_configuration.number_mini_chunks = 2

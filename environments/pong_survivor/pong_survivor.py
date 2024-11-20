@@ -36,6 +36,8 @@ def flattening(dictionary: dict, flatten_dictionary: dict = {}, prefix: str = ''
 
 class PongSurvivor(gym.Env):
     def __init__(self, environment_configuration: Optional[dict] = None):
+        self.metadata = {'render_modes': ['rgb_array']}
+
         self.balls = []
         self.paddles = []
 
@@ -60,7 +62,6 @@ class PongSurvivor(gym.Env):
         self.action_space = gym.spaces.Discrete(3)
         self.observation_space = self._get_observation_space()
 
-        self.metadata = {'render_modes': ['rgb_array']}
         self.render_mode = environment_configuration.get('render_mode', 'rgb_array')
         self.render_environment = None
         self.display_arrows = environment_configuration.get('display_arrows', True)
@@ -72,6 +73,7 @@ class PongSurvivor(gym.Env):
         self.truncated = None
 
         self.reset()
+        self.observation_labels = self._get_observation_labels()
 
     def reset(self, *, seed=None, options=None):
         self.spec.max_episode_steps = int(self.max_time / (self.time_step * (self.frame_skip + 1)))
@@ -124,6 +126,22 @@ class PongSurvivor(gym.Env):
         observation_space['time_percentage'] = Box(low=-2, high=2, shape=(1,))
 
         return gymnasium.spaces.Dict(observation_space)
+
+    def _get_observation_labels(self):
+        observation_labels = []
+
+        for ball in self.balls:
+            observation_labels.append(str(ball.id) + '_position_x')
+            observation_labels.append(str(ball.id) + '_position_y')
+            observation_labels.append(str(ball.id) + '_velocity_x')
+            observation_labels.append(str(ball.id) + '_velocity_y')
+
+        for paddle in self.paddles:
+            observation_labels.append(str(paddle.id) + '_position_x')
+            observation_labels.append(str(paddle.id) + '_position_y')
+
+        observation_labels.append('time_percentage')
+        return observation_labels
 
     def _get_observation(self):
         observation = {}

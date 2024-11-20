@@ -16,7 +16,8 @@ class Lightning(TorchRLModule):
 
     @override(TorchRLModule)
     def _forward(self, batch, **kwargs):
-        action_distribution_inputs = self.lightning_module(batch[Columns.OBS])
+        with torch.no_grad():
+            action_distribution_inputs = self.lightning_module(batch[Columns.OBS])
         return {
             Columns.ACTION_DIST_INPUTS: action_distribution_inputs,
         }

@@ -1,3 +1,5 @@
+import os
+
 import ray
 from ray import air, tune
 from ray.rllib.algorithms.dreamerv3 import DreamerV3, DreamerV3Config
@@ -36,7 +38,6 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
         raise ValueError('Unsupported algorithm ' + str(reinforcement_learning_configuration.algorithm_name) + '.')
 
     algorithm_configuration.framework(reinforcement_learning_configuration.framework)
-    algorithm_configuration.resources(num_gpus=reinforcement_learning_configuration.number_gpu)
 
     # Environment
     algorithm_configuration.environment(
@@ -44,7 +45,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
         env_config=experimentation_configuration.environment_configuration,
     )
 
-    # Reinforcement Learning module
+    # Reinforcement Learning Module
     algorithm_configuration.rl_module(
         rl_module_spec=RLModuleSpec(
             module_class=reinforcement_learning_configuration.architecture,
@@ -54,10 +55,12 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 
     # Training
     algorithm_configuration.training(
-        grad_clip=reinforcement_learning_configuration.grad_clip,
         train_batch_size=reinforcement_learning_configuration.train_batch_size,
         lr=reinforcement_learning_configuration.learning_rate,
         learner_connector=reinforcement_learning_configuration.learner_connector,
+        num_epochs=reinforcement_learning_configuration.number_epochs,
+        grad_clip=reinforcement_learning_configuration.gradient_clip,
+        grad_clip_by=reinforcement_learning_configuration.gradient_clip_by,
     )
     if reinforcement_learning_configuration.exploration_configuration is not NotProvided:
         algorithm_configuration.exploration_config = reinforcement_learning_configuration.exploration_configuration
@@ -67,13 +70,11 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
         algorithm_configuration.training(
             use_gae=reinforcement_learning_configuration.use_generalized_advantage_estimator,
             minibatch_size=reinforcement_learning_configuration.minibatch_size,
-            num_epochs=reinforcement_learning_configuration.number_epochs,
             lambda_=reinforcement_learning_configuration.lambda_gae,
-            grad_clip=reinforcement_learning_configuration.clip_all_parameter,
-            clip_param=reinforcement_learning_configuration.clip_policy_parameter,
+            grad_clip=reinforcement_learning_configuration.gradient_clip,
+            clip_param=reinforcement_learning_configuration.clip_all_parameter,
             vf_clip_param=reinforcement_learning_configuration.clip_value_function_parameter,
-            # learner_connector=lambda env: CountBasedCuriosity(),
-            # add_default_connectors_to_learner_pipeline=True,
+            learner_connector=reinforcement_learning_configuration.learner_connector,
         )
 
     # Environment runners
@@ -115,22 +116,32 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
         enable_env_runner_and_connector_v2=True,
     )
 
-    tuner = tune.Tuner(
-        trainable=algorithm,
-        param_space=algorithm_configuration,
-        run_config=air.RunConfig(
-            name=str(experimentation_configuration.reinforcement_learning_storage_path),
-            storage_path=str(experimentation_configuration.experimentation_storage_path),
-            stop=reinforcement_learning_configuration.stopping_criterion,
-            checkpoint_config=air.CheckpointConfig(
-                num_to_keep=reinforcement_learning_configuration.number_checkpoint_to_keep,
-                checkpoint_score_attribute=reinforcement_learning_configuration.checkpoint_score_attribute,
-                checkpoint_score_order=reinforcement_learning_configuration.checkpoint_score_order,
-                checkpoint_frequency=reinforcement_learning_configuration.checkpoint_frequency,
-                checkpoint_at_end=True,
-            )
-        ),
-    )
+    tuner_save_path = os.path.join(experimentation_configuration.experimentation_storage_path, str(experimentation_configuration.reinforcement_learning_storage_path), 'tuner.pkl')
+    if os.path.exists(tuner_save_path):
+        tuner = tune.Tuner.restore(
+            os.path.dirname(tuner_save_path),
+            trainable=algorithm,
+            resume_unfinished=True,
+            resume_errored=True,
+            restart_errored=True,
+        )
+    else:
+        tuner = tune.Tuner(
+            trainable=algorithm,
+            param_space=algorithm_configuration,
+            run_config=air.RunConfig(
+                name=str(experimentation_configuration.reinforcement_learning_storage_path),
+                storage_path=str(experimentation_configuration.experimentation_storage_path),
+                stop=reinforcement_learning_configuration.stopping_criterion,
+                checkpoint_config=air.CheckpointConfig(
+                    num_to_keep=reinforcement_learning_configuration.number_checkpoint_to_keep,
+                    checkpoint_score_attribute=reinforcement_learning_configuration.checkpoint_score_attribute,
+                    checkpoint_score_order=reinforcement_learning_configuration.checkpoint_score_order,
+                    checkpoint_frequency=reinforcement_learning_configuration.checkpoint_frequency,
+                    checkpoint_at_end=True,
+                )
+            ),
+        )
 
     tuner.fit()
 
@@ -138,4 +149,4 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    reinforcement_learning_training(configurations.list_experimentation_configurations.pong_survivor_two_balls)
+    reinforcement_learning_training(configurations.list_experimentation_configurations.cartpole)

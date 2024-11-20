@@ -57,15 +57,16 @@ if __name__ == "__main__":
     ]
 
     list_learning = [
-        # 'ray/tune/evaluation/env_runners/episode_reward_mean',
-        # 'ray/tune/env_runners/episode_reward_mean',
-        # # PPO
-        # 'ray/tune/info/learner/default_policy/learner_stats/policy_loss',
-        # 'ray/tune/info/learner/default_policy/learner_stats/vf_loss',
-        # 'ray/tune/info/learner/default_policy/learner_stats/entropy',
-        # # DQN
-        # 'ray/tune/info/learner/default_policy/mean_td_error',
+        'ray/tune/evaluation/env_runners/episode_return_mean',
         'ray/tune/env_runners/episode_return_mean',
+        'ray/tune/learners/default_policy/gradients_default_optimizer_global_norm',
+        # PPO
+        'ray/tune/learners/default_policy/policy_loss',
+        'ray/tune/learners/default_policy/vf_loss',
+        'ray/tune/learners/default_policy/vf_loss_unclipped',
+        'ray/tune/learners/default_policy/entropy',
+        # DQN
+        'ray/tune/learners/default_policy/mean_td_error',
     ]
 
     list_supervised = [

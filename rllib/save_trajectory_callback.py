@@ -55,7 +55,7 @@ class SaveTrajectoryCallback(DefaultCallbacks):
         actions = []
         action_distribution_inputs = []
         rewards = []
-        rendering = []
+        renderings = []
 
         for index, trajectory in enumerate(samples):
             trajectory: SingleAgentEpisode
@@ -66,7 +66,7 @@ class SaveTrajectoryCallback(DefaultCallbacks):
             rewards.append(trajectory.get_rewards())
 
             if self.save_rendering:
-                rendering.append(np.stack(self.rendering_by_episode_id[trajectory.id_]))
+                renderings.append(np.stack(self.rendering_by_episode_id[trajectory.id_]))
                 del self.rendering_by_episode_id[trajectory.id_]
 
         local_episodes_id = np.concatenate(local_episodes_id, axis=0)
@@ -77,7 +77,7 @@ class SaveTrajectoryCallback(DefaultCallbacks):
             'rewards': np.concatenate(rewards, axis=0),
         }
         if self.save_rendering:
-            dataset_dictionary['rendering'] = np.concatenate(rendering, axis=0)
+            dataset_dictionary['renderings'] = np.concatenate(renderings, axis=0)
 
         self.write(local_episodes_id, dataset_dictionary)
 

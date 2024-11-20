@@ -10,7 +10,10 @@ from itertools import islice
 from PIL import Image
 
 from cuml import KMeans, TSNE, UMAP
+
 from ray.tune.registry import _Registry
+
+from imblearn.over_sampling import RandomOverSampler
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.metrics import accuracy_score
@@ -81,6 +84,9 @@ def latent_space_projection_2d(
 
     projector_2d = TSNE(
         n_components=2,
+        # perplexity=100,
+        # n_neighbors=60,
+        # n_iter=10_000,
     )
     projection_2d = projector_2d.fit_transform(sample_embeddings)
 
@@ -102,20 +108,50 @@ def train_decision_tree(
         save_path: Path,
         feature_names: Optional[list] = None,
 ):
-    x_train, x_test, y_train, y_test = train_test_split(observations.cpu().numpy(), cluster_labels.cpu().numpy(), test_size=0.2)
+    save_path = save_path / 'decision_trees'
+    os.makedirs(save_path, exist_ok=True)
+
+    observations = observations.cpu().numpy()
+    cluster_labels = cluster_labels.cpu().numpy()
+
+    class_names = []
+    for label in np.unique(cluster_labels):
+        class_names.append('cluster_' + str(label))
+
+    x_train, x_test, y_train, y_test = train_test_split(observations, cluster_labels, test_size=0.2)
 
     decision_tree = DecisionTreeClassifier(max_depth=3)
     decision_tree.fit(x_train, y_train)
     predict_y_test = decision_tree.predict(x_test)
     accuracy_value = accuracy_score(y_test, predict_y_test)
-    information = 'Decision tree (observations -> clusters), accuracy: ' + str(accuracy_value) + '\n'
+    information = 'Decision tree (observations -> all clusters), max depth: ' + str(decision_tree.max_depth) + ', accuracy: ' + str(accuracy_value) + '\n'
     print(information)
     with open(save_path / 'information.txt', 'a') as file:
         file.write(information)
 
     plt.figure(figsize=(12, 12))
-    plot_tree(decision_tree, filled=True, feature_names=feature_names)
-    plt.savefig(save_path / 'decision_tree.png', bbox_inches='tight', dpi=300)
+    plot_tree(decision_tree, filled=True, feature_names=feature_names, class_names=class_names)
+    plt.savefig(save_path / 'all_clusters_decision_tree.png', bbox_inches='tight', dpi=300)
+
+    for label in np.unique(cluster_labels):
+        y_binary = (cluster_labels == label).astype(int)
+        class_names = ['other_cluster', 'cluster_' + str(label)]
+        random_over_sampler = RandomOverSampler(sampling_strategy=1.0)
+        x_balance, y_balance = random_over_sampler.fit_resample(observations, y_binary)
+        x_train, x_test, y_train, y_test = train_test_split(x_balance, y_balance, test_size=0.2)
+
+        decision_tree = DecisionTreeClassifier(max_depth=2)
+        decision_tree.fit(x_train, y_train)
+        predict_y_test = decision_tree.predict(x_test)
+        accuracy_value = accuracy_score(y_test, predict_y_test)
+        information = 'Decision tree (observations -> cluster ' + str(label) + '), max depth: ' + str(decision_tree.max_depth) + ', accuracy: ' + str(accuracy_value) + '\n'
+        print(information)
+        with open(save_path / 'information.txt', 'a') as file:
+            file.write(information)
+
+        plt.figure(figsize=(12, 12))
+        plot_tree(decision_tree, filled=True, feature_names=feature_names, class_names=class_names)
+        plt.savefig(save_path / ('cluster_' + str(label) + '_decision_tree.png'), bbox_inches='tight', dpi=300)
 
 
 def get_observations_with_rending(
@@ -126,7 +162,7 @@ def get_observations_with_rending(
     data_module = H5DataModule(
         h5_file_path=trajectory_dataset_with_rending_file_path,
         output_dataset_name='observations',
-        input_dataset_name='rendering',
+        input_dataset_name='renderings',
         batch_size=2000,
         number_mini_chunks=2,
         mini_chunk_size=3000,
@@ -178,7 +214,7 @@ def representation_clusters(
             image.save(cluster_path / f'image_{i}.png')
 
 
-def latent_space_analysis(experimentation_configuration: ExperimentationConfiguration, model_checkpoint_path):
+def latent_space_analysis(experimentation_configuration: ExperimentationConfiguration, surrogate_policy_checkpoint_path):
     if experimentation_configuration.latent_space_analysis_storage_path.exists() and experimentation_configuration.latent_space_analysis_storage_path.is_dir():
         shutil.rmtree(experimentation_configuration.latent_space_analysis_storage_path)
     os.makedirs(experimentation_configuration.latent_space_analysis_storage_path, exist_ok=True)
@@ -188,9 +224,9 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
     environment_creator = _Registry().get('env_creator', experimentation_configuration.environment_name)
     environment = environment_creator(experimentation_configuration.environment_configuration)
 
-    surrogate_policy: SurrogatePolicy = SurrogatePolicy.load_from_checkpoint(model_checkpoint_path)
+    surrogate_policy: SurrogatePolicy = SurrogatePolicy.load_from_checkpoint(surrogate_policy_checkpoint_path)
     surrogate_policy.eval()
-    information = 'Surrogate policy checkpoint path: ' + str(model_checkpoint_path) + '\n'
+    information = 'Surrogate policy checkpoint path: ' + str(surrogate_policy_checkpoint_path) + '\n'
     print(information)
     with open(experimentation_configuration.latent_space_analysis_storage_path / 'information.txt', 'a') as file:
         file.write(information)
@@ -216,7 +252,7 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
     train_decision_tree(
         observations=observations,
         cluster_labels=cluster_labels,
-        feature_names=getattr(environment, 'observation_feature_names', None),
+        feature_names=getattr(environment, 'observation_labels', None),
         save_path=experimentation_configuration.latent_space_analysis_storage_path,
     )
     representation_clusters(
@@ -231,5 +267,5 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    model_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/pong_survivor_tow_balls/surrogate_policy/version_1/checkpoints/epoch=954-step=143217.ckpt'
-    latent_space_analysis(configurations.list_experimentation_configurations.pong_survivor_two_balls, model_checkpoint_path)
+    surrogate_policy_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/bipedal_walker/surrogate_policy/version_0/checkpoints/epoch=300-step=45001.ckpt'
+    latent_space_analysis(configurations.list_experimentation_configurations.bipedal_walker, surrogate_policy_checkpoint_path)

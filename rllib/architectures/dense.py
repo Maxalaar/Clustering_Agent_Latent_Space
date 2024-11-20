@@ -7,6 +7,10 @@ from ray.rllib.models.preprocessors import get_preprocessor
 from ray.rllib.utils.annotations import override
 from ray.rllib.core.columns import Columns
 
+# from ray.rllib.core.testing.torch.bc_module import DiscreteBCTorchModule
+# from ray.rllib.algorithms.ppo.torch.ppo_torch_rl_module import PPOTorchRLModule
+# from ray.rllib.algorithms.ppo.ppo_catalog import PPOCatalog
+
 
 class Dense(TorchRLModule, ValueFunctionAPI):
     @override(TorchRLModule)
@@ -15,11 +19,11 @@ class Dense(TorchRLModule, ValueFunctionAPI):
         self.configuration_hidden_layers = self.model_config.get('configuration_hidden_layers', [64, 64])
         self.num_hidden_layers = len(self.configuration_hidden_layers)
 
-        observation_size = get_preprocessor(self.observation_space)(self.observation_space).size
-        action_size = get_preprocessor(self.action_space)(self.action_space).size
+        inpout_size = get_preprocessor(self.observation_space)(self.observation_space).size
+        output_size = self.action_dist_cls.required_input_dim(space=self.action_space)
 
-        actor_layers = [nn.Linear(observation_size, self.configuration_hidden_layers[0]), self.activation_function]
-        critic_layers = [nn.Linear(observation_size, self.configuration_hidden_layers[0]), self.activation_function]
+        actor_layers = [nn.Linear(inpout_size, self.configuration_hidden_layers[0]), self.activation_function]
+        critic_layers = [nn.Linear(inpout_size, self.configuration_hidden_layers[0]), self.activation_function]
 
         for i in range(0, self.num_hidden_layers - 1):
             actor_layers.append(nn.Linear(self.configuration_hidden_layers[i], self.configuration_hidden_layers[i + 1]))
@@ -29,7 +33,7 @@ class Dense(TorchRLModule, ValueFunctionAPI):
                 nn.Linear(self.configuration_hidden_layers[i], self.configuration_hidden_layers[i + 1]))
             critic_layers.append(self.activation_function)
 
-        actor_layers.append(nn.Linear(self.configuration_hidden_layers[-1], action_size))
+        actor_layers.append(nn.Linear(self.configuration_hidden_layers[-1], output_size))
         critic_layers.append(nn.Linear(self.configuration_hidden_layers[-1], 1))
 
         self.actor_layers = nn.Sequential(*actor_layers)

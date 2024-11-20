@@ -44,6 +44,10 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
         num_cpus_per_learner=0,
     )
 
+    algorithm_configuration.evaluation(
+        evaluation_num_env_runners=0,
+    )
+
     algorithm_configuration.env_runners(
         explore=False,
         num_env_runners=experimentation_configuration.trajectory_dataset_generation_configuration.number_environment_runners,
@@ -67,4 +71,4 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    trajectory_dataset_generation(configurations.list_experimentation_configurations.pong_survivor_two_balls)
+    trajectory_dataset_generation(configurations.list_experimentation_configurations.bipedal_walker)
