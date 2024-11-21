@@ -12,9 +12,11 @@ class TrajectoryDatasetGenerationConfiguration:
         self.number_environment_per_environment_runners: int = 1
         self.number_cpus_per_environment_runners: int = NotProvided
         self.number_gpus_per_environment_runners: int = NotProvided
+
         self.image_compression_function = image_compression
         self.image_compression_configuration = {
-            'new_width': 300,
-            'new_height': 300,
+            'new_width': 400,
+            'new_height': 400,
             'grayscale': True,
         }
+        self.number_rendering_to_stack: int = 0

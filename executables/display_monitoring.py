@@ -66,7 +66,7 @@ if __name__ == "__main__":
         'ray/tune/learners/default_policy/vf_loss_unclipped',
         'ray/tune/learners/default_policy/entropy',
         # DQN
-        'ray/tune/learners/default_policy/mean_td_error',
+        'ray/tune/learners/default_policy/td_error_mean',
     ]
 
     list_supervised = [

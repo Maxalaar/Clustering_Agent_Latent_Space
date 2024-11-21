@@ -12,9 +12,9 @@ def get_checkpoint_algorithm_configuration(checkpoint_path: Path):
 
     if algorithm_class.__name__ == PPO.__name__:
         algorithm_configuration: PPOConfig = PPOConfig.from_dict(algorithm_configuration_dictionary)
-    elif algorithm_class.__name__ is DQN.__name__:
+    elif algorithm_class.__name__ == DQN.__name__:
         algorithm_configuration: DQNConfig = DQNConfig.from_dict(algorithm_configuration_dictionary)
-    elif algorithm_class.__name__ is DreamerV3.__name__:
+    elif algorithm_class.__name__ == DreamerV3.__name__:
         algorithm_configuration: DreamerV3Config = DreamerV3Config.from_dict(algorithm_configuration_dictionary)
     else:
         raise ValueError('Unsupported algorithm ' + str(algorithm_class) + '.')

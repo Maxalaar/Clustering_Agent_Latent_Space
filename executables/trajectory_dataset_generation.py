@@ -30,6 +30,7 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
             save_rendering=experimentation_configuration.trajectory_dataset_generation_configuration.save_rendering,
             image_compression_function=experimentation_configuration.trajectory_dataset_generation_configuration.image_compression_function,
             image_compression_configuration=experimentation_configuration.trajectory_dataset_generation_configuration.image_compression_configuration,
+            number_rendering_to_stack=experimentation_configuration.trajectory_dataset_generation_configuration.number_rendering_to_stack,
         )
 
     best_checkpoints_path: Path = find_best_checkpoint_path(experimentation_configuration)

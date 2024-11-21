@@ -7,8 +7,8 @@ from ray.rllib.models.preprocessors import get_preprocessor
 from ray.rllib.utils.annotations import override
 from ray.rllib.core.columns import Columns
 
+from ray.rllib.algorithms.ppo.torch.ppo_torch_rl_module import PPOTorchRLModule
 # from ray.rllib.core.testing.torch.bc_module import DiscreteBCTorchModule
-# from ray.rllib.algorithms.ppo.torch.ppo_torch_rl_module import PPOTorchRLModule
 # from ray.rllib.algorithms.ppo.ppo_catalog import PPOCatalog
 
 

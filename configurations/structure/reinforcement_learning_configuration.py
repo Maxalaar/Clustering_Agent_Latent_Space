@@ -1,10 +1,11 @@
 from copy import deepcopy
 from pathlib import Path
-from typing import Optional, List, Callable
+from typing import Optional, List, Callable, Dict
 import yaml
 
 from ray.rllib.algorithms.callbacks import DefaultCallbacks
 from ray.rllib.core.rl_module import RLModule
+from ray.rllib.core.rl_module.default_model_config import DefaultModelConfig
 from ray.rllib.utils.from_config import NotProvided
 
 
@@ -22,7 +23,7 @@ class ReinforcementLearningConfiguration:
         # Training
         self.flatten_observations: bool = True
         self.architecture: Optional[RLModule] = None
-        self.architecture_configuration: Optional[dict] = None
+        self.architecture_configuration: Optional[DefaultModelConfig, Dict] = NotProvided
         self.train_batch_size: int = NotProvided
         self.learning_rate: float = NotProvided
         self.exploration_configuration: dict = NotProvided
@@ -30,6 +31,9 @@ class ReinforcementLearningConfiguration:
         self.number_epochs: int = NotProvided
         self.gradient_clip: float = NotProvided
         self.gradient_clip_by: str = NotProvided
+
+        # DQN only
+        self.replay_buffer_configuration: dict = NotProvided
 
         # PPO only
         self.use_generalized_advantage_estimator: bool = NotProvided

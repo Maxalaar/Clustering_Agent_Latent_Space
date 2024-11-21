@@ -18,12 +18,21 @@ def get_last_episode_id(h5_file):
 
 
 class SaveTrajectoryCallback(DefaultCallbacks):
-    def __init__(self, h5_file_path: Path, save_rendering: bool, image_compression_function, image_compression_configuration):
+    def __init__(
+            self,
+            h5_file_path: Path,
+            save_rendering: bool,
+            image_compression_function=None,
+            image_compression_configuration=None,
+            number_rendering_to_stack: int = 0,
+    ):
+
         self.h5_file_path: Path = h5_file_path
         self.save_rendering: bool = save_rendering
         self.rendering_by_episode_id: dict = {}
         self.image_compression_function = image_compression_function
         self.image_compression_configuration = image_compression_configuration
+        self.number_rendering_to_stack: int = number_rendering_to_stack
 
     def on_episode_step(
             self,
@@ -66,7 +75,24 @@ class SaveTrajectoryCallback(DefaultCallbacks):
             rewards.append(trajectory.get_rewards())
 
             if self.save_rendering:
-                renderings.append(np.stack(self.rendering_by_episode_id[trajectory.id_]))
+                renderings_trajectory = np.stack(self.rendering_by_episode_id[trajectory.id_])
+
+                if self.number_rendering_to_stack > 0:
+                    # weights = np.linspace(1, 0, self.number_rendering_to_stack + 1)
+                    n = self.number_rendering_to_stack + 1
+                    weights = np.exp(-np.linspace(0, 5, n))
+                    weights /= weights.sum()
+                    mean_renderings_trajectory = np.zeros_like(renderings_trajectory)
+                    for i in range(renderings_trajectory.shape[0]):
+                        for j in range(self.number_rendering_to_stack):
+                            index = i - j
+                            if index >= 0:
+                                mean_renderings_trajectory[i] += (weights[j] * renderings_trajectory[index]).astype(np.uint8)
+
+                    renderings_trajectory = mean_renderings_trajectory
+
+                renderings.append(renderings_trajectory)
+
                 del self.rendering_by_episode_id[trajectory.id_]
 
         local_episodes_id = np.concatenate(local_episodes_id, axis=0)
@@ -77,7 +103,9 @@ class SaveTrajectoryCallback(DefaultCallbacks):
             'rewards': np.concatenate(rewards, axis=0),
         }
         if self.save_rendering:
-            dataset_dictionary['renderings'] = np.concatenate(renderings, axis=0)
+            renderings = np.concatenate(renderings, axis=0)
+
+            dataset_dictionary['renderings'] = renderings
 
         self.write(local_episodes_id, dataset_dictionary)
 

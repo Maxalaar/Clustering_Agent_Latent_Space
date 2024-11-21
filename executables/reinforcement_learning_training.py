@@ -6,6 +6,7 @@ from ray.rllib.algorithms.dreamerv3 import DreamerV3, DreamerV3Config
 from ray.rllib.algorithms.ppo import PPOConfig, PPO
 from ray.rllib.algorithms.dqn import DQNConfig, DQN
 from ray.rllib.connectors.env_to_module import FlattenObservations
+from ray.rllib.core.rl_module.default_model_config import DefaultModelConfig
 from ray.rllib.utils.from_config import NotProvided
 from ray.rllib.algorithms import AlgorithmConfig, Algorithm
 from ray.rllib.core.rl_module.rl_module import RLModuleSpec
@@ -46,12 +47,23 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
     )
 
     # Reinforcement Learning Module
-    algorithm_configuration.rl_module(
-        rl_module_spec=RLModuleSpec(
-            module_class=reinforcement_learning_configuration.architecture,
+    if reinforcement_learning_configuration.architecture is not None:
+        algorithm_configuration.rl_module(
+            rl_module_spec=RLModuleSpec(
+                module_class=reinforcement_learning_configuration.architecture,
+            ),
             model_config=reinforcement_learning_configuration.architecture_configuration,
-        ),
-    )
+        )
+    # else:
+    #     algorithm_configuration.rl_module(
+    #         model_config=DefaultModelConfig(
+    #             fcnet_hiddens=[1024, 1024],
+    #             # fcnet_activation="tanh",
+    #             # fcnet_bias_initializer="zeros_",
+    #             # head_fcnet_bias_initializer="zeros_",
+    #             head_fcnet_hiddens=[512, 126, 64],
+    #         ),
+    #     )
 
     # Training
     algorithm_configuration.training(
@@ -75,6 +87,12 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
             clip_param=reinforcement_learning_configuration.clip_all_parameter,
             vf_clip_param=reinforcement_learning_configuration.clip_value_function_parameter,
             learner_connector=reinforcement_learning_configuration.learner_connector,
+        )
+
+    if type(algorithm_configuration) is DQNConfig:
+        algorithm_configuration: DQNConfig
+        algorithm_configuration.training(
+            replay_buffer_config=reinforcement_learning_configuration.replay_buffer_configuration,
         )
 
     # Environment runners
@@ -149,4 +167,4 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    reinforcement_learning_training(configurations.list_experimentation_configurations.cartpole)
+    reinforcement_learning_training(configurations.list_experimentation_configurations.tetris)
