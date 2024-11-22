@@ -267,5 +267,5 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    surrogate_policy_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/bipedal_walker/surrogate_policy/version_0/checkpoints/epoch=300-step=45001.ckpt'
-    latent_space_analysis(configurations.list_experimentation_configurations.bipedal_walker, surrogate_policy_checkpoint_path)
+    surrogate_policy_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/pong_survivor_tow_balls/surrogate_policy/version_3/checkpoints/epoch=721-step=159523.ckpt'
+    latent_space_analysis(configurations.list_experimentation_configurations.pong_survivor_two_balls, surrogate_policy_checkpoint_path)

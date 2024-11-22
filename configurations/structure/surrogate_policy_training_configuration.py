@@ -8,9 +8,8 @@ from lightning.kmeans_loss import KmeansLoss
 class SurrogatePolicyTrainingConfiguration:
     def __init__(self):
         self.architecture_configuration: dict = {
-            'cluster_space_size': 16,
-            'projection_clustering_space_shape': [128, 64, 32],
-            'projection_action_space_shape': [32, 64, 128],
+            'shape_layers': [128, 64, 32, 16, 32, 64, 128],
+            'latent_space_to_clusterize': [False, False, False, True, False, False, False],
         }
         self.learning_rate: float = 1e-4
         self.batch_size: int = 20_000

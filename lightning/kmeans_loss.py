@@ -1,6 +1,7 @@
 import torch
 from cuml import KMeans
 import torch.nn as nn
+from cuml.metrics.cluster.silhouette_score import cython_silhouette_score
 
 
 class KmeansLoss(nn.Module):
@@ -33,6 +34,7 @@ class KmeansLoss(nn.Module):
         attraction_loss = torch.tensor(0.0, device=device)
         repulsion_loss = torch.tensor(0.0, device=device)
         distance_intra_cluster = 0.0
+        silhouette_score = cython_silhouette_score(X=embeddings.detach(), labels=self.cluster_labels.detach())
 
         # Compute attraction and repulsion loss
         for i in range(self.number_cluster):
@@ -58,6 +60,7 @@ class KmeansLoss(nn.Module):
             matrix_distance_centroids = torch.cdist(self.centroids, self.centroids).triu(diagonal=1)
             distance_centroids = matrix_distance_centroids[matrix_distance_centroids != 0]
             self.logger('global_loss_coefficient', 1.0, on_epoch=True)
+            self.logger('silhouette_score', silhouette_score, on_epoch=True)
             self.logger('kmeans_loss_average_distance_centroids', torch.mean(distance_centroids).item(), on_epoch=True)
             self.logger('kmeans_loss_min_distance_centroids', distance_centroids.min().item(), on_epoch=True)
             self.logger('kmeans_loss_max_distance_centroids', distance_centroids.max().item(), on_epoch=True)

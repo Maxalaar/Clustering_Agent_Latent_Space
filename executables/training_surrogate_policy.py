@@ -4,13 +4,11 @@ import numpy as np
 import pytorch_lightning as pl
 import ray
 from ray.rllib.evaluation.rollout_worker import torch
-from ray.tune.registry import _Registry
 
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
-from environments.register_environments import register_environments
 from lightning.h5_data_module import H5DataModule
 from lightning.surrogate_policy import SurrogatePolicy
 from utilities.display_h5_file_information import display_h5_file_information
@@ -19,11 +17,7 @@ from utilities.display_h5_file_information import display_h5_file_information
 def surrogate_policy_training(experimentation_configuration: ExperimentationConfiguration):
     display_h5_file_information(experimentation_configuration.trajectory_dataset_file_path)
     ray.init()
-    register_environments()
-    environment_creator = _Registry().get('env_creator', experimentation_configuration.environment_name)
     torch.set_float32_matmul_precision('medium')
-
-    environment = environment_creator(experimentation_configuration.environment_configuration)
 
     data_module = H5DataModule(
         h5_file_path=experimentation_configuration.trajectory_dataset_file_path,
@@ -39,10 +33,10 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
     surrogate_policy = SurrogatePolicy(
         input_dimension=np.prod(data_module.input_shape),
         output_dimension=np.prod(data_module.output_shape),
-        architecture_configuration=experimentation_configuration.surrogate_policy_training_configuration.architecture_configuration,
         learning_rate=experimentation_configuration.surrogate_policy_training_configuration.learning_rate,
         clusterization_loss=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss,
         clusterization_loss_configuration=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss_configuration,
+        **experimentation_configuration.surrogate_policy_training_configuration.architecture_configuration,
     )
 
     logger = TensorBoardLogger(
@@ -71,4 +65,4 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    surrogate_policy_training(configurations.list_experimentation_configurations.bipedal_walker)
+    surrogate_policy_training(configurations.list_experimentation_configurations.pong_survivor_two_balls)
