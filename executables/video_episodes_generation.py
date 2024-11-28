@@ -44,6 +44,8 @@ def video_episode_generation(experimentation_configuration: ExperimentationConfi
         evaluation_num_env_runners=experimentation_configuration.video_episodes_generation_configuration.number_environment_runners,
         evaluation_duration=experimentation_configuration.video_episodes_generation_configuration.minimal_number_videos,
         evaluation_parallel_to_training=False,
+        evaluation_duration_unit='episodes',
+        evaluation_sample_timeout_s=60*10,
     )
 
     algorithm: Algorithm = algorithm_configuration.build()

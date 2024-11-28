@@ -12,7 +12,7 @@ from ray.rllib.algorithms.ppo.torch.ppo_torch_rl_module import PPOTorchRLModule
 # from ray.rllib.algorithms.ppo.ppo_catalog import PPOCatalog
 
 
-class Dense(TorchRLModule, ValueFunctionAPI):
+class DensePPO(TorchRLModule, ValueFunctionAPI):
     @override(TorchRLModule)
     def setup(self):
         self.activation_function = self.model_config.get('activation_function', nn.ReLU())

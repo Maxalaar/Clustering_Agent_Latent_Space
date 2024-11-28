@@ -52,18 +52,11 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
             rl_module_spec=RLModuleSpec(
                 module_class=reinforcement_learning_configuration.architecture,
             ),
+        )
+    if reinforcement_learning_configuration.architecture_configuration is not None:
+        algorithm_configuration.rl_module(
             model_config=reinforcement_learning_configuration.architecture_configuration,
         )
-    # else:
-    #     algorithm_configuration.rl_module(
-    #         model_config=DefaultModelConfig(
-    #             fcnet_hiddens=[1024, 1024],
-    #             # fcnet_activation="tanh",
-    #             # fcnet_bias_initializer="zeros_",
-    #             # head_fcnet_bias_initializer="zeros_",
-    #             head_fcnet_hiddens=[512, 126, 64],
-    #         ),
-    #     )
 
     # Training
     algorithm_configuration.training(

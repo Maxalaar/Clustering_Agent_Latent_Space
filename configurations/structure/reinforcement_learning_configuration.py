@@ -23,7 +23,7 @@ class ReinforcementLearningConfiguration:
         # Training
         self.flatten_observations: bool = True
         self.architecture: Optional[RLModule] = None
-        self.architecture_configuration: Optional[DefaultModelConfig, Dict] = NotProvided
+        self.architecture_configuration: Optional[DefaultModelConfig, Dict] = None
         self.train_batch_size: int = NotProvided
         self.learning_rate: float = NotProvided
         self.exploration_configuration: dict = NotProvided

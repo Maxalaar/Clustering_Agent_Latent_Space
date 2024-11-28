@@ -10,6 +10,7 @@ from itertools import islice
 from PIL import Image
 
 from cuml import KMeans, TSNE, UMAP
+from cuml.metrics.cluster.silhouette_score import cython_silhouette_score
 
 from ray.tune.registry import _Registry
 
@@ -65,10 +66,20 @@ def projection_clusterization_latent_space(
 def kmeans_latent_space(
         embeddings: torch.Tensor,
         number_cluster: int,
+        save_path: Path,
+        number_points_for_silhouette_score: int = 10_000,
 ):
     kmeans = KMeans(n_clusters=number_cluster)
     kmeans.fit(embeddings)
     cluster_labels = torch.Tensor(kmeans.predict(embeddings)).int()
+
+    indices = torch.randperm(embeddings.size(0))[:number_points_for_silhouette_score]
+    silhouette_score = cython_silhouette_score(X=embeddings[indices].detach(), labels=cluster_labels[indices].detach())
+    information = 'Kmeans is latent space silhouette score : ' + str(silhouette_score)
+    print(information)
+    with open(save_path / 'information.txt', 'a') as file:
+        file.write(information)
+
     return cluster_labels, kmeans
 
 
@@ -242,6 +253,7 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
     cluster_labels, kmeans = kmeans_latent_space(
         embeddings=embeddings,
         number_cluster=surrogate_policy.clusterization_loss.number_cluster,
+        save_path=experimentation_configuration.latent_space_analysis_storage_path,
     )
     latent_space_projection_2d(
         embeddings=embeddings,
@@ -267,5 +279,5 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    surrogate_policy_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/pong_survivor_tow_balls/surrogate_policy/version_3/checkpoints/epoch=721-step=159523.ckpt'
-    latent_space_analysis(configurations.list_experimentation_configurations.pong_survivor_two_balls, surrogate_policy_checkpoint_path)
+    surrogate_policy_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/flappy_bird/surrogate_policy/version_0/checkpoints/epoch=408-step=31871.ckpt'
+    latent_space_analysis(configurations.list_experimentation_configurations.flappy_bird, surrogate_policy_checkpoint_path)

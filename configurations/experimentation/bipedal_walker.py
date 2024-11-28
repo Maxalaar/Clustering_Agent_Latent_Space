@@ -1,6 +1,6 @@
 from torch.nn import LeakyReLU
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
-from rllib.architectures.dense import Dense
+from rllib.architectures.dense_ppo import DensePPO
 
 bipedal_walker = ExperimentationConfiguration(
     experimentation_name='bipedal_walker',
@@ -12,7 +12,7 @@ bipedal_walker.ray_local_mode = False
 
 # Reinforcement Learning
 # https://github.com/DLR-RM/rl-baselines3-zoo/blob/master/hyperparams/ppo.yml
-bipedal_walker.reinforcement_learning_configuration.architecture = Dense
+bipedal_walker.reinforcement_learning_configuration.architecture = DensePPO
 bipedal_walker.reinforcement_learning_configuration.architecture_configuration = {
     'configuration_hidden_layers': [512, 512, 512],
     'activation_function': LeakyReLU(),
@@ -47,6 +47,10 @@ bipedal_walker.trajectory_dataset_generation_configuration.minimal_steps_per_ite
 bipedal_walker.surrogate_policy_training_configuration.batch_size = 20_000
 bipedal_walker.surrogate_policy_training_configuration.mini_chunk_size = 100_000
 bipedal_walker.surrogate_policy_training_configuration.number_mini_chunks = 2
+bipedal_walker.surrogate_policy_training_configuration.architecture_configuration = {
+    'shape_layers': [128, 64, 32, 16, 32, 64, 128],
+    'latent_space_to_clusterize': [False, False, True, True, True, False, False],
+}
 bipedal_walker.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
     'number_cluster': 4,
     'margin_between_clusters': 10.0,

@@ -1,6 +1,6 @@
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.pong_survivor.configurations import classic_one_ball
-from rllib.architectures.dense import Dense
+from rllib.architectures.dense_ppo import DensePPO
 
 pong_survivor_one_ball = ExperimentationConfiguration(
     experimentation_name='pong_survivor_one_ball',

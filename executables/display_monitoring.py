@@ -76,8 +76,9 @@ if __name__ == "__main__":
         'pytorch_lightning/-action_loss_validation_epoch',
         'pytorch_lightning/-clusterization_loss_validation_epoch',
         'pytorch_lightning/-total_loss_validation_epoch',
-        'pytorch_lightning/-kmeans_loss_min_distance_centroids_epoch',
-        'pytorch_lightning/-kmeans_loss_mean_distance_intra_cluster_epoch',
+        'pytorch_lightning/-min_distance_centroids_epoch',
+        'pytorch_lightning/-mean_distance_intra_cluster_epoch',
+        'pytorch_lightning/-silhouette_score_epoch',
     ]
 
     process = Process(target=run_tensorboard)

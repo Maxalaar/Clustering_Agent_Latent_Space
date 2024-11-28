@@ -10,6 +10,7 @@ class KmeansLoss(nn.Module):
             number_cluster: int,
             margin_between_clusters: float,
             logger=None,
+            number_points_for_silhouette_score=2000,
     ):
         super(KmeansLoss, self).__init__()
         self.number_cluster = number_cluster
@@ -17,6 +18,7 @@ class KmeansLoss(nn.Module):
         self.logger = logger
         self.centroids = None
         self.cluster_labels = None
+        self.number_points_for_silhouette_score = number_points_for_silhouette_score
 
     def compute_new_centroid(self, embeddings):
         device = embeddings.device
@@ -34,7 +36,11 @@ class KmeansLoss(nn.Module):
         attraction_loss = torch.tensor(0.0, device=device)
         repulsion_loss = torch.tensor(0.0, device=device)
         distance_intra_cluster = 0.0
-        silhouette_score = cython_silhouette_score(X=embeddings.detach(), labels=self.cluster_labels.detach())
+
+        silhouette_score = None
+        if self.number_points_for_silhouette_score is not None:
+            indices = torch.randperm(embeddings.size(0))[:self.number_points_for_silhouette_score]
+            silhouette_score = cython_silhouette_score(X=embeddings[indices].detach(), labels=self.cluster_labels[indices].detach())
 
         # Compute attraction and repulsion loss
         for i in range(self.number_cluster):
@@ -60,13 +66,14 @@ class KmeansLoss(nn.Module):
             matrix_distance_centroids = torch.cdist(self.centroids, self.centroids).triu(diagonal=1)
             distance_centroids = matrix_distance_centroids[matrix_distance_centroids != 0]
             self.logger('global_loss_coefficient', 1.0, on_epoch=True)
-            self.logger('silhouette_score', silhouette_score, on_epoch=True)
-            self.logger('kmeans_loss_average_distance_centroids', torch.mean(distance_centroids).item(), on_epoch=True)
-            self.logger('kmeans_loss_min_distance_centroids', distance_centroids.min().item(), on_epoch=True)
-            self.logger('kmeans_loss_max_distance_centroids', distance_centroids.max().item(), on_epoch=True)
-            self.logger('kmeans_loss_mean_distance_intra_cluster', distance_intra_cluster, on_epoch=True)
-            self.logger('kmeans_loss_attraction_loss', attraction_loss.item(), on_epoch=True)
-            self.logger('kmeans_loss_repulsion_loss', repulsion_loss.item(), on_epoch=True)
-            self.logger('kmeans_loss_total_loss', total_loss.item(), on_epoch=True)
+            if self.number_points_for_silhouette_score is not None:
+                self.logger('silhouette_score', silhouette_score, on_epoch=True)
+            self.logger('average_distance_centroids', torch.mean(distance_centroids).item(), on_epoch=True)
+            self.logger('min_distance_centroids', distance_centroids.min().item(), on_epoch=True)
+            self.logger('max_distance_centroids', distance_centroids.max().item(), on_epoch=True)
+            self.logger('mean_distance_intra_cluster', distance_intra_cluster, on_epoch=True)
+            self.logger('clusterization_attraction_loss', attraction_loss.item(), on_epoch=True)
+            self.logger('clusterization_repulsion_loss', repulsion_loss.item(), on_epoch=True)
+            self.logger('clusterization_total_loss', total_loss.item(), on_epoch=True)
 
         return total_loss

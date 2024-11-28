@@ -28,7 +28,17 @@ lunar_lander.trajectory_dataset_generation_configuration.minimal_steps_per_itera
 lunar_lander.surrogate_policy_training_configuration.batch_size = 20_000
 lunar_lander.surrogate_policy_training_configuration.mini_chunk_size = 100_000
 lunar_lander.surrogate_policy_training_configuration.number_mini_chunks = 2
+# lunar_lander.surrogate_policy_training_configuration.clusterization_loss = None
+# lunar_lander.surrogate_policy_training_configuration.architecture_configuration = {
+#     'shape_layers': [128, 64, 32, 16, 32, 64, 128],
+#     'latent_space_to_clusterize': [False, False, False, True, False, False, False],
+# }
+lunar_lander.surrogate_policy_training_configuration.architecture_configuration = {
+    'shape_layers': [32, 16, 16, 32, 32],
+    'latent_space_to_clusterize': [False, True, True, False, False],
+}
 lunar_lander.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
-    'number_cluster': 4,
+    'number_cluster': 5,
     'margin_between_clusters': 10.0,
+    'number_points_for_silhouette_score': 1000,
 })
