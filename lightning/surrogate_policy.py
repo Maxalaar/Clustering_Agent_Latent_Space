@@ -42,25 +42,34 @@ class SurrogatePolicy(pl.LightningModule):
 
         self.use_clusterization_loss = use_clusterization_loss
         if self.use_clusterization_loss:
-            self.clusterization_function = clusterization_function(logger=self.log, **clusterization_function_configuration)
+            self.hook_count = 0
+            self.clusterization_function = clusterization_function(logger=self.log,
+                                                                   **clusterization_function_configuration)
             self.clusterization_loss = clusterization_loss(logger=self.log, **clusterization_loss_configuration)
             self.latent_spaces_to_clusterize = latent_space_to_clusterize
             self._register_hooks()
 
     def _register_hooks(self):
         if self.latent_spaces_to_clusterize is not None:
-            for layer, track in zip(self.model.children(), self.latent_spaces_to_clusterize):
-                if track:
-                    layer.register_forward_hook(self._hook_fn)
+            if len(list(self.model)) != len(self.latent_spaces_to_clusterize):
+                print(list(self.model))
+                raise ValueError('latent_spaces_to_clusterize and self.model sizes do not match')
 
-    def _hook_fn(self, module, input, output):
-        self.embeddings_in_clustering_space.append(output)
+            children = list(self.model.children())
+            for child in children:
+                child.register_forward_hook(self._hook_fn)
 
     def forward(self, x):
         return self.model(x)
 
+    def _hook_fn(self, module, input, output):
+        if self.latent_spaces_to_clusterize[self.hook_count]:
+            self.embeddings_in_clustering_space.append(output)
+        self.hook_count += 1
+
     def get_embeddings_in_clustering_space(self):
         clustered_space_activations = torch.cat(self.embeddings_in_clustering_space, dim=1)
+        self.hook_count = 0
         self.embeddings_in_clustering_space = []
         return clustered_space_activations
 
