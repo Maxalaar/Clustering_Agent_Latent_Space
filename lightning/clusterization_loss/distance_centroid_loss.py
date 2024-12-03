@@ -23,15 +23,16 @@ class DistanceCentroidLoss(nn.Module):
         for i in range(number_cluster):
             current_centroid = centroids[i].unsqueeze(dim=0)
             ixd_points_current_cluster = torch.nonzero(cluster_labels == i).squeeze(dim=1)
-            points_current_cluster = embeddings[ixd_points_current_cluster]
-            other_centroids = torch.cat([centroids[:i], centroids[i + 1:]])
+            if ixd_points_current_cluster.size(0) > 0:
+                points_current_cluster = embeddings[ixd_points_current_cluster]
+                other_centroids = torch.cat([centroids[:i], centroids[i + 1:]])
 
-            # Attraction and repulsion terms
-            attraction_distances = torch.cdist(points_current_cluster, current_centroid)
-            attraction_loss += torch.mean(attraction_distances ** 2)
+                # Attraction and repulsion terms
+                attraction_distances = torch.cdist(points_current_cluster, current_centroid)
+                attraction_loss += torch.mean(attraction_distances ** 2)
 
-            repulsion_distances = torch.cdist(points_current_cluster, other_centroids)
-            repulsion_loss += torch.mean(torch.nn.functional.relu((self.margin_between_clusters - repulsion_distances) ** 2))
+                repulsion_distances = torch.cdist(points_current_cluster, other_centroids)
+                repulsion_loss += torch.mean(torch.nn.functional.relu((self.margin_between_clusters - repulsion_distances) ** 2))
 
             # Intra-cluster distance
             distance_intra_cluster += torch.mean(torch.norm(points_current_cluster - current_centroid, dim=1)).item()

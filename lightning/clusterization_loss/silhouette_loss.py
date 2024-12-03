@@ -52,7 +52,7 @@ class SilhouetteLoss(nn.Module):
 
         # Compute silhouette scores for each point
         silhouette_scores = (b - a) / torch.max(a, b)
-        silhouette_scores = torch.nan_to_num(silhouette_scores, nan=0.0, posinf=0.0, neginf=0.0)
+        silhouette_scores = 1 + silhouette_scores   #torch.nan_to_num(silhouette_scores, nan=0.0, posinf=0.0, neginf=0.0)
 
         # The loss is the negative mean silhouette score
         loss = -torch.mean(silhouette_scores)

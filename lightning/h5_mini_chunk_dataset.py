@@ -13,11 +13,13 @@ class H5MiniChunkDataset(Dataset):
             mini_chunk_size: int, input_dataset_name: str,
             number_mini_chunk: int = 2,
             output_dataset_name: Optional[str] = None,
+            shuffle: bool = True,
     ):
         self.file_path: Path = file_path
         self.h5_file = h5py.File(self.file_path, 'r')
         self.mini_chunk_size: int = mini_chunk_size
         self.number_mini_chunk: int = number_mini_chunk
+        self.shuffle: bool = shuffle
 
         self.input_dataset = self.h5_file[input_dataset_name]
         self.output_dataset = None
@@ -60,9 +62,12 @@ class H5MiniChunkDataset(Dataset):
         if self.input_chunk is None or self.number_call_current_chunk >= self.number_data_in_chunk:
             self.load_mini_chunks()
 
-        self.number_call_current_chunk += 1
+        if self.shuffle:
+            local_idx = np.random.randint(0, self.number_data_in_chunk)
+        else:
+            local_idx = self.number_call_current_chunk
 
-        local_idx = np.random.randint(0, self.number_data_in_chunk)
+        self.number_call_current_chunk += 1
 
         if self.output_dataset is not None:
             return self.input_chunk[local_idx], self.output_chunk[local_idx]

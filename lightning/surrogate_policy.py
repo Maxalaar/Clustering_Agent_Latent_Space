@@ -1,5 +1,6 @@
 from typing import Optional, List
 
+import numpy as np
 import torch
 import pytorch_lightning as pl
 from torch import nn
@@ -21,7 +22,7 @@ class SurrogatePolicy(pl.LightningModule):
             clusterization_function_configuration: dict = {},
             clusterization_loss: Optional[nn.Module] = None,
             clusterization_loss_configuration: dict = {},
-            latent_space_to_clusterize: List[bool] = None,
+            indexes_latent_space_to_clusterize: List[int] = None,
     ):
         super(SurrogatePolicy, self).__init__()
 
@@ -46,14 +47,20 @@ class SurrogatePolicy(pl.LightningModule):
             self.clusterization_function = clusterization_function(logger=self.log,
                                                                    **clusterization_function_configuration)
             self.clusterization_loss = clusterization_loss(logger=self.log, **clusterization_loss_configuration)
-            self.latent_spaces_to_clusterize = latent_space_to_clusterize
+            self.indexes_latent_space_to_clusterize = np.array(indexes_latent_space_to_clusterize)
             self._register_hooks()
 
     def _register_hooks(self):
-        if self.latent_spaces_to_clusterize is not None:
-            if len(list(self.model)) != len(self.latent_spaces_to_clusterize):
-                print(list(self.model))
-                raise ValueError('latent_spaces_to_clusterize and self.model sizes do not match')
+        if self.indexes_latent_space_to_clusterize is not None:
+            print()
+            print('Surrogate policy Architecture:')
+            print(self.model)
+
+            print()
+            print('Latent spaces to clusterize:')
+            for index in self.indexes_latent_space_to_clusterize:
+                print(str(index) + ': ' + str(self.model[index]))
+            print()
 
             children = list(self.model.children())
             for child in children:
@@ -63,7 +70,7 @@ class SurrogatePolicy(pl.LightningModule):
         return self.model(x)
 
     def _hook_fn(self, module, input, output):
-        if self.latent_spaces_to_clusterize[self.hook_count]:
+        if self.hook_count in self.indexes_latent_space_to_clusterize:
             self.embeddings_in_clustering_space.append(output)
         self.hook_count += 1
 

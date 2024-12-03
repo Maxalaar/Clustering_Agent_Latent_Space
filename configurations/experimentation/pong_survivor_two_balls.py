@@ -1,5 +1,6 @@
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.pong_survivor.configurations import classic_two_balls
+from lightning.clusterization_loss.silhouette_loss import SilhouetteLoss
 from rllib.architectures.dense_ppo import DensePPO
 
 pong_survivor_two_balls = ExperimentationConfiguration(
@@ -33,19 +34,19 @@ pong_survivor_two_balls.trajectory_dataset_generation_configuration.minimal_step
 # pong_survivor_two_balls.trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 1_000
 
 # Surrogate Policy Training
-pong_survivor_two_balls.surrogate_policy_training_configuration.batch_size = 20_000
 pong_survivor_two_balls.surrogate_policy_training_configuration.mini_chunk_size = 100_000
 pong_survivor_two_balls.surrogate_policy_training_configuration.number_mini_chunks = 2
 pong_survivor_two_balls.surrogate_policy_training_configuration.architecture_configuration = {
     'shape_layers': [128, 64, 32, 16, 32, 64, 128],
-    'latent_space_to_clusterize': [False, False, True, True, True, False, False],
+    'indexes_latent_space_to_clusterize': [5, 7, 9],
 }
+pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_function_configuration.update({
+    'number_cluster': 16,
+    'number_points_for_silhouette_score': 1_000,
+    'memory_size': 100_000,
+})
+# pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_loss = SilhouetteLoss
+pong_survivor_two_balls.surrogate_policy_training_configuration.batch_size = 5_000
 pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
-    'number_cluster': 4,
     'margin_between_clusters': 10.0,
-    # 'sliding_centroids': True,
-    # 'margin_between_clusters': 2.0,
-    # 'margin_intra_cluster': 0.0,
-    # 'attraction_loss_coefficient': 1.0,
-    # 'repulsion_loss_coefficient': 1.0,
 })

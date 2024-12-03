@@ -60,7 +60,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 
     # Training
     algorithm_configuration.training(
-        train_batch_size=reinforcement_learning_configuration.train_batch_size,
+        train_batch_size_per_learner=reinforcement_learning_configuration.train_batch_size,
         lr=reinforcement_learning_configuration.learning_rate,
         learner_connector=reinforcement_learning_configuration.learner_connector,
         num_epochs=reinforcement_learning_configuration.number_epochs,

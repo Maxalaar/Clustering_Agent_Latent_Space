@@ -11,7 +11,7 @@ class SurrogatePolicyTrainingConfiguration:
     def __init__(self):
         self.architecture_configuration: dict = {
             'shape_layers': [128, 64, 32, 16, 32, 64, 128],
-            'latent_space_to_clusterize': [False, False, False, True, False, False, False],
+            'indexes_latent_space_to_clusterize': [6],
         }
         self.learning_rate: float = 1e-4
         self.batch_size: int = 20_000

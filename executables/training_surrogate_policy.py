@@ -68,4 +68,4 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    surrogate_policy_training(configurations.list_experimentation_configurations.lunar_lander)
+    surrogate_policy_training(configurations.list_experimentation_configurations.pong_survivor_two_balls)

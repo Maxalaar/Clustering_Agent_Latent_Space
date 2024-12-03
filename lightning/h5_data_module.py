@@ -20,6 +20,7 @@ class H5DataModule(pl.LightningDataModule):
             mini_chunk_size: int = 64,
             validation_split: float = 0.2,
             number_workers: int = 1,
+            shuffle: bool = True,
     ):
         super().__init__()
 
@@ -34,6 +35,7 @@ class H5DataModule(pl.LightningDataModule):
         self.number_workers: int = number_workers
         self.number_mini_chunks = number_mini_chunks
         self.mini_chunk_size: int = mini_chunk_size
+        self.shuffle = shuffle
 
         self.input_shape: Optional[tuple] = None
         self.output_shape: Optional[tuple] = None
@@ -52,6 +54,7 @@ class H5DataModule(pl.LightningDataModule):
             output_dataset_name=self.output_dataset_name,
             mini_chunk_size=self.mini_chunk_size,
             number_mini_chunk=self.number_mini_chunks,
+            shuffle=self.shuffle,
         )
         # dataset_size = len(self.dataset)
         # indices = np.arange(dataset_size)
