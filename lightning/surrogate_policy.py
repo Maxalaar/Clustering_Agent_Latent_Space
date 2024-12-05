@@ -1,5 +1,6 @@
 from typing import Optional, List
 
+import numpy as np
 import torch
 import pytorch_lightning as pl
 from torch import nn
@@ -16,9 +17,12 @@ class SurrogatePolicy(pl.LightningModule):
             shape_layers=None,
             activation_function=nn.LeakyReLU(),
             learning_rate: float = 1e-4,
+            use_clusterization_loss: bool = False,
+            clusterization_function=None,
+            clusterization_function_configuration: dict = {},
             clusterization_loss: Optional[nn.Module] = None,
-            clusterization_loss_configuration: Optional[dict] = None,
-            latent_space_to_clusterize: List[bool] = None,
+            clusterization_loss_configuration: dict = {},
+            indexes_latent_space_to_clusterize: List[int] = None,
     ):
         super(SurrogatePolicy, self).__init__()
 
@@ -37,31 +41,42 @@ class SurrogatePolicy(pl.LightningModule):
         self.learning_rate = learning_rate
         self.prediction_loss_function = nn.MSELoss()
 
-        self.use_clusterization_loss = False
-        if clusterization_loss is not None and latent_space_to_clusterize is not None:
-            self.use_clusterization_loss = True
-
+        self.use_clusterization_loss = use_clusterization_loss
         if self.use_clusterization_loss:
+            self.hook_count = 0
+            self.clusterization_function = clusterization_function(logger=self.log,
+                                                                   **clusterization_function_configuration)
             self.clusterization_loss = clusterization_loss(logger=self.log, **clusterization_loss_configuration)
-            self.latent_spaces_to_clusterize = latent_space_to_clusterize
+            self.indexes_latent_space_to_clusterize = np.array(indexes_latent_space_to_clusterize)
             self._register_hooks()
-        else:
-            self.clusterization_loss = None
 
     def _register_hooks(self):
-        if self.latent_spaces_to_clusterize is not None:
-            for layer, track in zip(self.model.children(), self.latent_spaces_to_clusterize):
-                if track:
-                    layer.register_forward_hook(self._hook_fn)
+        if self.indexes_latent_space_to_clusterize is not None:
+            print()
+            print('Surrogate policy Architecture:')
+            print(self.model)
 
-    def _hook_fn(self, module, input, output):
-        self.embeddings_in_clustering_space.append(output)
+            print()
+            print('Latent spaces to clusterize:')
+            for index in self.indexes_latent_space_to_clusterize:
+                print(str(index) + ': ' + str(self.model[index]))
+            print()
+
+            children = list(self.model.children())
+            for child in children:
+                child.register_forward_hook(self._hook_fn)
 
     def forward(self, x):
         return self.model(x)
 
+    def _hook_fn(self, module, input, output):
+        if self.hook_count in self.indexes_latent_space_to_clusterize:
+            self.embeddings_in_clustering_space.append(output)
+        self.hook_count += 1
+
     def get_embeddings_in_clustering_space(self):
         clustered_space_activations = torch.cat(self.embeddings_in_clustering_space, dim=1)
+        self.hook_count = 0
         self.embeddings_in_clustering_space = []
         return clustered_space_activations
 
@@ -74,9 +89,10 @@ class SurrogatePolicy(pl.LightningModule):
 
         if self.use_clusterization_loss:
             embeddings_in_clustering_space = self.get_embeddings_in_clustering_space()
+            cluster_result = self.clusterization_function(embeddings_in_clustering_space)
             clustering_loss = self.clusterization_loss(
                 embeddings=embeddings_in_clustering_space,
-                current_global_step=self.global_step,
+                **cluster_result,
             )
         else:
             clustering_loss = 0.0
@@ -98,9 +114,10 @@ class SurrogatePolicy(pl.LightningModule):
 
         if self.use_clusterization_loss:
             embeddings_in_clustering_space = self.get_embeddings_in_clustering_space()
+            cluster_result = self.clusterization_function(embeddings_in_clustering_space)
             clustering_loss = self.clusterization_loss(
                 embeddings=embeddings_in_clustering_space,
-                current_global_step=self.global_step,
+                **cluster_result,
             )
         else:
             clustering_loss = 0.0

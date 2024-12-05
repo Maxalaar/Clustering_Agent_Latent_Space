@@ -16,7 +16,7 @@ from ray.tune.registry import _Registry
 
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.tree import DecisionTreeClassifier, plot_tree, DecisionTreeRegressor
 from sklearn.metrics import accuracy_score
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
@@ -39,6 +39,7 @@ def get_observations(
     data_module = H5DataModule(
         h5_file_path=trajectory_dataset_file_path,
         input_dataset_name='observations',
+        output_dataset_name='actions',
         batch_size=10_000,
         number_mini_chunks=4,
         mini_chunk_size=50_000,
@@ -46,12 +47,15 @@ def get_observations(
     )
     data_module.setup()
     observations = []
+    actions = []
 
     for i, batch in enumerate(islice(data_module.train_dataloader(), 100)):
-        observations.append(batch)
+        observations.append(batch[0])
+        actions.append(batch[1])
 
     observations = torch.cat(observations, dim=0)
-    return observations.clone().detach().to(device)
+    actions = torch.cat(actions, dim=0)
+    return observations.clone().detach().to(device), actions.clone().detach().to(device)
 
 
 def projection_clusterization_latent_space(
@@ -75,7 +79,7 @@ def kmeans_latent_space(
 
     indices = torch.randperm(embeddings.size(0))[:number_points_for_silhouette_score]
     silhouette_score = cython_silhouette_score(X=embeddings[indices].detach(), labels=cluster_labels[indices].detach())
-    information = 'Kmeans is latent space silhouette score : ' + str(silhouette_score)
+    information = 'Kmeans in latent space silhouette score : ' + str(silhouette_score)
     print(information)
     with open(save_path / 'information.txt', 'a') as file:
         file.write(information)
@@ -113,13 +117,13 @@ def latent_space_projection_2d(
     save(plot)
 
 
-def train_decision_tree(
+def train_observations_clusters_decision_tree(
         observations: torch.Tensor,
         cluster_labels: torch.Tensor,
         save_path: Path,
         feature_names: Optional[list] = None,
 ):
-    save_path = save_path / 'decision_trees'
+    save_path = save_path / 'observations_clusters_decision_trees'
     os.makedirs(save_path, exist_ok=True)
 
     observations = observations.cpu().numpy()
@@ -165,6 +169,50 @@ def train_decision_tree(
         plt.savefig(save_path / ('cluster_' + str(label) + '_decision_tree.png'), bbox_inches='tight', dpi=300)
 
 
+def train_observations_actions_decision_tree(
+        observations: torch.Tensor,
+        actions: torch.Tensor,
+        cluster_labels: torch.Tensor,
+        save_path: Path,
+        feature_names: Optional[list] = None,
+        class_names: Optional[list] = None,
+):
+    save_path = save_path / 'observations_actions_decision_trees'
+    os.makedirs(save_path, exist_ok=True)
+
+    observations = observations.cpu().numpy()
+    is_convertible_to_int = torch.all(actions == actions.to(torch.int))
+    actions = actions.cpu().numpy()
+    cluster_labels = cluster_labels.cpu().numpy()
+
+    for label in np.unique(cluster_labels):
+        indices = np.where(cluster_labels == label)[0]
+        observations_current_cluster = observations[indices]
+        actions_current_cluster = actions[indices]
+
+        random_over_sampler = RandomOverSampler()
+        x_balance, y_balance = random_over_sampler.fit_resample(observations_current_cluster, actions_current_cluster)
+        x_train, x_test, y_train, y_test = train_test_split(x_balance, y_balance, test_size=0.2)
+
+        if is_convertible_to_int:
+            decision_tree = DecisionTreeClassifier(max_depth=2)
+            decision_tree.fit(x_train, y_train)
+        else:
+            decision_tree = DecisionTreeRegressor()
+            decision_tree.fit(x_train, y_train)
+
+        predict_y_test = decision_tree.predict(x_test)
+        accuracy_value = accuracy_score(y_test, predict_y_test)
+        information = 'Decision tree cluster ' + str(label) + ' (observations -> actions), max depth: ' + str(decision_tree.max_depth) + ', accuracy: ' + str(accuracy_value) + '\n'
+        print(information)
+        with open(save_path / 'information.txt', 'a') as file:
+            file.write(information)
+
+        plt.figure(figsize=(12, 12))
+        plot_tree(decision_tree, filled=True, feature_names=feature_names, class_names=class_names)
+        plt.savefig(save_path / ('cluster_' + str(label) + '_observations_actions_decision_tree.png'), bbox_inches='tight', dpi=300)
+
+
 def get_observations_with_rending(
         trajectory_dataset_with_rending_file_path: Path,
         device=torch.device('cpu'),
@@ -178,6 +226,7 @@ def get_observations_with_rending(
         number_mini_chunks=2,
         mini_chunk_size=3000,
         number_workers=2,
+        shuffle=False,
     )
     data_module.setup()
     observations = []
@@ -242,7 +291,7 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
     with open(experimentation_configuration.latent_space_analysis_storage_path / 'information.txt', 'a') as file:
         file.write(information)
 
-    observations = get_observations(
+    observations, actions = get_observations(
         trajectory_dataset_file_path=experimentation_configuration.trajectory_dataset_file_path,
         device=surrogate_policy.device,
     )
@@ -252,7 +301,7 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
     )
     cluster_labels, kmeans = kmeans_latent_space(
         embeddings=embeddings,
-        number_cluster=surrogate_policy.clusterization_loss.number_cluster,
+        number_cluster=surrogate_policy.clusterization_function.number_cluster,
         save_path=experimentation_configuration.latent_space_analysis_storage_path,
     )
     latent_space_projection_2d(
@@ -261,10 +310,18 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
         save_path=experimentation_configuration.latent_space_analysis_storage_path,
         number_data=10_000,
     )
-    train_decision_tree(
+    train_observations_clusters_decision_tree(
         observations=observations,
         cluster_labels=cluster_labels,
         feature_names=getattr(environment, 'observation_labels', None),
+        save_path=experimentation_configuration.latent_space_analysis_storage_path,
+    )
+    train_observations_actions_decision_tree(
+        observations=observations,
+        actions=actions,
+        cluster_labels=cluster_labels,
+        feature_names=getattr(environment, 'observation_labels', None),
+        class_names=getattr(environment, 'action_labels', None),
         save_path=experimentation_configuration.latent_space_analysis_storage_path,
     )
     representation_clusters(
@@ -279,5 +336,5 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    surrogate_policy_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/flappy_bird/surrogate_policy/version_0/checkpoints/epoch=408-step=31871.ckpt'
-    latent_space_analysis(configurations.list_experimentation_configurations.flappy_bird, surrogate_policy_checkpoint_path)
+    surrogate_policy_checkpoint_path = '/experiments/pong_survivor_tow_balls/surrogate_policy/version_0/checkpoints/epoch=106-step=93862.ckpt'
+    latent_space_analysis(configurations.list_experimentation_configurations.pong_survivor_two_balls, surrogate_policy_checkpoint_path)

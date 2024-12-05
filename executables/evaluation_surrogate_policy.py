@@ -68,7 +68,7 @@ if __name__ == '__main__':
     # model_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/lunar_lander/surrogate_policy/version_0/checkpoints/epoch=24-step=21650.ckpt'
     # evaluation_surrogate_policy(configurations.list_experimentation_configurations.lunar_lander, model_checkpoint_path)
 
-    surrogate_policy_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/taxi/surrogate_policy/version_0/checkpoints/epoch=133-step=19957.ckpt'
+    surrogate_policy_checkpoint_path = '/temporary_good/experiments/taxi/surrogate_policy/version_0/checkpoints/epoch=133-step=19957.ckpt'
     evaluation_surrogate_policy(configurations.list_experimentation_configurations.taxi, surrogate_policy_checkpoint_path)
 
 

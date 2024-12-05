@@ -34,6 +34,9 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         input_dimension=np.prod(data_module.input_shape),
         output_dimension=np.prod(data_module.output_shape),
         learning_rate=experimentation_configuration.surrogate_policy_training_configuration.learning_rate,
+        use_clusterization_loss=experimentation_configuration.surrogate_policy_training_configuration.use_clusterization_loss,
+        clusterization_function=experimentation_configuration.surrogate_policy_training_configuration.clusterization_function,
+        clusterization_function_configuration=experimentation_configuration.surrogate_policy_training_configuration.clusterization_function_configuration,
         clusterization_loss=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss,
         clusterization_loss_configuration=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss_configuration,
         **experimentation_configuration.surrogate_policy_training_configuration.architecture_configuration,
@@ -65,4 +68,4 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    surrogate_policy_training(configurations.list_experimentation_configurations.ant)
+    surrogate_policy_training(configurations.list_experimentation_configurations.pong_survivor_two_balls)

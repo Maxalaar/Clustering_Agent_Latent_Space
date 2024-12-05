@@ -1,19 +1,24 @@
 from datetime import timedelta
 from pathlib import Path
+
 import yaml
 
-from lightning.kmeans_loss import KmeansLoss
+from lightning.kmeans import Kmeans
+from lightning.clusterization_loss.distance_centroid_loss import DistanceCentroidLoss
 
 
 class SurrogatePolicyTrainingConfiguration:
     def __init__(self):
         self.architecture_configuration: dict = {
             'shape_layers': [128, 64, 32, 16, 32, 64, 128],
-            'latent_space_to_clusterize': [False, False, False, True, False, False, False],
+            'indexes_latent_space_to_clusterize': [6],
         }
         self.learning_rate: float = 1e-4
         self.batch_size: int = 20_000
-        self.clusterization_loss = KmeansLoss
+        self.use_clusterization_loss = True
+        self.clusterization_function = Kmeans
+        self.clusterization_function_configuration: dict = {}
+        self.clusterization_loss = DistanceCentroidLoss
         self.clusterization_loss_configuration: dict = {}
 
         self.number_mini_chunks: int = 2

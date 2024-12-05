@@ -74,6 +74,7 @@ class PongSurvivor(gym.Env):
 
         self.reset()
         self.observation_labels = self._get_observation_labels()
+        self.action_labels = self._get_action_labels()
 
     def reset(self, *, seed=None, options=None):
         self.spec.max_episode_steps = int(self.max_time / (self.time_step * (self.frame_skip + 1)))
@@ -142,6 +143,9 @@ class PongSurvivor(gym.Env):
 
         observation_labels.append('time_percentage')
         return observation_labels
+
+    def _get_action_labels(self):
+        return ['idle', 'left', 'right']
 
     def _get_observation(self):
         observation = {}
