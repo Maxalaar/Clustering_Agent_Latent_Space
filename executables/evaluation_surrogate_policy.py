@@ -5,9 +5,9 @@ from ray.rllib.core.rl_module import RLModuleSpec
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from rllib.architectures.lightning import Lightning
-from rllib.find_best_checkpoint_path import find_best_checkpoint_path
-from rllib.get_checkpoint_algorithm_configuration import get_checkpoint_algorithm_configuration
+from rllib_repertory.architectures.lightning import Lightning
+from rllib_repertory.find_best_checkpoint_path import find_best_checkpoint_path
+from rllib_repertory.get_checkpoint_algorithm_configuration import get_checkpoint_algorithm_configuration
 
 
 def evaluation_surrogate_policy(experimentation_configuration: ExperimentationConfiguration, model_checkpoint_path):

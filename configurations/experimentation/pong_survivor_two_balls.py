@@ -1,7 +1,7 @@
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.pong_survivor.configurations import classic_two_balls
-from lightning.clusterization_loss.silhouette_loss import SilhouetteLoss
-from rllib.architectures.dense_ppo import DensePPO
+from lightning_repertory.clusterization_loss.silhouette_loss import SilhouetteLoss
+from rllib_repertory.architectures.dense_ppo import DensePPO
 
 pong_survivor_two_balls = ExperimentationConfiguration(
     experimentation_name='pong_survivor_tow_balls',

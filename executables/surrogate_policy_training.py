@@ -9,8 +9,8 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
-from lightning.h5_data_module import H5DataModule
-from lightning.surrogate_policy import SurrogatePolicy
+from lightning_repertory.h5_data_module import H5DataModule
+from lightning_repertory.surrogate_policy import SurrogatePolicy
 from utilities.display_h5_file_information import display_h5_file_information
 
 

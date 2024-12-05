@@ -11,7 +11,7 @@ from itertools import islice
 from PIL import Image
 
 from cuml import KMeans, TSNE, UMAP
-from cuml.metrics.cluster.silhouette_score import cython_silhouette_score
+from cuml.metrics.cluster import silhouette_score
 
 from ray.tune.registry import _Registry
 
@@ -22,8 +22,8 @@ from sklearn.metrics import accuracy_score
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from lightning.h5_data_module import H5DataModule
-from lightning.surrogate_policy import SurrogatePolicy
+from lightning_repertory.h5_data_module import H5DataModule
+from lightning_repertory.surrogate_policy import SurrogatePolicy
 
 from bokeh.plotting import figure, output_file, save
 from bokeh.palettes import Viridis256
@@ -79,7 +79,7 @@ def kmeans_latent_space(
     cluster_labels = torch.Tensor(kmeans.predict(embeddings)).int()
 
     indices = torch.randperm(embeddings.size(0))[:number_points_for_silhouette_score]
-    silhouette_score = cython_silhouette_score(X=embeddings[indices].detach(), labels=cluster_labels[indices].detach())
+    silhouette_score = silhouette_score(X=embeddings[indices].detach(), labels=cluster_labels[indices].detach())
     information = 'Kmeans in latent space silhouette score : ' + str(silhouette_score)
     print(information)
     with open(save_path / 'information.txt', 'a') as file:

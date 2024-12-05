@@ -1,7 +1,7 @@
 from torch.nn import LeakyReLU
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
-from rllib.architectures.dense_ppo import DensePPO
+from rllib_repertory.architectures.dense_ppo import DensePPO
 
 flappy_bird = ExperimentationConfiguration(
     experimentation_name='flappy_bird',

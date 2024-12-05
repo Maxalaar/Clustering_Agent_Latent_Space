@@ -31,13 +31,13 @@ conda activate Clustering_Agent_Latent_Space
 
 Restore packages (best option) :
 ```bash
-cd ./conda/
+cd ./python_environment/
 python ./restore.py
 ```
 
 Or install packages:
 ```bash
-python ./conda/install.py
+python ./python_environment/install.py
 ```
 
 # Remove Conda Environment

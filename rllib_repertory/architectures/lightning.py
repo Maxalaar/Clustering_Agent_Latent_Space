@@ -1,5 +1,5 @@
 import torch
-from lightning.surrogate_policy import SurrogatePolicy
+from lightning_repertory.surrogate_policy import SurrogatePolicy
 from ray.rllib.utils.annotations import override
 from ray.rllib.core.rl_module.torch import TorchRLModule
 from ray.rllib.core.columns import Columns

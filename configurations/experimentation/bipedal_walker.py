@@ -1,6 +1,6 @@
 from torch.nn import LeakyReLU
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
-from rllib.architectures.dense_ppo import DensePPO
+from rllib_repertory.architectures.dense_ppo import DensePPO
 
 bipedal_walker = ExperimentationConfiguration(
     experimentation_name='bipedal_walker',

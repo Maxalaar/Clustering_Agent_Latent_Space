@@ -1,5 +1,5 @@
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
-from lightning.clusterization_loss.silhouette_loss import SilhouetteLoss
+from lightning_repertory.clusterization_loss.silhouette_loss import SilhouetteLoss
 
 lunar_lander = ExperimentationConfiguration(
     experimentation_name='lunar_lander',

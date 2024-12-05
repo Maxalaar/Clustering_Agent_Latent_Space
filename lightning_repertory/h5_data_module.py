@@ -4,8 +4,8 @@ from typing import Optional
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 
-from lightning.h5_dataset import H5Dataset
-from lightning.h5_mini_chunk_dataset import H5MiniChunkDataset
+from lightning_repertory.h5_dataset import H5Dataset
+from lightning_repertory.h5_mini_chunk_dataset import H5MiniChunkDataset
 from utilities.get_h5_shapes import get_h5_shapes
 
 

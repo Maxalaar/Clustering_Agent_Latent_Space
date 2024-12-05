@@ -3,8 +3,8 @@ from pathlib import Path
 
 import yaml
 
-from lightning.clusterization_function.kmeans import Kmeans
-from lightning.clusterization_loss.distance_centroid_loss import DistanceCentroidLoss
+from lightning_repertory.clusterization_function.kmeans import Kmeans
+from lightning_repertory.clusterization_loss.distance_centroid_loss import DistanceCentroidLoss
 
 
 class SurrogatePolicyTrainingConfiguration:

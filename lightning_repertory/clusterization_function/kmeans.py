@@ -5,7 +5,7 @@ import torch.nn as nn
 
 try:
     from cuml import KMeans
-    from cuml.metrics.cluster.silhouette_score import cython_silhouette_score
+    from cuml.metrics.cluster import silhouette_score
 except Exception as e:
     warnings.warn('Error: Unable to import cuml.')
 
@@ -54,7 +54,7 @@ class Kmeans(nn.Module):
         # Compute the silhouette score if needed
         if self.number_points_for_silhouette_score is not None:
             indices = torch.randperm(all_embeddings.size(0))[:self.number_points_for_silhouette_score]
-            silhouette_score = cython_silhouette_score(
+            silhouette_score = silhouette_score(
                 X=all_embeddings[indices].detach(),
                 labels=cluster_labels_all[indices].detach()
             )
