@@ -34,6 +34,7 @@ class ReinforcementLearningConfiguration:
 
         # DQN only
         self.replay_buffer_configuration: dict = NotProvided
+        self.entropy_coefficient: float = NotProvided
 
         # PPO only
         self.use_generalized_advantage_estimator: bool = NotProvided

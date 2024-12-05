@@ -80,6 +80,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
             clip_param=reinforcement_learning_configuration.clip_all_parameter,
             vf_clip_param=reinforcement_learning_configuration.clip_value_function_parameter,
             learner_connector=reinforcement_learning_configuration.learner_connector,
+            entropy_coeff=reinforcement_learning_configuration.entropy_coefficient,
         )
 
     if type(algorithm_configuration) is DQNConfig:

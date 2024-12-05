@@ -1,5 +1,6 @@
 from typing import Dict, Any, Optional
 
+import torch
 from torch import nn, TensorType
 from ray.rllib.core.rl_module.apis import ValueFunctionAPI
 from ray.rllib.core.rl_module.torch import TorchRLModule
@@ -15,6 +16,7 @@ from ray.rllib.algorithms.ppo.torch.ppo_torch_rl_module import PPOTorchRLModule
 class DensePPO(TorchRLModule, ValueFunctionAPI):
     @override(TorchRLModule)
     def setup(self):
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.activation_function = self.model_config.get('activation_function', nn.ReLU())
         self.configuration_hidden_layers = self.model_config.get('configuration_hidden_layers', [64, 64])
         self.num_hidden_layers = len(self.configuration_hidden_layers)
@@ -38,10 +40,11 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
 
         self.actor_layers = nn.Sequential(*actor_layers)
         self.critic_layers = nn.Sequential(*critic_layers)
+        self.to(self.device)
 
     @override(TorchRLModule)
     def _forward(self, batch, **kwargs):
-        action_distribution_inputs = self.actor_layers(batch[Columns.OBS])
+        action_distribution_inputs = self.actor_layers(batch[Columns.OBS].to(self.device))
         return {
             Columns.ACTION_DIST_INPUTS: action_distribution_inputs,
         }
@@ -52,4 +55,4 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
             batch: Dict[str, Any],
             embeddings: Optional[Any] = None,
     ) -> TensorType:
-        return self.critic_layers(batch[Columns.OBS]).squeeze(-1)
+        return self.critic_layers(batch[Columns.OBS].to(self.device)).squeeze(-1)
