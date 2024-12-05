@@ -6,7 +6,7 @@ import warnings
 try:
     from cuml.cluster import DBSCAN
     from cuml.metrics.cluster.silhouette_score import cython_silhouette_score
-except ImportError:
+except Exception as e:
     warnings.warn('Error: Unable to import cuml.')
 
 

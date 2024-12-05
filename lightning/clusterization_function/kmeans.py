@@ -6,8 +6,9 @@ import torch.nn as nn
 try:
     from cuml import KMeans
     from cuml.metrics.cluster.silhouette_score import cython_silhouette_score
-except ImportError:
+except Exception as e:
     warnings.warn('Error: Unable to import cuml.')
+
 
 
 class Kmeans(nn.Module):
