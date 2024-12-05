@@ -72,4 +72,4 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    trajectory_dataset_generation(configurations.list_experimentation_configurations.ant)
+    trajectory_dataset_generation(configurations.list_experimentation_configurations.bipedal_walker)

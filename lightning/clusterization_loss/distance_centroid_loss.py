@@ -34,8 +34,8 @@ class DistanceCentroidLoss(nn.Module):
                 repulsion_distances = torch.cdist(points_current_cluster, other_centroids)
                 repulsion_loss += torch.mean(torch.nn.functional.relu((self.margin_between_clusters - repulsion_distances) ** 2))
 
-            # Intra-cluster distance
-            distance_intra_cluster += torch.mean(torch.norm(points_current_cluster - current_centroid, dim=1)).item()
+                # Intra-cluster distance
+                distance_intra_cluster += torch.mean(torch.norm(points_current_cluster - current_centroid, dim=1)).item()
 
         total_loss = (attraction_loss + repulsion_loss) / number_cluster
 

@@ -3,6 +3,7 @@ from pathlib import Path
 import shutil
 from typing import Optional
 
+import matplotlib
 import numpy as np
 import ray
 import torch
@@ -167,6 +168,7 @@ def train_observations_clusters_decision_tree(
         plt.figure(figsize=(12, 12))
         plot_tree(decision_tree, filled=True, feature_names=feature_names, class_names=class_names)
         plt.savefig(save_path / ('cluster_' + str(label) + '_decision_tree.png'), bbox_inches='tight', dpi=300)
+        matplotlib.pyplot.close()
 
 
 def train_observations_actions_decision_tree(
@@ -182,6 +184,10 @@ def train_observations_actions_decision_tree(
 
     observations = observations.cpu().numpy()
     is_convertible_to_int = torch.all(actions == actions.to(torch.int))
+
+    if not is_convertible_to_int:
+        return
+
     actions = actions.cpu().numpy()
     cluster_labels = cluster_labels.cpu().numpy()
 
@@ -198,8 +204,9 @@ def train_observations_actions_decision_tree(
             decision_tree = DecisionTreeClassifier(max_depth=2)
             decision_tree.fit(x_train, y_train)
         else:
-            decision_tree = DecisionTreeRegressor()
-            decision_tree.fit(x_train, y_train)
+            return
+            # decision_tree = DecisionTreeRegressor()
+            # decision_tree.fit(x_train, y_train)
 
         predict_y_test = decision_tree.predict(x_test)
         accuracy_value = accuracy_score(y_test, predict_y_test)
@@ -211,6 +218,7 @@ def train_observations_actions_decision_tree(
         plt.figure(figsize=(12, 12))
         plot_tree(decision_tree, filled=True, feature_names=feature_names, class_names=class_names)
         plt.savefig(save_path / ('cluster_' + str(label) + '_observations_actions_decision_tree.png'), bbox_inches='tight', dpi=300)
+        matplotlib.pyplot.close()
 
 
 def get_observations_with_rending(
@@ -336,5 +344,5 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    surrogate_policy_checkpoint_path = '/experiments/pong_survivor_tow_balls/surrogate_policy/version_0/checkpoints/epoch=106-step=93862.ckpt'
+    surrogate_policy_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/pong_survivor_tow_balls/surrogate_policy/version_0/checkpoints/epoch=106-step=93862.ckpt'
     latent_space_analysis(configurations.list_experimentation_configurations.pong_survivor_two_balls, surrogate_policy_checkpoint_path)

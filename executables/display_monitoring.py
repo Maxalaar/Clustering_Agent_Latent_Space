@@ -79,6 +79,7 @@ if __name__ == "__main__":
         'pytorch_lightning/-min_distance_centroids_epoch',
         'pytorch_lightning/-mean_distance_intra_cluster_epoch',
         'pytorch_lightning/-silhouette_score_epoch',
+        'pytorch_lightning/-average_distance_centroids_epoch'
     ]
 
     process = Process(target=run_tensorboard)

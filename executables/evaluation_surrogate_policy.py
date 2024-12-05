@@ -59,17 +59,8 @@ def evaluation_surrogate_policy(experimentation_configuration: ExperimentationCo
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    # model_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/bipedal_walker/surrogate_policy/version_0/checkpoints/epoch=300-step=45001.ckpt'
-    # evaluation_surrogate_policy(configurations.list_experimentation_configurations.bipedal_walker, model_checkpoint_path)
-
-    # model_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/pong_survivor_tow_balls/surrogate_policy/version_1/checkpoints/epoch=954-step=143217.ckpt'
-    # evaluation_surrogate_policy(configurations.list_experimentation_configurations.pong_survivor_two_balls, model_checkpoint_path)
-
-    # model_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/lunar_lander/surrogate_policy/version_0/checkpoints/epoch=24-step=21650.ckpt'
-    # evaluation_surrogate_policy(configurations.list_experimentation_configurations.lunar_lander, model_checkpoint_path)
-
-    surrogate_policy_checkpoint_path = '/temporary_good/experiments/taxi/surrogate_policy/version_0/checkpoints/epoch=133-step=19957.ckpt'
-    evaluation_surrogate_policy(configurations.list_experimentation_configurations.taxi, surrogate_policy_checkpoint_path)
+    surrogate_policy_checkpoint_path = '/experiments/bipedal_walker_old/surrogate_policy/version_0/checkpoints/epoch=64-step=38966.ckpt'
+    evaluation_surrogate_policy(configurations.list_experimentation_configurations.bipedal_walker, surrogate_policy_checkpoint_path)
 
 
 

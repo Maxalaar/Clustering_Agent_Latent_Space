@@ -44,8 +44,7 @@ class SurrogatePolicy(pl.LightningModule):
         self.use_clusterization_loss = use_clusterization_loss
         if self.use_clusterization_loss:
             self.hook_count = 0
-            self.clusterization_function = clusterization_function(logger=self.log,
-                                                                   **clusterization_function_configuration)
+            self.clusterization_function = clusterization_function(logger=self.log, **clusterization_function_configuration)
             self.clusterization_loss = clusterization_loss(logger=self.log, **clusterization_loss_configuration)
             self.indexes_latent_space_to_clusterize = np.array(indexes_latent_space_to_clusterize)
             self._register_hooks()

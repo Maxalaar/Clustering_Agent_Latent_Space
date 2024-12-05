@@ -36,9 +36,13 @@ pong_survivor_two_balls.trajectory_dataset_generation_configuration.minimal_step
 # Surrogate Policy Training
 pong_survivor_two_balls.surrogate_policy_training_configuration.mini_chunk_size = 100_000
 pong_survivor_two_balls.surrogate_policy_training_configuration.number_mini_chunks = 2
+# pong_survivor_two_balls.surrogate_policy_training_configuration.architecture_configuration = {
+#     'shape_layers': [128, 64, 32, 16, 32, 64, 128],
+#     'indexes_latent_space_to_clusterize': [5, 7, 9],
+# }
 pong_survivor_two_balls.surrogate_policy_training_configuration.architecture_configuration = {
-    'shape_layers': [128, 64, 32, 16, 32, 64, 128],
-    'indexes_latent_space_to_clusterize': [5, 7, 9],
+    'shape_layers': [64, 32, 32, 64],
+    'indexes_latent_space_to_clusterize': [3, 5],
 }
 pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_function_configuration.update({
     'number_cluster': 16,
