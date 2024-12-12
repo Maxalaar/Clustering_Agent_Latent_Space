@@ -17,6 +17,7 @@ class Dbscan(nn.Module):
             memory_size: int = 0,
             logger=None,
             number_points_for_silhouette_score: int = 1000,
+            **kwargs,
     ):
         super(Dbscan, self).__init__()
         self.epsilon = epsilon
@@ -25,6 +26,7 @@ class Dbscan(nn.Module):
         self.logger = logger
         self.number_points_for_silhouette_score: int = number_points_for_silhouette_score
         self.dbscan = DBSCAN(eps=self.epsilon, min_samples=self.min_samples)
+        self.silhouette_score = silhouette_score
         self.memory = None
 
     def forward(self, embeddings):
@@ -38,6 +40,8 @@ class Dbscan(nn.Module):
             max_data_size = self.max_memory_size + embeddings.size(0)
 
             # Limit memory size to the maximum allowed
+            print()
+            print(self.memory.size(0))
             if self.memory.size(0) > max_data_size:
                 self.memory = self.memory[-max_data_size:]
 
@@ -48,28 +52,32 @@ class Dbscan(nn.Module):
         )
         unique_labels = torch.unique(all_cluster_labels)
         # Log the number of clusters
+        print(unique_labels.size(0))
         self.logger('number_cluster', unique_labels.size(0), on_epoch=True)
 
         centroids = []
         for label in unique_labels:
             if label != -1:  # Exclude noise points (label -1)
                 cluster_points = all_embeddings[all_cluster_labels == label]
-                centroid = torch.mean(cluster_points, dim=1)
+                centroid = torch.mean(cluster_points, dim=0)
                 centroids.append(centroid)
 
-        centroids = torch.tensor(centroids, device=device)
+        centroids = torch.stack(centroids).to(device)
 
         # Identify cluster labels for new embeddings only
         new_labels = all_cluster_labels[-embeddings.size(0):]
 
         # Compute the silhouette score if needed
         if self.number_points_for_silhouette_score is not None:
+            silhouette_score = float('nan')
             indices = torch.randperm(all_embeddings.size(0))[:self.number_points_for_silhouette_score]
-            silhouette_score = silhouette_score(
-                X=all_embeddings[indices].detach(),
-                labels=all_cluster_labels[indices].detach()
-            )
+            if torch.unique(all_cluster_labels[indices]).size(0) > 1:
+                silhouette_score = self.silhouette_score(
+                    X=all_embeddings[indices].detach(),
+                    labels=all_cluster_labels[indices].detach(),
+                )
             if self.logger is not None:
                 self.logger('silhouette_score', silhouette_score, on_epoch=True)
 
         return {'cluster_labels': new_labels, 'centroids': centroids}
+

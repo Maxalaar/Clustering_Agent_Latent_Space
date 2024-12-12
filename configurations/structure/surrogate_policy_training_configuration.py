@@ -1,5 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
+from typing import Optional
 
 import yaml
 
@@ -9,6 +10,7 @@ from lightning_repertory.clusterization_loss.distance_centroid_loss import Dista
 
 class SurrogatePolicyTrainingConfiguration:
     def __init__(self):
+        self.training_name: str = 'base'
         self.architecture_configuration: dict = {
             'shape_layers': [128, 64, 32, 16, 32, 64, 128],
             'indexes_latent_space_to_clusterize': [6],

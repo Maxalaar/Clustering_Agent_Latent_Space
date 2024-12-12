@@ -161,4 +161,4 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    reinforcement_learning_training(configurations.list_experimentation_configurations.tetris)
+    reinforcement_learning_training(configurations.list_experimentation_configurations.bipedal_walker)

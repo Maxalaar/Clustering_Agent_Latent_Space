@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class SilhouetteLoss(nn.Module):
-    def __init__(self, logger=None):
+    def __init__(self, logger=None, **kwargs):
         """
         Initializes the silhouette-based loss.
         """
@@ -55,5 +55,5 @@ class SilhouetteLoss(nn.Module):
         silhouette_scores = 1 + silhouette_scores   #torch.nan_to_num(silhouette_scores, nan=0.0, posinf=0.0, neginf=0.0)
 
         # The loss is the negative mean silhouette score
-        loss = -torch.mean(silhouette_scores)
+        loss = 1-torch.mean(silhouette_scores)
         return loss

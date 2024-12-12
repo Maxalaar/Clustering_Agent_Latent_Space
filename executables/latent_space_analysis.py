@@ -74,6 +74,7 @@ def kmeans_latent_space(
         save_path: Path,
         number_points_for_silhouette_score: int = 10_000,
 ):
+    from cuml.metrics.cluster import silhouette_score
     kmeans = KMeans(n_clusters=number_cluster)
     kmeans.fit(embeddings)
     cluster_labels = torch.Tensor(kmeans.predict(embeddings)).int()
@@ -344,5 +345,5 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
 if __name__ == '__main__':
     import configurations.list_experimentation_configurations
 
-    surrogate_policy_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/pong_survivor_tow_balls/surrogate_policy/version_0/checkpoints/epoch=106-step=93862.ckpt'
+    surrogate_policy_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/pong_survivor_tow_balls/surrogate_policy/base/version_3/checkpoints/epoch=1730-step=764661.ckpt'
     latent_space_analysis(configurations.list_experimentation_configurations.pong_survivor_two_balls, surrogate_policy_checkpoint_path)

@@ -10,7 +10,6 @@ except Exception as e:
     warnings.warn('Error: Unable to import cuml.')
 
 
-
 class Kmeans(nn.Module):
     def __init__(
             self,
@@ -18,6 +17,7 @@ class Kmeans(nn.Module):
             memory_size: int = 0,
             logger=None,
             number_points_for_silhouette_score: int = 1000,
+            **kwargs,
     ):
         super(Kmeans, self).__init__()
         self.number_cluster = number_cluster
@@ -25,6 +25,7 @@ class Kmeans(nn.Module):
         self.logger = logger
         self.number_points_for_silhouette_score: int = number_points_for_silhouette_score
         self.kmeans = KMeans(n_clusters=self.number_cluster)
+        self.silhouette_score = silhouette_score
         self.memory = None  # Memory for previous embeddings
 
     def forward(self, embeddings):
@@ -54,7 +55,7 @@ class Kmeans(nn.Module):
         # Compute the silhouette score if needed
         if self.number_points_for_silhouette_score is not None:
             indices = torch.randperm(all_embeddings.size(0))[:self.number_points_for_silhouette_score]
-            silhouette_score = silhouette_score(
+            silhouette_score = self.silhouette_score(
                 X=all_embeddings[indices].detach(),
                 labels=cluster_labels_all[indices].detach()
             )

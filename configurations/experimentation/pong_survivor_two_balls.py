@@ -1,5 +1,6 @@
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.pong_survivor.configurations import classic_two_balls
+from lightning_repertory.clusterization_function.dbscan import Dbscan
 from lightning_repertory.clusterization_loss.silhouette_loss import SilhouetteLoss
 from rllib_repertory.architectures.dense_ppo import DensePPO
 
@@ -34,6 +35,7 @@ pong_survivor_two_balls.trajectory_dataset_generation_configuration.minimal_step
 # pong_survivor_two_balls.trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 1_000
 
 # Surrogate Policy Training
+# pong_survivor_two_balls.surrogate_policy_training_configuration.training_name = 'dbscan'
 pong_survivor_two_balls.surrogate_policy_training_configuration.mini_chunk_size = 100_000
 pong_survivor_two_balls.surrogate_policy_training_configuration.number_mini_chunks = 2
 # pong_survivor_two_balls.surrogate_policy_training_configuration.architecture_configuration = {
@@ -44,13 +46,22 @@ pong_survivor_two_balls.surrogate_policy_training_configuration.architecture_con
     'shape_layers': [64, 32, 32, 64],
     'indexes_latent_space_to_clusterize': [3, 5],
 }
-pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_function_configuration.update({
-    'number_cluster': 16,
+pong_survivor_two_balls.surrogate_policy_training_configuration.batch_size = 10_000
+# pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_function = Dbscan
+pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_function_configuration = {
+    # 'epsilon': 0.18,
+    'number_cluster': 8,
     'number_points_for_silhouette_score': 1_000,
     'memory_size': 100_000,
-})
+}
 # pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_loss = SilhouetteLoss
-pong_survivor_two_balls.surrogate_policy_training_configuration.batch_size = 5_000
+# pong_survivor_two_balls.surrogate_policy_training_configuration.batch_size = 1_000
 pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
     'margin_between_clusters': 10.0,
+    'number_centroids_repulsion': 1,
 })
+# pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_function_configuration.update({
+#     'number_cluster': 16,
+#     'number_points_for_silhouette_score': 1_000,
+#     'memory_size': 100_000,
+# })

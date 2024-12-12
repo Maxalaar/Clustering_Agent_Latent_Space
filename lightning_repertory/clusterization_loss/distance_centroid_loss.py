@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 import torch.nn as nn
 
@@ -6,13 +8,16 @@ class DistanceCentroidLoss(nn.Module):
     def __init__(
             self,
             margin_between_clusters: float,
+            number_centroids_repulsion: Optional[int] = None,
             logger=None,
+            **kwargs,
     ):
         super(DistanceCentroidLoss, self).__init__()
         self.margin_between_clusters: float = margin_between_clusters
+        self.number_centroids_repulsion: Optional[int] = number_centroids_repulsion
         self.logger = logger
 
-    def forward(self, embeddings: torch.Tensor, cluster_labels: torch.Tensor, centroids: torch.Tensor):
+    def forward(self, embeddings: torch.Tensor, cluster_labels: torch.Tensor, centroids: torch.Tensor, **kwargs):
         device = embeddings.device
         number_cluster = len(torch.unique(cluster_labels))
         attraction_loss = torch.tensor(0.0, device=device)
@@ -32,12 +37,19 @@ class DistanceCentroidLoss(nn.Module):
                 attraction_loss += torch.mean(attraction_distances ** 2)
 
                 repulsion_distances = torch.cdist(points_current_cluster, other_centroids)
-                repulsion_loss += torch.mean(torch.nn.functional.relu((self.margin_between_clusters - repulsion_distances) ** 2))
+                if self.number_centroids_repulsion is not None:
+                    closest_distances, _ = torch.topk(repulsion_distances, k=self.number_centroids_repulsion, dim=1, largest=False)
+                else:
+                    closest_distances, _ = torch.topk(repulsion_distances, k=number_cluster-1, dim=1, largest=False)
+                repulsion_loss += torch.mean(torch.nn.functional.relu((self.margin_between_clusters - closest_distances) ** 2))
 
                 # Intra-cluster distance
                 distance_intra_cluster += torch.mean(torch.norm(points_current_cluster - current_centroid, dim=1)).item()
 
         total_loss = (attraction_loss + repulsion_loss) / number_cluster
+        # total_loss = torch.max(attraction_loss, repulsion_loss)
+        # total_loss = repulsion_loss
+        # total_loss = attraction_loss + repulsion_loss
 
         # Logging
         if self.logger:

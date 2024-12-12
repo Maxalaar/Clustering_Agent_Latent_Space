@@ -24,11 +24,15 @@ bipedal_walker.reinforcement_learning_configuration.use_generalized_advantage_es
 bipedal_walker.reinforcement_learning_configuration.lambda_gae = 0.95
 bipedal_walker.reinforcement_learning_configuration.train_batch_size = 2048 * 8
 bipedal_walker.reinforcement_learning_configuration.minibatch_size = 64 * 4
-bipedal_walker.reinforcement_learning_configuration.number_epochs = 64
+bipedal_walker.reinforcement_learning_configuration.number_epochs = 128
 
 bipedal_walker.reinforcement_learning_configuration.gradient_clip = 0.1
 bipedal_walker.reinforcement_learning_configuration.clip_all_parameter = 0.18
-bipedal_walker.reinforcement_learning_configuration.clip_value_function_parameter = 100
+bipedal_walker.reinforcement_learning_configuration.clip_value_function_parameter = 0.18
+
+# bipedal_walker.reinforcement_learning_configuration.gradient_clip = 0.1
+# bipedal_walker.reinforcement_learning_configuration.clip_all_parameter = 0.18
+# bipedal_walker.reinforcement_learning_configuration.clip_value_function_parameter = 100
 
 # Trajectory Dataset Generation
 # bipedal_walker.trajectory_dataset_generation_configuration.number_environment_runners = 10
