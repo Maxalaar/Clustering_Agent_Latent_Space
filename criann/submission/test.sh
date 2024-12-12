@@ -15,9 +15,9 @@
 
 PROJECTNAME=Clustering_Agent_Latent_Space
 module purge
-module load aidl/pytorch/1.11.0-cuda11.3
+module load aidl/pytorch/2.2.0-cuda12.1
 export PYTHONUSERBASE=~/packages/$PROJECTNAME
-export PATH=$PATH:~/packages/$PROJECTNAME
+export PATH=$PATH:~/packages/$PROJECTNAME/
 
 # rsync -av --exclude='./temporary' --exclude='./experiments' --exclude='criann_logs' . $LOCAL_WORK_DIR
 echo Working directory : $PWD
@@ -32,5 +32,3 @@ params=(
 )
 
 srun python3 ./executables/reinforcement_learning_training.py ${params[@]}
-
-rm -r $LOCAL_WORK_DIR
