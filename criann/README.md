@@ -40,3 +40,26 @@ Test if the environment is correct :
 ```bash
 python3 ./conda/python_environment_information.py
 ```
+
+# Sumit Job
+
+```bash
+sbatch <script_soumission>
+```
+
+```bash
+squeue --me
+```
+
+```bash
+cd /dlocal/run/<jobid>
+```
+
+# Cancel Job
+```bash
+scancel --me
+```
+
+```bash
+scancel <jobid>
+```
