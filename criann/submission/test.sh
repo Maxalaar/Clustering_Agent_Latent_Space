@@ -20,16 +20,17 @@ export PYTHONUSERBASE=~/packages/$PROJECTNAME
 export PATH=$PATH:~/packages/$PROJECTNAME
 
 # rsync -av --exclude='./temporary' --exclude='./experiments' --exclude='criann_logs' . $LOCAL_WORK_DIR
+echo Working directory : $PWD
 echo Local Working directory : $LOCAL_WORK_DIR
 
 cp -R . $LOCAL_WORK_DIR
 cd $LOCAL_WORK_DIR || exit
 cd ./Clustering_Agent_Latent_Space || exit
 
-echo Working directory : $PWD
-
 params=(
   --configuration_file_path ./configurations/experimentation/
 )
 
-python3 ./executables/reinforcement_learning_training.py ${params[@]}
+srun python3 ./executables/reinforcement_learning_training.py ${params[@]}
+
+rm -r $LOCAL_WORK_DIR
