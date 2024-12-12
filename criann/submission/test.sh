@@ -28,7 +28,7 @@ cd $LOCAL_WORK_DIR || exit
 echo Working directory : $PWD
 
 params=(
-  --configuration_file_path ./configurations/experimentation/
+  --configuration_file_path ./configurations/experimentation/pong_survivor_two_balls.py
 )
 
 ls
