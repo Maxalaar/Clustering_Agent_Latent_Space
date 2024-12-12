@@ -163,8 +163,6 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 
 
 if __name__ == '__main__':
-    sys.path.append(os.path.abspath('.'))
-
     # Create the argument parser
     parser = argparse.ArgumentParser(description="Run training with a specific configuration.")
     parser.add_argument('--configuration_file_path', type=str, help="The name of the configuration file (e.g., 'configurations.list_experimentation_configurations.cartpole.py')")
@@ -175,6 +173,7 @@ if __name__ == '__main__':
 
     # Convert the configuration path to the correct module path (replace slashes with dots and remove the .py extension)
     module_path = str(configuration_file_path.with_suffix('')).replace('/', '.')
+    print(module_path)
 
     # Import the module dynamically
     module = importlib.import_module(module_path)

@@ -8,7 +8,7 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub malaar01@austral.criann.fr
 
 ```bash
 ssh -l malaar01 austral.criann.fr
-cd ./Programming_Projects/Clustering_Agent_Latent_Space/
+cd ~/Programming_Projects/Clustering_Agent_Latent_Space/
 git pull
 git reset --hard HEAD
 ```
@@ -61,9 +61,9 @@ scancel --me
 ```
 
 ```bash
-scancel <jobid>
+scancel <job_id>
 ```
 
 ```bash
-tail -f <path>
+tail -f /dlocal/run/<job_id>
 ```

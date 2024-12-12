@@ -31,4 +31,4 @@ params=(
   --configuration_file_path ./configurations/experimentation/
 )
 
-srun python3 ./executables/reinforcement_learning_training.py ${params[@]}
+PYTHONPATH=$(pwd) srun python3 ./executables/reinforcement_learning_training.py ${params[@]}
