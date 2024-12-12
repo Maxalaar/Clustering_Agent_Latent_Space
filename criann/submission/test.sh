@@ -20,7 +20,6 @@ export PYTHONUSERBASE=~/packages/$PROJECTNAME
 export PATH=$PATH:~/packages/$PROJECTNAME/
 
 # rsync -av --exclude='./temporary' --exclude='./experiments' --exclude='criann_logs' . $LOCAL_WORK_DIR
-pwd=$PWD
 echo Working directory : $PWD
 echo Local Working directory : $LOCAL_WORK_DIR
 
@@ -33,5 +32,4 @@ params=(
 )
 
 ls
-PYTHONPATH=$(pwd)
-srun python3 ./executables/reinforcement_learning_training.py ${params[@]}
+PYTHONPATH=$(pwd) srun python3 executables/reinforcement_learning_training.py ${params[@]}
