@@ -63,3 +63,7 @@ scancel --me
 ```bash
 scancel <jobid>
 ```
+
+```bash
+tail -f <path>
+```

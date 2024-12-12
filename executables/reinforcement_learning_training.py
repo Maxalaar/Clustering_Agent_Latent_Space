@@ -1,6 +1,7 @@
 import os
 import argparse
 import importlib
+import sys
 from pathlib import Path
 
 import ray
@@ -162,6 +163,8 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 
 
 if __name__ == '__main__':
+    sys.path.append(os.path.abspath('.'))
+
     # Create the argument parser
     parser = argparse.ArgumentParser(description="Run training with a specific configuration.")
     parser.add_argument('--configuration_file_path', type=str, help="The name of the configuration file (e.g., 'configurations.list_experimentation_configurations.cartpole.py')")
