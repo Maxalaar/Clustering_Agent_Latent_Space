@@ -20,6 +20,8 @@ export PYTHONUSERBASE=~/packages/$PROJECTNAME
 export PATH=$PATH:~/packages/$PROJECTNAME
 
 # rsync -av --exclude='./temporary' --exclude='./experiments' --exclude='criann_logs' . $LOCAL_WORK_DIR
+echo Local Working directory : $LOCAL_WORK_DIR
+
 cp -R . $LOCAL_WORK_DIR
 cd $LOCAL_WORK_DIR || exit
 cd ./Clustering_Agent_Latent_Space || exit
