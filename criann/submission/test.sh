@@ -25,9 +25,9 @@ cd $LOCAL_WORK_DIR || exit
 echo Working directory : $PWD
 
 params=(
-  --configuration_file_path /home/2024016/malaar01/Programming_Projects/Clustering_Agent_Latent_Space/configurations/experimentation/
+  --configuration_file_path ./configurations/experimentation/
 )
 
-srun python3 ./executables/reinforcement_learning_training.py ${params[@]}
+python3 ./executables/reinforcement_learning_training.py ${params[@]}
 
 #rm -r $LOCAL_WORK_DIR
