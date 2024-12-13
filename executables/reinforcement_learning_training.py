@@ -1,3 +1,4 @@
+import argparse
 import os
 
 import ray
@@ -14,7 +15,7 @@ from ray.rllib.core.rl_module.rl_module import RLModuleSpec
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from utilities.argument_parser import argument_parser
+from utilities.get_configuration_class import get_configuration_class
 
 
 def reinforcement_learning_training(experimentation_configuration: ExperimentationConfiguration):
@@ -132,7 +133,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
         enable_env_runner_and_connector_v2=True,
     )
 
-    tuner_save_path = os.path.join(experimentation_configuration.experimentation_storage_path, str(experimentation_configuration.reinforcement_learning_storage_path), 'tuner.pkl')
+    tuner_save_path = os.path.join(str(experimentation_configuration.reinforcement_learning_storage_path), reinforcement_learning_configuration.training_name, 'tuner.pkl')
     if os.path.exists(tuner_save_path):
         tuner = tune.Tuner.restore(
             os.path.dirname(tuner_save_path),
@@ -164,5 +165,14 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 
 
 if __name__ == '__main__':
-    configuration_class = argument_parser()
+    parser = argparse.ArgumentParser(description='Run reinforcement learning training.')
+    parser.add_argument(
+        '--experimentation_configuration_file',
+        type=str,
+        help="The path of the experimentation configuration file (e.g., './configurations/experimentation/cartpole.py')"
+    )
+
+    arguments = parser.parse_args()
+    configuration_class = get_configuration_class(arguments.experimentation_configuration_file)
+
     reinforcement_learning_training(configuration_class)

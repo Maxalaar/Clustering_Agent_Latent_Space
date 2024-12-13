@@ -7,7 +7,7 @@ from ray.rllib.env.single_agent_env_runner import SingleAgentEnvRunner
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from rllib_repertory.find_best_checkpoint_path import find_best_checkpoint_path
+from rllib_repertory.find_best_checkpoint_path import find_best_reinforcement_learning_checkpoint_path
 from rllib_repertory.get_checkpoint_algorithm_configuration import get_checkpoint_algorithm_configuration
 from rllib_repertory.save_trajectory_callback import SaveTrajectoryCallback
 
@@ -33,7 +33,7 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
             number_rendering_to_stack=experimentation_configuration.trajectory_dataset_generation_configuration.number_rendering_to_stack,
         )
 
-    best_checkpoints_path: Path = find_best_checkpoint_path(experimentation_configuration)
+    best_checkpoints_path: Path = find_best_reinforcement_learning_checkpoint_path(experimentation_configuration)
     algorithm_configuration = get_checkpoint_algorithm_configuration(best_checkpoints_path)
 
     if experimentation_configuration.trajectory_dataset_generation_configuration.save_rendering:

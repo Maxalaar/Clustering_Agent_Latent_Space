@@ -10,10 +10,10 @@ from ray.tune.experiment import Trial
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 
 
-def find_best_checkpoint_path(
-        experimentation_configuration: ExperimentationConfiguration,
+def find_best_reinforcement_learning_checkpoint_path(
+        reinforcement_learning_path: Path,
 ):
-    analysis = ExperimentAnalysis(experimentation_configuration.reinforcement_learning_storage_path)
+    analysis = ExperimentAnalysis(reinforcement_learning_path)
     metric = 'evaluation/env_runners/episode_return_mean'
 
     best_trial: Trial = analysis.get_best_trial(metric=metric, mode='max')

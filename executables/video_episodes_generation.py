@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 import warnings
 
@@ -6,17 +7,18 @@ from ray.rllib.algorithms import Algorithm, AlgorithmConfig
 
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
-from rllib_repertory.find_best_checkpoint_path import find_best_checkpoint_path
+from rllib_repertory.find_best_checkpoint_path import find_best_reinforcement_learning_checkpoint_path
 from rllib_repertory.get_checkpoint_algorithm_configuration import get_checkpoint_algorithm_configuration
 from rllib_repertory.register_video_environment_creator import register_video_environment_creator
+from utilities.get_configuration_class import get_configuration_class
 
 
-def video_episode_generation(experimentation_configuration: ExperimentationConfiguration):
+def video_episode_generation(experimentation_configuration: ExperimentationConfiguration, reinforcement_learning_path: Path):
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     ray.init(local_mode=False)
     register_environments()
 
-    best_checkpoints_path: Path = find_best_checkpoint_path(experimentation_configuration)
+    best_checkpoints_path: Path = find_best_reinforcement_learning_checkpoint_path(reinforcement_learning_path)
     algorithm_configuration = get_checkpoint_algorithm_configuration(best_checkpoints_path)
 
     video_environment_name = register_video_environment_creator(
@@ -57,6 +59,24 @@ def video_episode_generation(experimentation_configuration: ExperimentationConfi
 
 
 if __name__ == '__main__':
-    import configurations.list_experimentation_configurations
+    parser = argparse.ArgumentParser(description='Generate episode video from policy.')
+    parser.add_argument(
+        '--experimentation_configuration_file',
+        type=str,
+        help="The path of the experimentation configuration file (e.g., './configurations/experimentation/cartpole.py')"
+    )
 
-    video_episode_generation(configurations.list_experimentation_configurations.tetris)
+    parser.add_argument(
+        '--reinforcement_learning_path',
+        type=str,
+        help="The path of repository with the reinforcement learning checkpoint (e.g., './experiments/cartpole/reinforcement_learning/base')"
+    )
+
+    arguments = parser.parse_args()
+    configuration_class = get_configuration_class(arguments.experimentation_configuration_file)
+
+    reinforcement_learning_path = Path(arguments.reinforcement_learning_path)
+    if not reinforcement_learning_path.is_absolute():
+        reinforcement_learning_path = Path.cwd() / reinforcement_learning_path
+
+    video_episode_generation(configuration_class, reinforcement_learning_path)

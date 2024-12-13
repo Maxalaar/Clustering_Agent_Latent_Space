@@ -6,7 +6,7 @@ from ray.rllib.core.rl_module import RLModuleSpec
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.register_environments import register_environments
 from rllib_repertory.architectures.lightning import Lightning
-from rllib_repertory.find_best_checkpoint_path import find_best_checkpoint_path
+from rllib_repertory.find_best_checkpoint_path import find_best_reinforcement_learning_checkpoint_path
 from rllib_repertory.get_checkpoint_algorithm_configuration import get_checkpoint_algorithm_configuration
 
 
@@ -14,7 +14,7 @@ def evaluation_surrogate_policy(experimentation_configuration: ExperimentationCo
     ray.init(local_mode=experimentation_configuration.ray_local_mode)
     register_environments()
 
-    best_checkpoints_path: Path = find_best_checkpoint_path(experimentation_configuration)
+    best_checkpoints_path: Path = find_best_reinforcement_learning_checkpoint_path(experimentation_configuration)
     algorithm_configuration = get_checkpoint_algorithm_configuration(best_checkpoints_path)
 
     algorithm_configuration.learners(
