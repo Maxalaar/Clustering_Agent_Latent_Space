@@ -61,5 +61,5 @@ cd ~/Programming_Projects/Clustering_Agent_Latent_Space/
 # Setup Environment
 
 ```bash
-./criann/install_packages_criann.sh
+./criann/python_environment/install_packages_criann.sh
 ```

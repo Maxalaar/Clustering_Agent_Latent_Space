@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #SBATCH -J "clustering_agent_latent_space_name"
-#SBATCH --time 01:00:00
+#SBATCH --time 12:00:00
 #SBATCH --mem-per-gpu 50000
 
 #SBATCH --partition hpda_mig
-#SBATCH --gres gpu:a100_1g.10gb
+#SBATCH --gres gpu:a100_1g.20gb
 
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
@@ -28,7 +28,7 @@ export PATH=$PATH:~/packages/$PROJECTNAME/
 #echo Working directory : $PWD
 
 params=(
-  --configuration_file_path ./configurations/experimentation/criann/cartpole.py
+  --configuration_file_path ./configurations/experimentation/criann/tetris.py
 )
 
 ls

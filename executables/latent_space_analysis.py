@@ -123,6 +123,8 @@ def train_observations_clusters_decision_tree(
         observations: torch.Tensor,
         cluster_labels: torch.Tensor,
         save_path: Path,
+        tree_max_depth_observations_to_all_clusters: int,
+        tree_max_depth_observations_to_cluster: int,
         feature_names: Optional[list] = None,
 ):
     save_path = save_path / 'observations_clusters_decision_trees'
@@ -137,7 +139,7 @@ def train_observations_clusters_decision_tree(
 
     x_train, x_test, y_train, y_test = train_test_split(observations, cluster_labels, test_size=0.2)
 
-    decision_tree = DecisionTreeClassifier(max_depth=3)
+    decision_tree = DecisionTreeClassifier(max_depth=tree_max_depth_observations_to_all_clusters)
     decision_tree.fit(x_train, y_train)
     predict_y_test = decision_tree.predict(x_test)
     accuracy_value = accuracy_score(y_test, predict_y_test)
@@ -157,7 +159,7 @@ def train_observations_clusters_decision_tree(
         x_balance, y_balance = random_over_sampler.fit_resample(observations, y_binary)
         x_train, x_test, y_train, y_test = train_test_split(x_balance, y_balance, test_size=0.2)
 
-        decision_tree = DecisionTreeClassifier(max_depth=2)
+        decision_tree = DecisionTreeClassifier(max_depth=tree_max_depth_observations_to_cluster)
         decision_tree.fit(x_train, y_train)
         predict_y_test = decision_tree.predict(x_test)
         accuracy_value = accuracy_score(y_test, predict_y_test)
@@ -324,15 +326,17 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
         cluster_labels=cluster_labels,
         feature_names=getattr(environment, 'observation_labels', None),
         save_path=experimentation_configuration.latent_space_analysis_storage_path,
+        tree_max_depth_observations_to_all_clusters=3,
+        tree_max_depth_observations_to_cluster=2,
     )
-    train_observations_actions_decision_tree(
-        observations=observations,
-        actions=actions,
-        cluster_labels=cluster_labels,
-        feature_names=getattr(environment, 'observation_labels', None),
-        class_names=getattr(environment, 'action_labels', None),
-        save_path=experimentation_configuration.latent_space_analysis_storage_path,
-    )
+    # train_observations_actions_decision_tree(
+    #     observations=observations,
+    #     actions=actions,
+    #     cluster_labels=cluster_labels,
+    #     feature_names=getattr(environment, 'observation_labels', None),
+    #     class_names=getattr(environment, 'action_labels', None),
+    #     save_path=experimentation_configuration.latent_space_analysis_storage_path,
+    # )
     representation_clusters(
         latent_space_analysis_storage_path=experimentation_configuration.latent_space_analysis_storage_path,
         trajectory_dataset_with_rending_file_path=experimentation_configuration.trajectory_dataset_with_rending_file_path,

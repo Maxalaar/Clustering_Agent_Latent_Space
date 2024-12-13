@@ -128,8 +128,11 @@ class TetrisPPOTransformer(TorchRLModule, ValueFunctionAPI):
         dimension_token = self.model_config.get('dimension_token', 16)
         number_heads = self.model_config.get('number_heads', 1)
         dimension_feedforward = self.model_config.get('dimension_feedforward', 32)
-        number_transformer_layers = self.model_config.get('number_transformer_layers', 2)
+        number_transformer_layers = self.model_config.get('number_transformer_layers', 1)
         dropout = self.model_config.get('dropout', 0.1)
+
+        action_dense_layer_shapes = self.model_config.get('action_dense_layer_shapes', [128, 64, 32, 16])
+        critic_dense_layer_shapes = self.model_config.get('critic_dense_layer_shape', [128, 64, 32, 16])
 
         transformer_layer = nn.TransformerEncoderLayer(
             d_model=dimension_token,
@@ -144,9 +147,9 @@ class TetrisPPOTransformer(TorchRLModule, ValueFunctionAPI):
         self.action_token_projector = nn.Linear(2, dimension_token)
         self.action_layer_transformer_encoder = nn.TransformerEncoder(transformer_layer,
                                                                       num_layers=number_transformer_layers)
-        self.action_dense_layer = create_dense_architecture(
+        self.action_dense_layers = create_dense_architecture(
             input_dimension=dimension_token,
-            shape_layers=[128, 64, 32, 16],
+            shape_layers=action_dense_layer_shapes,
             output_dimension=self.action_dist_cls.required_input_dim(space=self.action_space),
             activation_function=self.activation_function,
         )
@@ -156,9 +159,9 @@ class TetrisPPOTransformer(TorchRLModule, ValueFunctionAPI):
         self.critic_layer_transformer_encoder = nn.TransformerEncoder(transformer_layer,
                                                                       num_layers=number_transformer_layers)
 
-        self.critic_dense_layer = create_dense_architecture(
+        self.critic_dense_layers = create_dense_architecture(
             input_dimension=dimension_token,
-            shape_layers=[128, 64, 32, 16],
+            shape_layers=critic_dense_layer_shapes,
             output_dimension=1,
             activation_function=self.activation_function,
         )
@@ -185,7 +188,7 @@ class TetrisPPOTransformer(TorchRLModule, ValueFunctionAPI):
         )
 
         embedding = transformer_output[:, 0]
-        action_distribution_inputs = self.action_dense_layer(embedding)
+        action_distribution_inputs = self.action_dense_layers(embedding)
 
         return {
             Columns.ACTION_DIST_INPUTS: action_distribution_inputs,
@@ -217,4 +220,4 @@ class TetrisPPOTransformer(TorchRLModule, ValueFunctionAPI):
         )
 
         embedding = transformer_output[:, 0]
-        return self.critic_dense_layer(embedding).squeeze(-1)
+        return self.critic_dense_layers(embedding).squeeze(-1)

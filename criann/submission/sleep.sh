@@ -5,7 +5,7 @@
 #SBATCH --mem-per-gpu 50000
 
 #SBATCH --partition hpda_mig
-#SBATCH --gres gpu:a100_1g.10gb
+#SBATCH --gres gpu:a100_1g.20gb
 
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
@@ -19,17 +19,4 @@ module load aidl/pytorch/2.2.0-cuda12.1
 export PYTHONUSERBASE=~/packages/$PROJECTNAME
 export PATH=$PATH:~/packages/$PROJECTNAME/
 
-# rsync -av --exclude='./temporary' --exclude='./experiments' --exclude='criann_logs' . $LOCAL_WORK_DIR
-#echo Working directory : $PWD
-#echo Local Working directory : $LOCAL_WORK_DIR
-#
-#cp -R . $LOCAL_WORK_DIR
-#cd $LOCAL_WORK_DIR || exit
-#echo Working directory : $PWD
-
-params=(
-  --configuration_file_path ./configurations/experimentation/criann/cartpole.py
-)
-
-ls
-PYTHONPATH=$(pwd) srun python3 executables/reinforcement_learning_training.py ${params[@]}
+sleep infinity
