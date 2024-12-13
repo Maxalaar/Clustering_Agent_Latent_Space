@@ -8,6 +8,7 @@ from environments.bipedal_walker.bipedal_walker import BipedalWalker
 from environments.pong_survivor.pong_survivor import PongSurvivor
 from environments.taxi.taxi import Taxi
 from environments.tetris.tetris import Tetris
+from environments.tetris_atari.tetris_atari import TetrisAtari
 
 
 def register_environments():
@@ -19,3 +20,4 @@ def register_environments():
     register_env(name='TaxiRllib', env_creator=Taxi)
     register_env(name='PongSurvivor', env_creator=PongSurvivor)
     register_env(name='TetrisRllib', env_creator=Tetris)
+    register_env(name='TetrisAtariRllib', env_creator=TetrisAtari)

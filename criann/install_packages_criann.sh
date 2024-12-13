@@ -1,9 +1,7 @@
 PROJECTNAME=Clustering_Agent_Latent_Space
 
-rm -rf ~/packages/$PROJECTNAME
-mkdir ~/packages/$PROJECTNAME
+mkdir -p ~/packages/$PROJECTNAME
 
-module purge
 module load aidl/pytorch/2.2.0-cuda12.1
 export PYTHONUSERBASE=~/packages/$PROJECTNAME
 export PATH=$PATH:~/packages/$PROJECTNAME/
@@ -32,3 +30,4 @@ pip install --user --no-cache-dir gymnasium[box2d]
 pip install --user --no-cache-dir gymnasium[mujoco]
 pip install --user --no-cache-dir flappy-bird-gymnasium
 pip install --user --no-cache-dir tetris-gymnasium
+pip install --user --no-cahce-dir ale-py

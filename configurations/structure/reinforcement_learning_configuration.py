@@ -12,6 +12,7 @@ from ray.rllib.utils.from_config import NotProvided
 class ReinforcementLearningConfiguration:
     def __init__(self, algorithm_name: str = 'PPO'):
         # Generale
+        self.training_name: str = 'base'
         self.algorithm_name: str = algorithm_name
 
         # Framework

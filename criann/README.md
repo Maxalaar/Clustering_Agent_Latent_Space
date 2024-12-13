@@ -27,6 +27,11 @@ cd ~/Programming_Projects/Clustering_Agent_Latent_Space/
    tail -f ~/Programming_Projects/Clustering_Agent_Latent_Space/criann_log/<file_name>
    ```  
 
+5. **Connection to the compute node of the job**
+   ```bash
+   ssh <NODELIST(REASON)>
+   ```
+
 ---
 
 # **Cancel Jobs**
@@ -53,57 +58,8 @@ cd ~/Programming_Projects/Clustering_Agent_Latent_Space/
    ssh-copy-id -i ~/.ssh/id_rsa.pub malaar01@austral.criann.fr
    ```
 
-[//]: # (ssh c23hpda5)
+# Setup Environment
 
-[//]: # (#git pull)
-
-[//]: # (#git reset --hard HEAD)
-
-[//]: # (# Setup CRIANN Environment)
-
-[//]: # ()
-[//]: # (To set up the required environment for this project, follow these steps:)
-
-[//]: # ()
-[//]: # (1. **Set authorizations:**)
-
-[//]: # (```bash)
-
-[//]: # (chmod +x ./criann/setup_criann_environment.sh)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (2. **Create a Environment:**)
-
-[//]: # (```bash)
-
-[//]: # (./criann/setup_criann_environment.sh)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (# Load the Environment)
-
-[//]: # (```bash)
-
-[//]: # (PROJECTNAME=Clustering_Agent_Latent_Space)
-
-[//]: # (module purge)
-
-[//]: # (module load aidl/pytorch/2.2.0-cuda12.1)
-
-[//]: # (export PYTHONUSERBASE=~/packages/$PROJECTNAME)
-
-[//]: # (export PATH=$PATH:~/packages/$PROJECTNAME)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (Test if the environment is correct :)
-
-[//]: # (```bash)
-
-[//]: # (python3 ./conda/python_environment_information.py)
-
-[//]: # (```)
+```bash
+./criann/install_packages_criann.sh
+```

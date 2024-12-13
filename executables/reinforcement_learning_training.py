@@ -2,6 +2,7 @@ import os
 
 import ray
 from ray import air, tune
+from ray.air.integrations.wandb import WandbLoggerCallback
 from ray.rllib.algorithms.dreamerv3 import DreamerV3, DreamerV3Config
 from ray.rllib.algorithms.ppo import PPOConfig, PPO
 from ray.rllib.algorithms.dqn import DQNConfig, DQN
@@ -20,7 +21,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
     ray.init(local_mode=experimentation_configuration.ray_local_mode)
 
     reinforcement_learning_configuration = experimentation_configuration.reinforcement_learning_configuration
-    reinforcement_learning_configuration.to_yaml_file(experimentation_configuration.reinforcement_learning_storage_path)
+    reinforcement_learning_configuration.to_yaml_file(experimentation_configuration.reinforcement_learning_storage_path / experimentation_configuration.reinforcement_learning_configuration.training_name)
 
     register_environments()
 
@@ -143,8 +144,8 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
             trainable=algorithm,
             param_space=algorithm_configuration,
             run_config=air.RunConfig(
-                name=str(experimentation_configuration.reinforcement_learning_storage_path),
-                storage_path=str(experimentation_configuration.experimentation_storage_path),
+                name=experimentation_configuration.reinforcement_learning_configuration.training_name,
+                storage_path=str(experimentation_configuration.reinforcement_learning_storage_path),
                 stop=reinforcement_learning_configuration.stopping_criterion,
                 checkpoint_config=air.CheckpointConfig(
                     num_to_keep=reinforcement_learning_configuration.number_checkpoint_to_keep,
@@ -152,7 +153,8 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
                     checkpoint_score_order=reinforcement_learning_configuration.checkpoint_score_order,
                     checkpoint_frequency=reinforcement_learning_configuration.checkpoint_frequency,
                     checkpoint_at_end=True,
-                )
+                ),
+                # callbacks=[WandbLoggerCallback(project="Optimization_Project")]
             ),
         )
 
