@@ -1,6 +1,7 @@
 from typing import Optional
 import gymnasium as gym
 from tetris_gymnasium.envs.tetris import Tetris
+from tetris_gymnasium.wrappers.observation import RgbObservation
 
 
 class Tetris(gym.Env):
@@ -9,6 +10,10 @@ class Tetris(gym.Env):
 
         self.render_mode = environment_configuration.get('render_mode', None)
         self.environment = gym.make('tetris_gymnasium/Tetris', render_mode=self.render_mode)
+
+        self.observation_rgb = environment_configuration.get('observation_rgb', False)
+        if self.observation_rgb:
+            self.environment = RgbObservation(self.environment)
 
         self.observation_space = self.environment.observation_space
         self.action_space = self.environment.action_space

@@ -10,7 +10,8 @@ class BipedalWalker(gym.Env):
         self.metadata = {'render_modes': ['rgb_array']}
 
         self.render_mode = environment_configuration.get('render_mode', None)
-        self.environment = gym.make('BipedalWalker-v3', render_mode=self.render_mode)
+        self.hardcore = environment_configuration.get('hardcore', False)
+        self.environment = gym.make('BipedalWalker-v3', render_mode=self.render_mode, hardcore=self.hardcore)
 
         self.observation_space = Box(
             low=np.NINF,
