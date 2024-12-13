@@ -7,6 +7,7 @@ from ray.rllib.algorithms.callbacks import DefaultCallbacks
 from ray.rllib.core.rl_module import RLModule
 from ray.rllib.core.rl_module.default_model_config import DefaultModelConfig
 from ray.rllib.utils.from_config import NotProvided
+from ray.rllib.utils.typing import LearningRateOrSchedule
 
 
 class ReinforcementLearningConfiguration:
@@ -35,7 +36,7 @@ class ReinforcementLearningConfiguration:
 
         # DQN only
         self.replay_buffer_configuration: dict = NotProvided
-        self.entropy_coefficient: float = NotProvided
+        self.epsilon: Optional[LearningRateOrSchedule] = NotProvided
 
         # PPO only
         self.use_generalized_advantage_estimator: bool = NotProvided
@@ -43,6 +44,7 @@ class ReinforcementLearningConfiguration:
         self.lambda_gae: float = NotProvided
         self.clip_all_parameter: float = NotProvided
         self.clip_value_function_parameter: float = NotProvided
+        self.entropy_coefficient: float = NotProvided
 
         # Environment runners
         self.batch_mode: str = 'complete_episodes'

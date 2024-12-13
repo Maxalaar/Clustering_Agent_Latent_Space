@@ -89,6 +89,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
         algorithm_configuration: DQNConfig
         algorithm_configuration.training(
             replay_buffer_config=reinforcement_learning_configuration.replay_buffer_configuration,
+            epsilon=reinforcement_learning_configuration.epsilon,
         )
 
     # Environment runners
