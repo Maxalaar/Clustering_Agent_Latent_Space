@@ -15,6 +15,8 @@ pong_survivor_two_balls.ray_local_mode = False
 
 # Reinforcement Learning
 pong_survivor_two_balls.reinforcement_learning_configuration.architecture = DensePPO
+pong_survivor_two_balls.reinforcement_learning_configuration.number_environment_runners = 15
+pong_survivor_two_balls.reinforcement_learning_configuration.number_gpus_per_learner = 1
 pong_survivor_two_balls.reinforcement_learning_configuration.train_batch_size = 40_000
 pong_survivor_two_balls.reinforcement_learning_configuration.minibatch_size = 10_000
 

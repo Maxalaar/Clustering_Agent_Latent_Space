@@ -26,7 +26,7 @@ bipedal_walker.reinforcement_learning_configuration.train_batch_size = 2048 * 8
 bipedal_walker.reinforcement_learning_configuration.minibatch_size = 64 * 4
 bipedal_walker.reinforcement_learning_configuration.number_epochs = 128
 
-bipedal_walker.reinforcement_learning_configuration.gradient_clip = 0.1
+# bipedal_walker.reinforcement_learning_configuration.gradient_clip = 0.1
 bipedal_walker.reinforcement_learning_configuration.clip_all_parameter = 0.18
 bipedal_walker.reinforcement_learning_configuration.clip_value_function_parameter = 0.18
 
