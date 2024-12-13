@@ -50,6 +50,7 @@ class ReinforcementLearningConfiguration:
         self.number_environment_per_environment_runners: int = NotProvided
         self.number_cpus_per_environment_runners: int = NotProvided
         self.number_gpus_per_environment_runners: int = NotProvided
+        self.compress_observations: bool = NotProvided
 
         # Learners
         self.number_learners: int = NotProvided

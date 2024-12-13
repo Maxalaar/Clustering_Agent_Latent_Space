@@ -98,6 +98,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
         num_envs_per_env_runner=reinforcement_learning_configuration.number_environment_per_environment_runners,
         num_cpus_per_env_runner=reinforcement_learning_configuration.number_cpus_per_environment_runners,
         num_gpus_per_env_runner=reinforcement_learning_configuration.number_gpus_per_environment_runners,
+        compress_observations=reinforcement_learning_configuration.compress_observations,
     )
 
     if reinforcement_learning_configuration.flatten_observations:

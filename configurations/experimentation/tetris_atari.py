@@ -6,7 +6,8 @@ tetris_atari = ExperimentationConfiguration(
     environment_name='TetrisAtariRllib',
 )
 
-tetris_atari.reinforcement_learning_configuration.number_environment_runners = 8
+tetris_atari.reinforcement_learning_configuration.compress_observations = True
+tetris_atari.reinforcement_learning_configuration.number_environment_runners = 4
 tetris_atari.reinforcement_learning_configuration.number_environment_per_environment_runners = 1
 
 tetris_atari.reinforcement_learning_configuration.number_gpus_per_environment_runners = 0
