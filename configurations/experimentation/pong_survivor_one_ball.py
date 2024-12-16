@@ -12,11 +12,14 @@ pong_survivor_one_ball.environment_configuration = classic_one_ball
 pong_survivor_one_ball.ray_local_mode = False
 
 # Reinforcement Learning
-# pong_survivor_one_ball.reinforcement_learning_configuration.architecture = Dense
-pong_survivor_one_ball.reinforcement_learning_configuration.number_environment_runners = 15
+pong_survivor_one_ball.reinforcement_learning_configuration.training_name = 'V2'
+pong_survivor_one_ball.reinforcement_learning_configuration.architecture = DensePPO
+pong_survivor_one_ball.reinforcement_learning_configuration.number_environment_runners = 16
 pong_survivor_one_ball.reinforcement_learning_configuration.number_gpus_per_learner = 1
 pong_survivor_one_ball.reinforcement_learning_configuration.train_batch_size = 40_000
 pong_survivor_one_ball.reinforcement_learning_configuration.minibatch_size = 10_000
+pong_survivor_one_ball.reinforcement_learning_configuration.number_epochs = 64
+pong_survivor_one_ball.reinforcement_learning_configuration.entropy_coefficient = 0.01
 
 # Trajectory Dataset Generation
 pong_survivor_one_ball.trajectory_dataset_generation_configuration.number_environment_runners = 10

@@ -57,3 +57,19 @@ Find the version of CUDA currently installed
 ```bash
 nvcc --version
 ```
+
+# Explainability Pipeline
+
+1. Reinforcement Learning Training
+```bash
+python3 ./executables/reinforcement_learning_training.py \
+  --experimentation_configuration_file configurations/experimentation/<name_of_configuration_file.py>
+```
+
+2. Video Generation
+```bash
+python3 ./executables/video_episodes_generation.py \
+  --experimentation_configuration_file ./configurations/experimentation/<name_of_configuration_file.py> \
+  --reinforcement_learning_path experiments/<path_to_reinforcement_learning_save_directory>
+```
+```
