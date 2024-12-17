@@ -23,6 +23,7 @@ class ReinforcementLearningConfiguration:
         self.number_gpu: int = NotProvided
 
         # Training
+        self.gamma: float = NotProvided
         self.flatten_observations: bool = True
         self.architecture: Optional[RLModule] = None
         self.architecture_configuration: Optional[DefaultModelConfig, Dict] = None
@@ -35,8 +36,12 @@ class ReinforcementLearningConfiguration:
         self.gradient_clip_by: str = NotProvided
 
         # DQN only
+        self.tau: float = NotProvided
+        self.target_network_update_frequency: int = NotProvided
+        self.training_intensity: int = NotProvided
         self.replay_buffer_configuration: dict = NotProvided
         self.epsilon: Optional[LearningRateOrSchedule] = NotProvided
+        self.number_steps_sampled_before_learning_starts: int = NotProvided
 
         # PPO only
         self.use_generalized_advantage_estimator: bool = NotProvided

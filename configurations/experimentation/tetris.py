@@ -22,23 +22,56 @@ tetris.reinforcement_learning_configuration.number_gpus_per_environment_runners 
 
 tetris.reinforcement_learning_configuration.number_gpus_per_learner = 1
 
+# DQN
+# https://github.com/Max-We/Tetris-Gymnasium/blob/main/examples/train_cnn.py
+tetris.reinforcement_learning_configuration.algorithm_name = 'DQN'
 
-# PPO
-tetris.reinforcement_learning_configuration.algorithm_name = 'PPO'
 tetris.environment_configuration = {'observation_rgb': True}
 tetris.reinforcement_learning_configuration.flatten_observations = False
-tetris.reinforcement_learning_configuration.architecture = TetrisPPOCNN #TetrisPPOTransformer #TetrisPPO #DensePPO
-# tetris.reinforcement_learning_configuration.architecture_configuration = {
-#     'configuration_hidden_layers': [64, 128, 246, 512, 246, 128, 64],
-#     'activation_function': LeakyReLU(),
-# }
-tetris.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
-tetris.reinforcement_learning_configuration.train_batch_size = 1024 * 10
-tetris.reinforcement_learning_configuration.minibatch_size = 1024
-tetris.reinforcement_learning_configuration.number_epochs = 32
-# tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
+tetris.reinforcement_learning_configuration.compress_observations = True
 
-# DQN
+# tetris.reinforcement_learning_configuration.architecture = TetrisPPOCNN
+
+tetris.reinforcement_learning_configuration.learning_rate = 1e-4
+tetris.reinforcement_learning_configuration.replay_buffer_configuration = {
+    # 'type': 'PrioritizedEpisodeReplayBuffer',
+    'capacity': 1_000_000,
+    # 'alpha': 0.5,
+    # 'beta': 0.5,
+}
+tetris.reinforcement_learning_configuration.gamma = 0.99
+tetris.reinforcement_learning_configuration.tau = 1.0
+tetris.reinforcement_learning_configuration.target_network_update_frequency = 1000
+tetris.reinforcement_learning_configuration.batch_size = 32
+tetris.reinforcement_learning_configuration.epsilon = [[0, 1], [2_000_000, 0.1]]
+tetris.reinforcement_learning_configuration.number_steps_sampled_before_learning_starts = 80_000
+tetris.reinforcement_learning_configuration.training_intensity = 4
+
+
+
+
+
+
+
+
+
+
+
+# # PPO
+# tetris.reinforcement_learning_configuration.algorithm_name = 'PPO'
+# tetris.environment_configuration = {'observation_rgb': True}
+# tetris.reinforcement_learning_configuration.flatten_observations = False
+# tetris.reinforcement_learning_configuration.architecture = TetrisPPOCNN #TetrisPPOTransformer #TetrisPPO #DensePPO
+# # tetris.reinforcement_learning_configuration.architecture_configuration = {
+# #     'configuration_hidden_layers': [64, 128, 246, 512, 246, 128, 64],
+# #     'activation_function': LeakyReLU(),
+# # }
+# tetris.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
+# tetris.reinforcement_learning_configuration.train_batch_size = 1024 * 10
+# tetris.reinforcement_learning_configuration.minibatch_size = 1024
+# tetris.reinforcement_learning_configuration.number_epochs = 32
+# # tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
+
 # tetris.reinforcement_learning_configuration.algorithm_name = 'DQN'
 # tetris.reinforcement_learning_configuration.train_batch_size = 10_000
 # tetris.reinforcement_learning_configuration.flatten_observations = True

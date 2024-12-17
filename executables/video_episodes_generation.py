@@ -23,7 +23,7 @@ def video_episode_generation(experimentation_configuration: ExperimentationConfi
 
     video_environment_name = register_video_environment_creator(
         environment_name=algorithm_configuration.env,
-        video_episodes_storage_path=experimentation_configuration.video_episodes_storage_path / reinforcement_learning_path.parents[1].name,
+        video_episodes_storage_path=experimentation_configuration.video_episodes_storage_path / reinforcement_learning_path.name,
     )
 
     algorithm_configuration.environment(

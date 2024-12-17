@@ -63,6 +63,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
 
     # Training
     algorithm_configuration.training(
+        gamma=reinforcement_learning_configuration.gamma,
         train_batch_size_per_learner=reinforcement_learning_configuration.train_batch_size,
         lr=reinforcement_learning_configuration.learning_rate,
         learner_connector=reinforcement_learning_configuration.learner_connector,
@@ -91,6 +92,9 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
         algorithm_configuration.training(
             replay_buffer_config=reinforcement_learning_configuration.replay_buffer_configuration,
             epsilon=reinforcement_learning_configuration.epsilon,
+            target_network_update_freq=reinforcement_learning_configuration.target_network_update_frequency,
+            training_intensity=reinforcement_learning_configuration.training_intensity,
+            num_steps_sampled_before_learning_starts=reinforcement_learning_configuration.number_steps_sampled_before_learning_starts,
         )
 
     # Environment runners

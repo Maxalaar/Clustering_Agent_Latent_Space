@@ -10,8 +10,14 @@ taxi = ExperimentationConfiguration(
 taxi.ray_local_mode = False
 
 # Reinforcement Learning
-taxi.reinforcement_learning_configuration.learner_connector = CountBasedCuriosity
-taxi.reinforcement_learning_configuration.number_environment_runners = 15
+taxi.reinforcement_learning_configuration.training_name = 'V4'
+taxi.reinforcement_learning_configuration.learner_connector = lambda *args, **kwargs: CountBasedCuriosity(intrinsic_reward_coeff=2)
+taxi.reinforcement_learning_configuration.number_environment_runners = 16
+# taxi.reinforcement_learning_configuration.number_gpus_per_learner = 1
+# taxi.reinforcement_learning_configuration.train_batch_size = 40_000
+# taxi.reinforcement_learning_configuration.minibatch_size = 10_000
+# taxi.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
+# taxi.reinforcement_learning_configuration.number_epochs = 8
 
 # Trajectory Dataset Generation
 # taxi.trajectory_dataset_generation_configuration.number_environment_runners = 10

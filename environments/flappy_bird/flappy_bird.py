@@ -12,6 +12,7 @@ class FlappyBird(gym.Env):
 
         self.render_mode = environment_configuration.get('render_mode', None)
         self.environment = gym.make('FlappyBird-v0', render_mode=self.render_mode, use_lidar=False)
+        self.max_episode_steps = environment_configuration.get('max_episode_steps', 5_000)
         self.current_time_step = None
 
         self.observation_space = self.environment.observation_space
@@ -35,7 +36,7 @@ class FlappyBird(gym.Env):
         self.reset()
 
     def reset(self, seed=None, options=None):
-        self.spec.max_episode_steps = 5_000
+        self.spec.max_episode_steps = self.max_episode_steps
         self.current_time_step = 0
         observation, info = self.environment.reset(seed=seed, options=options)
         return observation, info
