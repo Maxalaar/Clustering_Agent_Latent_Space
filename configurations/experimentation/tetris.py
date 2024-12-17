@@ -13,7 +13,6 @@ tetris = ExperimentationConfiguration(
     experimentation_name='tetris',
     environment_name='TetrisRllib',
 )
-# tetris.environment_configuration = {'observation_rgb': True}
 
 tetris.ray_local_mode = False
 
@@ -26,22 +25,25 @@ tetris.reinforcement_learning_configuration.number_gpus_per_learner = 1
 
 # PPO
 tetris.reinforcement_learning_configuration.algorithm_name = 'PPO'
+tetris.environment_configuration = {'observation_rgb': True}
+tetris.reinforcement_learning_configuration.flatten_observations = False
 tetris.reinforcement_learning_configuration.architecture = TetrisPPOCNN #TetrisPPOTransformer #TetrisPPO #DensePPO
 # tetris.reinforcement_learning_configuration.architecture_configuration = {
 #     'configuration_hidden_layers': [64, 128, 246, 512, 246, 128, 64],
 #     'activation_function': LeakyReLU(),
 # }
 tetris.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
-tetris.reinforcement_learning_configuration.train_batch_size = 1024
-tetris.reinforcement_learning_configuration.minibatch_size = 32
-tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
+tetris.reinforcement_learning_configuration.train_batch_size = 1024 * 10
+tetris.reinforcement_learning_configuration.minibatch_size = 1024
+tetris.reinforcement_learning_configuration.number_epochs = 32
+# tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
 
 # DQN
 # tetris.reinforcement_learning_configuration.algorithm_name = 'DQN'
 # tetris.reinforcement_learning_configuration.train_batch_size = 10_000
 # tetris.reinforcement_learning_configuration.flatten_observations = True
 # tetris.reinforcement_learning_configuration.number_epochs = 128
-# tetris.reinforcement_learning_configuration.epsilon =  [[0, 0.05], ]
+# tetris.reinforcement_learning_configuration.epsilon = 0.05
 # tetris.reinforcement_learning_configuration.replay_buffer_configuration = {
 #     'type': 'PrioritizedEpisodeReplayBuffer',
 #     'capacity': 100_000,
@@ -51,8 +53,8 @@ tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
 # tetris.reinforcement_learning_configuration.architecture_configuration = {
 #     'fcnet_hiddens': [512, 256, 256],
 #     'head_fcnet_hiddens': [128, 64],
+#     'epsilon': 0.05,
 # }
-
 
 # Others
 # tetris.reinforcement_learning_configuration.architecture = DenseDQN

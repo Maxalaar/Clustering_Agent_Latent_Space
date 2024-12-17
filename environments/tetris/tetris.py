@@ -14,9 +14,10 @@ class Tetris(gym.Env):
         self.observation_rgb = environment_configuration.get('observation_rgb', False)
         if self.observation_rgb:
             self.environment = RgbObservation(self.environment)
+            self.environment.observation_space.high[:] = 255
             self.environment = gym.wrappers.ResizeObservation(self.environment, (84, 84))
-            self.environment = gym.wrappers.GrayScaleObservation(self.environment)
-            self.environment = gym.wrappers.FrameStack(self.environment, 4)
+            self.environment = gym.wrappers.GrayscaleObservation(self.environment)
+            self.environment = gym.wrappers.FrameStackObservation(self.environment, 4)
 
         self.observation_space = self.environment.observation_space
         self.action_space = self.environment.action_space

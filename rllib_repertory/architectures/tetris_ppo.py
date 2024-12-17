@@ -156,7 +156,7 @@ class TetrisPPOCNN(TorchRLModule, ValueFunctionAPI):
 
     @override(TorchRLModule)
     def _forward(self, batch, **kwargs):
-        action_distribution_inputs = self.actor_layers(batch[Columns.OBS].to(self.device))
+        action_distribution_inputs = self.actor_layers(batch[Columns.OBS].to(self.device).float())
 
         return {
             Columns.ACTION_DIST_INPUTS: action_distribution_inputs,
@@ -169,7 +169,7 @@ class TetrisPPOCNN(TorchRLModule, ValueFunctionAPI):
             embeddings: Optional[Any] = None,
     ) -> TensorType:
 
-        return self.critic_layers(batch[Columns.OBS].to(self.device)).squeeze(-1)
+        return self.critic_layers(batch[Columns.OBS].to(self.device).float()).squeeze(-1)
 
 
 class TetrisPPOTransformer(TorchRLModule, ValueFunctionAPI):
