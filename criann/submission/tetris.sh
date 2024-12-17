@@ -5,7 +5,7 @@
 #SBATCH --mem-per-gpu 50000
 
 #SBATCH --partition hpda_mig
-#SBATCH --gres gpu:a100_1g.20gb
+#SBATCH --gres gpu:a100_1g.10gb
 
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
