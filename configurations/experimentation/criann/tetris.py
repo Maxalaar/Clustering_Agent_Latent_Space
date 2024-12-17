@@ -18,7 +18,7 @@ tetris.ray_local_mode = False
 
 tetris.reinforcement_learning_configuration.number_environment_runners = 4
 tetris.reinforcement_learning_configuration.number_environment_per_environment_runners = 2
-tetris.reinforcement_learning_configuration.number_gpus_per_environment_runners = 1 / tetris.reinforcement_learning_configuration.number_environment_runners
+tetris.reinforcement_learning_configuration.number_gpus_per_environment_runners = 0
 
 tetris.reinforcement_learning_configuration.number_gpus_per_learner = 1
 
