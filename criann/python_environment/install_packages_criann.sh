@@ -30,4 +30,4 @@ pip install --user --no-cache-dir gymnasium[box2d]
 pip install --user --no-cache-dir gymnasium[mujoco]
 pip install --user --no-cache-dir flappy-bird-gymnasium
 pip install --user --no-cache-dir tetris-gymnasium
-pip install --user --no-cahce-dir ale-py
+pip install --user --no-cache-dir ale-py

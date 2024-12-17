@@ -24,7 +24,7 @@ cd ~/Programming_Projects/Clustering_Agent_Latent_Space/
 
 4. **Follow the logs of a job in real-time**  
    ```bash
-   tail -f ~/Programming_Projects/Clustering_Agent_Latent_Space/criann_log/<file_name>
+   tail -f ~/Programming_Projects/Clustering_Agent_Latent_Space/criann_logs/<file_name>
    ```  
 
 5. **Connection to the compute node of the job**
