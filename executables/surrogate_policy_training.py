@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 
 import numpy as np
@@ -12,15 +13,17 @@ from configurations.structure.experimentation_configuration import Experimentati
 from lightning_repertory.h5_data_module import H5DataModule
 from lightning_repertory.surrogate_policy import SurrogatePolicy
 from utilities.display_h5_file_information import display_h5_file_information
+from utilities.get_configuration_class import get_configuration_class
 
 
-def surrogate_policy_training(experimentation_configuration: ExperimentationConfiguration):
-    display_h5_file_information(experimentation_configuration.trajectory_dataset_file_path)
+def surrogate_policy_training(experimentation_configuration: ExperimentationConfiguration, trajectory_dataset_path: Path):
+    trajectory_dataset_file_path = trajectory_dataset_path / 'trajectory_dataset.h5'
+    display_h5_file_information(trajectory_dataset_file_path)
     ray.init()
     torch.set_float32_matmul_precision('medium')
 
     data_module = H5DataModule(
-        h5_file_path=experimentation_configuration.trajectory_dataset_file_path,
+        h5_file_path=trajectory_dataset_file_path,
         input_dataset_name='observations',
         output_dataset_name='action_distribution_inputs',
         batch_size=experimentation_configuration.surrogate_policy_training_configuration.batch_size,
@@ -66,6 +69,24 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
 
 
 if __name__ == '__main__':
-    import configurations.list_experimentation_configurations
+    parser = argparse.ArgumentParser(description='Train surrogate policy from trajectory dataset.')
+    parser.add_argument(
+        '--experimentation_configuration_file',
+        type=str,
+        help="The path of the experimentation configuration file (e.g., './configurations/experimentation/cartpole.py')"
+    )
 
-    surrogate_policy_training(configurations.list_experimentation_configurations.lunar_lander)
+    parser.add_argument(
+        '--trajectory_dataset_path',
+        type=str,
+        help="The path of trajectory dataset directory (e.g., './experiments/cartpole/datasets/base/')"
+    )
+
+    arguments = parser.parse_args()
+    configuration_class = get_configuration_class(arguments.experimentation_configuration_file)
+
+    trajectory_dataset_path = Path(arguments.trajectory_dataset_path)
+    if not trajectory_dataset_path.is_absolute():
+        trajectory_dataset_path = Path.cwd() / trajectory_dataset_path
+
+    surrogate_policy_training(configuration_class, trajectory_dataset_path)

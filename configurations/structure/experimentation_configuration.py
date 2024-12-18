@@ -32,8 +32,6 @@ class ExperimentationConfiguration:
         self.video_episodes_generation_configuration: Optional[VideoEpisodesGenerationConfiguration] = VideoEpisodesGenerationConfiguration()
 
         # Trajectory Dataset
-        self.trajectory_dataset_file_path: Path = self.dataset_path / 'trajectory_dataset.h5'
-        self.trajectory_dataset_with_rending_file_path: Path = self.dataset_path / 'trajectory_dataset_with_rending.h5'
         self.trajectory_dataset_generation_configuration: Optional[TrajectoryDatasetGenerationConfiguration] = TrajectoryDatasetGenerationConfiguration()
 
         # Surrogate Policy

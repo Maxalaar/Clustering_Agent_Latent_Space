@@ -1,3 +1,4 @@
+import argparse
 import os
 from pathlib import Path
 import shutil
@@ -30,6 +31,8 @@ from bokeh.palettes import Viridis256
 
 from utilities.display_h5_file_information import display_h5_file_information
 import matplotlib.pyplot as plt
+
+from utilities.get_configuration_class import get_configuration_class
 
 
 def get_observations(
@@ -285,10 +288,15 @@ def representation_clusters(
             image.save(cluster_path / f'image_{i}.png')
 
 
-def latent_space_analysis(experimentation_configuration: ExperimentationConfiguration, surrogate_policy_checkpoint_path):
-    if experimentation_configuration.latent_space_analysis_storage_path.exists() and experimentation_configuration.latent_space_analysis_storage_path.is_dir():
-        shutil.rmtree(experimentation_configuration.latent_space_analysis_storage_path)
-    os.makedirs(experimentation_configuration.latent_space_analysis_storage_path, exist_ok=True)
+def latent_space_analysis(
+        experimentation_configuration: ExperimentationConfiguration,
+        trajectory_dataset_path: Path,
+        surrogate_policy_checkpoint_path: Path,
+):
+    current_latent_space_analysis_storage_path = experimentation_configuration.latent_space_analysis_storage_path / surrogate_policy_checkpoint_path.parents[2].name
+    if current_latent_space_analysis_storage_path.exists() and current_latent_space_analysis_storage_path.is_dir():
+        shutil.rmtree(current_latent_space_analysis_storage_path)
+    os.makedirs(current_latent_space_analysis_storage_path, exist_ok=True)
 
     ray.init()
     register_environments()
@@ -299,11 +307,11 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
     surrogate_policy.eval()
     information = 'Surrogate policy checkpoint path: ' + str(surrogate_policy_checkpoint_path) + '\n'
     print(information)
-    with open(experimentation_configuration.latent_space_analysis_storage_path / 'information.txt', 'a') as file:
+    with open(current_latent_space_analysis_storage_path / 'information.txt', 'a') as file:
         file.write(information)
 
     observations, actions = get_observations(
-        trajectory_dataset_file_path=experimentation_configuration.trajectory_dataset_file_path,
+        trajectory_dataset_file_path=trajectory_dataset_path / 'trajectory_dataset.h5',
         device=surrogate_policy.device,
     )
     embeddings = projection_clusterization_latent_space(
@@ -313,19 +321,19 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
     cluster_labels, kmeans = kmeans_latent_space(
         embeddings=embeddings,
         number_cluster=surrogate_policy.clusterization_function.number_cluster,
-        save_path=experimentation_configuration.latent_space_analysis_storage_path,
+        save_path=current_latent_space_analysis_storage_path,
     )
     latent_space_projection_2d(
         embeddings=embeddings,
         cluster_labels=cluster_labels,
-        save_path=experimentation_configuration.latent_space_analysis_storage_path,
+        save_path=current_latent_space_analysis_storage_path,
         number_data=10_000,
     )
     train_observations_clusters_decision_tree(
         observations=observations,
         cluster_labels=cluster_labels,
         feature_names=getattr(environment, 'observation_labels', None),
-        save_path=experimentation_configuration.latent_space_analysis_storage_path,
+        save_path=current_latent_space_analysis_storage_path,
         tree_max_depth_observations_to_all_clusters=3,
         tree_max_depth_observations_to_cluster=2,
     )
@@ -335,11 +343,11 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
     #     cluster_labels=cluster_labels,
     #     feature_names=getattr(environment, 'observation_labels', None),
     #     class_names=getattr(environment, 'action_labels', None),
-    #     save_path=experimentation_configuration.latent_space_analysis_storage_path,
+    #     save_path=current_latent_space_analysis_storage_path,
     # )
     representation_clusters(
-        latent_space_analysis_storage_path=experimentation_configuration.latent_space_analysis_storage_path,
-        trajectory_dataset_with_rending_file_path=experimentation_configuration.trajectory_dataset_with_rending_file_path,
+        latent_space_analysis_storage_path=current_latent_space_analysis_storage_path,
+        trajectory_dataset_with_rending_file_path=trajectory_dataset_path / 'trajectory_dataset_with_rending.h5',
         surrogate_policy=surrogate_policy,
         clusterization_model=kmeans,
         device=surrogate_policy.device,
@@ -347,7 +355,34 @@ def latent_space_analysis(experimentation_configuration: ExperimentationConfigur
 
 
 if __name__ == '__main__':
-    import configurations.list_experimentation_configurations
+    parser = argparse.ArgumentParser(description='Analyse of the clustering latent space for explainability.')
+    parser.add_argument(
+        '--experimentation_configuration_file',
+        type=str,
+        help="The path of the experimentation configuration file (e.g., './configurations/experimentation/cartpole.py')"
+    )
 
-    surrogate_policy_checkpoint_path = '/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/pong_survivor_tow_balls/surrogate_policy/base/version_3/checkpoints/epoch=1730-step=764661.ckpt'
-    latent_space_analysis(configurations.list_experimentation_configurations.pong_survivor_two_balls, surrogate_policy_checkpoint_path)
+    parser.add_argument(
+        '--trajectory_dataset_path',
+        type=str,
+        help="The path of trajectory dataset directory (e.g., './experiments/cartpole/datasets/base/')"
+    )
+
+    parser.add_argument(
+        '--surrogate_policy_checkpoint_path',
+        type=str,
+        help="The path of repository with the surrogate policy checkpoint (e.g., './experiments/cartpole/surrogate_policy/base/version_[...]/checkpoints/[...].ckpt')"
+    )
+
+    arguments = parser.parse_args()
+    configuration_class = get_configuration_class(arguments.experimentation_configuration_file)
+
+    trajectory_dataset_path = Path(arguments.trajectory_dataset_path)
+    if not trajectory_dataset_path.is_absolute():
+        trajectory_dataset_path = Path.cwd() / trajectory_dataset_path
+
+    surrogate_policy_checkpoint_path = Path(arguments.surrogate_policy_checkpoint_path)
+    if not surrogate_policy_checkpoint_path.is_absolute():
+        surrogate_policy_checkpoint_path = Path.cwd() / surrogate_policy_checkpoint_path
+
+    latent_space_analysis(configuration_class, trajectory_dataset_path, surrogate_policy_checkpoint_path)

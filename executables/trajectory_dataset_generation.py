@@ -1,3 +1,5 @@
+import argparse
+
 import ray
 import warnings
 from pathlib import Path
@@ -10,9 +12,10 @@ from environments.register_environments import register_environments
 from rllib_repertory.find_best_checkpoint_path import find_best_reinforcement_learning_checkpoint_path
 from rllib_repertory.get_checkpoint_algorithm_configuration import get_checkpoint_algorithm_configuration
 from rllib_repertory.save_trajectory_callback import SaveTrajectoryCallback
+from utilities.get_configuration_class import get_configuration_class
 
 
-def trajectory_dataset_generation(experimentation_configuration: ExperimentationConfiguration):
+def trajectory_dataset_generation(experimentation_configuration: ExperimentationConfiguration, reinforcement_learning_path: Path):
     warnings.filterwarnings('ignore', category=DeprecationWarning)
     ray.init(local_mode=experimentation_configuration.ray_local_mode)
 
@@ -20,9 +23,9 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
 
     save_rendering: bool = experimentation_configuration.trajectory_dataset_generation_configuration.save_rendering
     if save_rendering:
-        path_file: Path = experimentation_configuration.trajectory_dataset_with_rending_file_path
+        path_file: Path = experimentation_configuration.dataset_path / reinforcement_learning_path.name / 'trajectory_dataset_with_rending.h5'
     else:
-        path_file: Path = experimentation_configuration.trajectory_dataset_file_path
+        path_file: Path = experimentation_configuration.dataset_path / reinforcement_learning_path.name / 'trajectory_dataset.h5'
 
     def create_save_trajectory_callback():
         return SaveTrajectoryCallback(
@@ -33,7 +36,7 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
             number_rendering_to_stack=experimentation_configuration.trajectory_dataset_generation_configuration.number_rendering_to_stack,
         )
 
-    best_checkpoints_path: Path = find_best_reinforcement_learning_checkpoint_path(experimentation_configuration)
+    best_checkpoints_path: Path = find_best_reinforcement_learning_checkpoint_path(reinforcement_learning_path)
     algorithm_configuration = get_checkpoint_algorithm_configuration(best_checkpoints_path)
 
     if experimentation_configuration.trajectory_dataset_generation_configuration.save_rendering:
@@ -70,6 +73,24 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
 
 
 if __name__ == '__main__':
-    import configurations.list_experimentation_configurations
+    parser = argparse.ArgumentParser(description='Generate trajectory dataset from policy.')
+    parser.add_argument(
+        '--experimentation_configuration_file',
+        type=str,
+        help="The path of the experimentation configuration file (e.g., './configurations/experimentation/cartpole.py')"
+    )
 
-    trajectory_dataset_generation(configurations.list_experimentation_configurations.bipedal_walker)
+    parser.add_argument(
+        '--reinforcement_learning_path',
+        type=str,
+        help="The path of repository with the reinforcement learning checkpoint (e.g., './experiments/cartpole/reinforcement_learning/base')"
+    )
+
+    arguments = parser.parse_args()
+    configuration_class = get_configuration_class(arguments.experimentation_configuration_file)
+
+    reinforcement_learning_path = Path(arguments.reinforcement_learning_path)
+    if not reinforcement_learning_path.is_absolute():
+        reinforcement_learning_path = Path.cwd() / reinforcement_learning_path
+
+    trajectory_dataset_generation(configuration_class, reinforcement_learning_path)
