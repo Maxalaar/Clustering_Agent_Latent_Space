@@ -23,6 +23,7 @@ tetris.reinforcement_learning_configuration.number_gpus_per_environment_runners 
 tetris.reinforcement_learning_configuration.number_gpus_per_learner = 1
 
 # PPO
+tetris.reinforcement_learning_configuration.training_name = 'base'
 tetris.reinforcement_learning_configuration.algorithm_name = 'PPO'
 tetris.environment_configuration = {'observation_rgb': True}
 tetris.reinforcement_learning_configuration.flatten_observations = False

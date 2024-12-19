@@ -29,12 +29,19 @@ class Tetris(gym.Env):
 
     def reset(self, seed=None, options=None):
         observation, info = self.environment.reset(seed=seed, options=options)
-        return observation.astype(np.float32), info
+
+        if self.observation_rgb:
+            observation = observation.astype(np.float32)
+
+        return observation, info
 
     def step(self, action):
         observation, reward, done, truncated, information = self.environment.step(action)
 
-        return observation.astype(np.float32), reward, done, truncated, information
+        if self.observation_rgb:
+            observation = observation.astype(np.float32)
+
+        return observation, reward, done, truncated, information
 
     def render(self):
         return self.environment.render()
