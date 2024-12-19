@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pytorch_lightning as pl
@@ -16,7 +17,11 @@ from utilities.display_h5_file_information import display_h5_file_information
 from utilities.get_configuration_class import get_configuration_class
 
 
-def surrogate_policy_training(experimentation_configuration: ExperimentationConfiguration, trajectory_dataset_path: Path):
+def surrogate_policy_training(
+        experimentation_configuration: ExperimentationConfiguration,
+        trajectory_dataset_path: Path,
+        surrogate_policy_checkpoint_path: Optional[Path] = None,
+):
     trajectory_dataset_file_path = trajectory_dataset_path / 'trajectory_dataset.h5'
     display_h5_file_information(trajectory_dataset_file_path)
     ray.init()
@@ -55,7 +60,7 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
     checkpoint_callback = ModelCheckpoint(
         train_time_interval=experimentation_configuration.surrogate_policy_training_configuration.model_checkpoint_time_interval,
     )
-    trainer = pl.Trainer(
+    trainer = pl.trainer.Trainer(
         max_epochs=-1,
         logger=logger,
         check_val_every_n_epoch=experimentation_configuration.surrogate_policy_training_configuration.evaluation_every_n_epoch,
@@ -65,6 +70,7 @@ def surrogate_policy_training(experimentation_configuration: ExperimentationConf
         model=surrogate_policy,
         train_dataloaders=data_module.train_dataloader(),
         val_dataloaders=data_module.validation_dataloader(),
+        ckpt_path=surrogate_policy_checkpoint_path,
     )
 
 
@@ -82,6 +88,12 @@ if __name__ == '__main__':
         help="The path of trajectory dataset directory (e.g., './experiments/cartpole/datasets/base/')"
     )
 
+    parser.add_argument(
+        '--surrogate_policy_checkpoint_path',
+        type=str,
+        help="Optional argument that allows resuming training by specifying a checkpoint of a substitute policy (e.g., './experiments/cartpole/surrogate_policy/base/version_[...]/checkpoints/[...].ckpt')"
+    )
+
     arguments = parser.parse_args()
     configuration_class = get_configuration_class(arguments.experimentation_configuration_file)
 
@@ -89,4 +101,11 @@ if __name__ == '__main__':
     if not trajectory_dataset_path.is_absolute():
         trajectory_dataset_path = Path.cwd() / trajectory_dataset_path
 
-    surrogate_policy_training(configuration_class, trajectory_dataset_path)
+    if arguments.surrogate_policy_checkpoint_path is not None:
+        surrogate_policy_checkpoint_path = Path(arguments.surrogate_policy_checkpoint_path)
+        if not surrogate_policy_checkpoint_path.is_absolute():
+            surrogate_policy_checkpoint_path = Path.cwd() / surrogate_policy_checkpoint_path
+    else:
+        surrogate_policy_checkpoint_path = None
+
+    surrogate_policy_training(configuration_class, trajectory_dataset_path, surrogate_policy_checkpoint_path)

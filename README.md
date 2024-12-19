@@ -72,4 +72,41 @@ python3 ./executables/video_episodes_generation.py \
   --experimentation_configuration_file ./configurations/experimentation/<name_of_configuration_file.py> \
   --reinforcement_learning_path experiments/<path_to_reinforcement_learning_save_directory>
 ```
+
+3. Generation trajectory dataset
+```bash
+python3 ./executables/trajectory_dataset_generation.py \
+  --experimentation_configuration_file ./configurations/experimentation/<name_of_configuration_file.py> \
+  --reinforcement_learning_path experiments/<path_to_reinforcement_learning_save_directory>
+```
+
+4. Training surrogate policy
+```bash
+python3 ./executables/surrogate_policy_training.py \
+  --experimentation_configuration_file ./configurations/experimentation/<name_of_configuration_file.py> \
+  --trajectory_dataset_path ./experiments/<path_to_trajectory_dataset>
+```
+
+Or if you want to continue the training :
+```bash
+python3 ./executables/surrogate_policy_training.py \
+  --experimentation_configuration_file ./configurations/experimentation/<name_of_configuration_file.py> \
+  --trajectory_dataset_path ./experiments/<path_to_trajectory_dataset> \
+  --surrogate_policy_checkpoint_path experiments/<path_to_surrogate_policy_checkpoint>.ckpt
+```
+
+5. Evaluation surrogate policy
+```bash
+python3 ./executables/surrogate_policy_evaluation.py \
+  --experimentation_configuration_file ./configurations/experimentation/<name_of_configuration_file.py> \
+  --reinforcement_learning_path experiments/<path_to_reinforcement_learning_save_directory> \
+  --surrogate_policy_checkpoint_path experiments/<path_to_surrogate_policy_checkpoint>.ckpt
+```
+
+6. Analyse of the latent space
+```bash
+python3 ./executables/latent_space_analysis.py \
+  --experimentation_configuration_file ./configurations/experimentation/<name_of_configuration_file.py> \
+  --trajectory_dataset_path ./experiments/<path_to_trajectory_dataset> \
+  --surrogate_policy_checkpoint_path experiments/<path_to_surrogate_policy_checkpoint>.ckpt
 ```

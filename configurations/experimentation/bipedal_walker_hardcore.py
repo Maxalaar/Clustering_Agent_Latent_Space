@@ -15,7 +15,7 @@ bipedal_walker_hardcore.ray_local_mode = False
 # Reinforcement Learning
 # https://github.com/DLR-RM/rl-baselines3-zoo/blob/master/hyperparams/ppo.yml
 # https://github.com/ovechkin-dm/ppo-lstm-parallel
-bipedal_walker_hardcore.reinforcement_learning_configuration.training_name = 'V6'
+bipedal_walker_hardcore.reinforcement_learning_configuration.training_name = 'V7'
 bipedal_walker_hardcore.reinforcement_learning_configuration.architecture = DensePPO
 bipedal_walker_hardcore.reinforcement_learning_configuration.architecture_configuration = {
     'configuration_hidden_layers': [246, 246, 246, 246],
@@ -34,6 +34,7 @@ bipedal_walker_hardcore.reinforcement_learning_configuration.number_epochs = 32
 bipedal_walker_hardcore.reinforcement_learning_configuration.entropy_coefficient = 0.001
 
 bipedal_walker_hardcore.reinforcement_learning_configuration.gradient_clip = 0.1
+bipedal_walker_hardcore.reinforcement_learning_configuration.gradient_clip_by = 'global_norm'
 bipedal_walker_hardcore.reinforcement_learning_configuration.clip_all_parameter = 0.2
 bipedal_walker_hardcore.reinforcement_learning_configuration.clip_value_function_parameter = 0.2
 
