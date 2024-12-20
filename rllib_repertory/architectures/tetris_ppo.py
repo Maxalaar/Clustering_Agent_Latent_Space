@@ -225,16 +225,19 @@ class TetrisPPOTransformer(TorchRLModule, ValueFunctionAPI):
     @override(TorchRLModule)
     def _forward(self, batch, **kwargs):
         observation = batch[Columns.OBS].unsqueeze(-1)
-        src_key_padding_mask = torch.flatten(observation != 0, start_dim=1)
+        src_key_padding_mask = torch.flatten(observation != 0, start_dim=1).to(self.device)
         src_key_padding_mask = torch.cat([torch.tensor([True]).expand(observation.size(0), 1).to(self.device), src_key_padding_mask.bool().to(self.device)], dim=1).to(self.device)
 
         positional_encoding = torch.linspace(0, 1, observation.shape[-2]).unsqueeze(-1)
-        positional_encoding = positional_encoding.unsqueeze(0).expand(observation.shape[0], -1, -1).to(
-            observation.device)
+        positional_encoding = positional_encoding.unsqueeze(0).expand(observation.shape[0], -1, -1).to(observation.device)
 
         observation_positional_encoding = torch.cat((observation, positional_encoding), dim=-1).to(self.device)
 
-        tokens = torch.cat([self.action_context_token.expand(observation.size(0), 1, self.action_context_token.size(0)), self.action_token_projector(observation_positional_encoding)], dim=1)
+        tokens = torch.cat(
+            [self.action_context_token.expand(observation.size(0), 1, self.action_context_token.size(0)), self.action_token_projector(observation_positional_encoding)],
+            dim=1
+        )
+
         transformer_output = self.action_layer_transformer_encoder(
             tokens,
             src_key_padding_mask=src_key_padding_mask,

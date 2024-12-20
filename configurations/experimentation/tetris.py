@@ -16,7 +16,7 @@ tetris = ExperimentationConfiguration(
 
 tetris.ray_local_mode = False
 
-tetris.reinforcement_learning_configuration.number_environment_runners = 4
+tetris.reinforcement_learning_configuration.number_environment_runners = 8
 tetris.reinforcement_learning_configuration.number_environment_per_environment_runners = 2
 tetris.reinforcement_learning_configuration.number_gpus_per_environment_runners = 1 / tetris.reinforcement_learning_configuration.number_environment_runners
 
@@ -61,20 +61,26 @@ tetris.reinforcement_learning_configuration.number_gpus_per_learner = 1
 # tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
 
 # PPO
-tetris.reinforcement_learning_configuration.number_environment_runners = 16
-tetris.reinforcement_learning_configuration.number_environment_per_environment_runners = 1
-tetris.reinforcement_learning_configuration.number_gpus_per_environment_runners = 0
-tetris.reinforcement_learning_configuration.number_gpus_per_learner = 1
+# tetris.reinforcement_learning_configuration.number_environment_runners = 16
+# tetris.reinforcement_learning_configuration.number_environment_per_environment_runners = 1
+# tetris.reinforcement_learning_configuration.number_gpus_per_environment_runners = 0
+# tetris.reinforcement_learning_configuration.number_gpus_per_learner = 1
 
 tetris.reinforcement_learning_configuration.algorithm_name = 'PPO'
 tetris.reinforcement_learning_configuration.flatten_observations = True
-tetris.reinforcement_learning_configuration.architecture_configuration = {
-    'configuration_hidden_layers': [1024, 512, 256, 128, 64, 32],
-    'activation_function': LeakyReLU(),
-}
-
 tetris.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
-tetris.reinforcement_learning_configuration.train_batch_size = 50_000
-tetris.reinforcement_learning_configuration.minibatch_size = 50_000
-tetris.reinforcement_learning_configuration.number_epochs = 32
+tetris.reinforcement_learning_configuration.architecture = TetrisPPOTransformer
+# tetris.reinforcement_learning_configuration.architecture_configuration = {
+#     'configuration_hidden_layers': [1024, 512, 256, 128, 64, 32],
+#     'activation_function': LeakyReLU(),
+# }
+tetris.reinforcement_learning_configuration.architecture_configuration = {
+    'dimension_token': 16,
+    'number_heads': 2,
+    'dimension_feedforward': 32,
+    'number_transformer_layers': 2,
+}
+tetris.reinforcement_learning_configuration.train_batch_size = 512
+tetris.reinforcement_learning_configuration.minibatch_size = 512
+tetris.reinforcement_learning_configuration.number_epochs = 16
 tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
