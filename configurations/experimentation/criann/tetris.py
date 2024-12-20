@@ -18,12 +18,12 @@ tetris.ray_local_mode = False
 
 tetris.reinforcement_learning_configuration.number_environment_runners = 16
 tetris.reinforcement_learning_configuration.number_environment_per_environment_runners = 1
-
 tetris.reinforcement_learning_configuration.number_gpus_per_environment_runners = 0
 tetris.reinforcement_learning_configuration.number_gpus_per_learner = 1
 
+tetris.reinforcement_learning_configuration.training_name = 'Transformer_V1'
+
 # # PPO CNN
-# tetris.reinforcement_learning_configuration.training_name = 'base'
 # tetris.reinforcement_learning_configuration.algorithm_name = 'PPO'
 # tetris.environment_configuration = {'observation_rgb': True}
 # tetris.reinforcement_learning_configuration.flatten_observations = False
@@ -42,12 +42,12 @@ tetris.reinforcement_learning_configuration.flatten_observations = True
 tetris.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
 tetris.reinforcement_learning_configuration.architecture = TetrisPPOTransformer
 tetris.reinforcement_learning_configuration.architecture_configuration = {
-    'dimension_token': 16,
+    'dimension_token': 32,
     'number_heads': 2,
-    'dimension_feedforward': 32,
+    'dimension_feedforward': 64,
     'number_transformer_layers': 2,
 }
-tetris.reinforcement_learning_configuration.train_batch_size = 512
-tetris.reinforcement_learning_configuration.minibatch_size = 512
-tetris.reinforcement_learning_configuration.number_epochs = 16
+tetris.reinforcement_learning_configuration.train_batch_size = 1024
+tetris.reinforcement_learning_configuration.minibatch_size = 1024
+tetris.reinforcement_learning_configuration.number_epochs = 32
 tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'

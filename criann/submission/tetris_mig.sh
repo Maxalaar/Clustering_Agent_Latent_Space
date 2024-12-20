@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #SBATCH -J "clustering_agent_latent_space_name"
-#SBATCH --time 24:00:00
+#SBATCH --time 12:00:00
 #SBATCH --mem-per-gpu 50000
 
-#SBATCH --partition gpu_all
-#SBATCH --gres gpu:1
+#SBATCH --partition hpda_mig
+#SBATCH --gres gpu:a100_1g.10gb
 
 #SBATCH --nodes 1
 #SBATCH --ntasks-per-node 1
