@@ -9,6 +9,11 @@ from ray.rllib.utils.annotations import override
 from ray.rllib.core.columns import Columns
 
 from ray.rllib.algorithms.ppo.torch.ppo_torch_rl_module import PPOTorchRLModule
+from torch.nn.functional import dropout
+
+from utilities.create_dense_architecture import create_dense_architecture
+
+
 # from ray.rllib.core.testing.torch.bc_module import DiscreteBCTorchModule
 # from ray.rllib.algorithms.ppo.ppo_catalog import PPOCatalog
 
@@ -18,28 +23,31 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
     def setup(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.activation_function = self.model_config.get('activation_function', nn.ReLU())
+        self.layer_normalization = self.model_config.get('layer_normalization', False)
+        self.dropout = self.model_config.get('dropout', False)
         self.configuration_hidden_layers = self.model_config.get('configuration_hidden_layers', [64, 64])
         self.num_hidden_layers = len(self.configuration_hidden_layers)
 
         inpout_size = get_preprocessor(self.observation_space)(self.observation_space).size
         output_size = self.action_dist_cls.required_input_dim(space=self.action_space)
 
-        actor_layers = [nn.Linear(inpout_size, self.configuration_hidden_layers[0]), self.activation_function]
-        critic_layers = [nn.Linear(inpout_size, self.configuration_hidden_layers[0]), self.activation_function]
-
-        for i in range(0, self.num_hidden_layers - 1):
-            actor_layers.append(nn.Linear(self.configuration_hidden_layers[i], self.configuration_hidden_layers[i + 1]))
-            actor_layers.append(self.activation_function)
-
-            critic_layers.append(
-                nn.Linear(self.configuration_hidden_layers[i], self.configuration_hidden_layers[i + 1]))
-            critic_layers.append(self.activation_function)
-
-        actor_layers.append(nn.Linear(self.configuration_hidden_layers[-1], output_size))
-        critic_layers.append(nn.Linear(self.configuration_hidden_layers[-1], 1))
-
-        self.actor_layers = nn.Sequential(*actor_layers)
-        self.critic_layers = nn.Sequential(*critic_layers)
+        self.actor_layers = create_dense_architecture(
+            inpout_size,
+            self.configuration_hidden_layers,
+            output_size,
+            self.activation_function,
+            layer_normalization=self.layer_normalization,
+            dropout=self.dropout,
+        )
+        self.critic_layers = create_dense_architecture(
+            inpout_size,
+            self.configuration_hidden_layers,
+            1,
+            self.activation_function,
+            layer_normalization=self.layer_normalization,
+            dropout=self.dropout,
+        )
+        print(self)
         self.to(self.device)
 
     @override(TorchRLModule)

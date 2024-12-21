@@ -59,7 +59,7 @@ class BipedalWalker(gym.Env):
     def step(self, action):
         observation, reward, done, truncated, information = self.environment.step(action)
 
-        return observation, reward / 300, done, truncated, information
+        return observation, reward / 30, done, truncated, information
 
     def render(self):
         return self.environment.render()
