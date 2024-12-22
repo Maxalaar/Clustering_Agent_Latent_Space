@@ -21,17 +21,19 @@ tetris.reinforcement_learning_configuration.number_environment_per_environment_r
 tetris.reinforcement_learning_configuration.number_gpus_per_environment_runners = 0
 tetris.reinforcement_learning_configuration.number_gpus_per_learner = 1
 
-# # PPO CNN
-# tetris.reinforcement_learning_configuration.algorithm_name = 'PPO'
-# tetris.environment_configuration = {'observation_rgb': True}
-# tetris.reinforcement_learning_configuration.flatten_observations = False
-# tetris.reinforcement_learning_configuration.compress_observations = True
-# tetris.reinforcement_learning_configuration.architecture = TetrisPPOCNN
-# tetris.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
-# tetris.reinforcement_learning_configuration.train_batch_size = 2048
-# tetris.reinforcement_learning_configuration.minibatch_size = 2048
-# tetris.reinforcement_learning_configuration.number_epochs = 32
-# tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
+# PPO CNN
+tetris.reinforcement_learning_configuration.training_name = 'CNN_V1'
+tetris.reinforcement_learning_configuration.algorithm_name = 'PPO'
+tetris.environment_configuration = {'observation_rgb': True}
+tetris.reinforcement_learning_configuration.flatten_observations = False
+tetris.reinforcement_learning_configuration.compress_observations = True
+tetris.reinforcement_learning_configuration.architecture = TetrisPPOCNN
+tetris.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
+tetris.reinforcement_learning_configuration.train_batch_size = 2048
+tetris.reinforcement_learning_configuration.minibatch_size = 2048
+tetris.reinforcement_learning_configuration.number_epochs = 32
+tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
+tetris.reinforcement_learning_configuration.entropy_coefficient = 0.01
 
 
 # # PPO Transformer
@@ -52,18 +54,18 @@ tetris.reinforcement_learning_configuration.number_gpus_per_learner = 1
 # tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
 
 
-# PPO Dense
-tetris.reinforcement_learning_configuration.training_name = 'Dense_V1'
-tetris.reinforcement_learning_configuration.algorithm_name = 'PPO'
-tetris.reinforcement_learning_configuration.flatten_observations = True
-tetris.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
-tetris.reinforcement_learning_configuration.architecture = DensePPO
-tetris.reinforcement_learning_configuration.architecture_configuration = {
-    'configuration_hidden_layers': [2048, 1024, 512, 256, 128, 64],
-    'activation_function': LeakyReLU(),
-}
-tetris.reinforcement_learning_configuration.train_batch_size = 40_000
-tetris.reinforcement_learning_configuration.minibatch_size = 40_000
-tetris.reinforcement_learning_configuration.number_epochs = 32
-tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
-tetris.reinforcement_learning_configuration.entropy_coefficient = 0.01
+# # PPO Dense
+# tetris.reinforcement_learning_configuration.training_name = 'Dense_V1'
+# tetris.reinforcement_learning_configuration.algorithm_name = 'PPO'
+# tetris.reinforcement_learning_configuration.flatten_observations = True
+# tetris.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
+# tetris.reinforcement_learning_configuration.architecture = DensePPO
+# tetris.reinforcement_learning_configuration.architecture_configuration = {
+#     'configuration_hidden_layers': [2048, 1024, 512, 256, 128, 64],
+#     'activation_function': LeakyReLU(),
+# }
+# tetris.reinforcement_learning_configuration.train_batch_size = 40_000
+# tetris.reinforcement_learning_configuration.minibatch_size = 40_000
+# tetris.reinforcement_learning_configuration.number_epochs = 32
+# tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
+# tetris.reinforcement_learning_configuration.entropy_coefficient = 0.01

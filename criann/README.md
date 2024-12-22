@@ -66,5 +66,5 @@ cd ~/Programming_Projects/Clustering_Agent_Latent_Space/
 
 # Retrieving results
 ```bash
-rsync -avz malaar01@austral.criann.fr:~/Programming_Projects/Clustering_Agent_Latent_Space/experiments/<expeiment_name> ./experiments/criann/
+rsync -avz malaar01@austral.criann.fr:~/Programming_Projects/Clustering_Agent_Latent_Space/experiments/ ./experiments/criann/
 ```
