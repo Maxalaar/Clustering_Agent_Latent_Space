@@ -267,7 +267,7 @@ class TetrisPPOTransformer(TorchRLModule, ValueFunctionAPI):
         observation_positional_encoding = torch.cat((observation, positional_encoding), dim=-1).to(self.device)
 
         tokens = torch.cat(
-            [self.critic_context_token.expand(observation.size(0), 1, self.action_context_token.size(0)), self.critic_token_projector(observation_positional_encoding)],
+            [self.critic_context_token.expand(observation.size(0), 1, self.critic_context_token.size(0)), self.critic_token_projector(observation_positional_encoding)],
             dim=1
         )
         transformer_output = self.critic_layer_transformer_encoder(

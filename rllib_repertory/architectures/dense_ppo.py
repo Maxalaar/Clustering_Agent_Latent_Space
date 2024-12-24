@@ -27,32 +27,63 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
         self.dropout = self.model_config.get('dropout', False)
         self.configuration_hidden_layers = self.model_config.get('configuration_hidden_layers', [64, 64])
         self.num_hidden_layers = len(self.configuration_hidden_layers)
+        self.use_same_encoder_actor_critic = self.model_config.get('use_same_encoder_actor_critic', False)
+        self.configuration_encoder_hidden_layers = self.model_config.get('configuration_encoder_hidden_layers', [64, 64])
 
         inpout_size = get_preprocessor(self.observation_space)(self.observation_space).size
         output_size = self.action_dist_cls.required_input_dim(space=self.action_space)
 
-        self.actor_layers = create_dense_architecture(
-            inpout_size,
-            self.configuration_hidden_layers,
-            output_size,
-            self.activation_function,
-            layer_normalization=self.layer_normalization,
-            dropout=self.dropout,
-        )
-        self.critic_layers = create_dense_architecture(
-            inpout_size,
-            self.configuration_hidden_layers,
-            1,
-            self.activation_function,
-            layer_normalization=self.layer_normalization,
-            dropout=self.dropout,
-        )
+        if self.use_same_encoder_actor_critic:
+            self.encoder_layers = create_dense_architecture(
+                inpout_size,
+                self.configuration_encoder_hidden_layers[:-1],
+                self.configuration_encoder_hidden_layers[-1],
+                self.activation_function,
+                layer_normalization=self.layer_normalization,
+                dropout=self.dropout,
+            )
+            self.actor_layers = create_dense_architecture(
+                self.configuration_encoder_hidden_layers[-1],
+                self.configuration_hidden_layers,
+                output_size,
+                self.activation_function,
+                layer_normalization=self.layer_normalization,
+                dropout=self.dropout,
+            )
+            self.critic_layers = create_dense_architecture(
+                self.configuration_encoder_hidden_layers[-1],
+                self.configuration_hidden_layers,
+                1,
+                self.activation_function,
+                layer_normalization=self.layer_normalization,
+                dropout=self.dropout,
+            )
+        else:
+            self.actor_layers = create_dense_architecture(
+                inpout_size,
+                self.configuration_hidden_layers,
+                output_size,
+                self.activation_function,
+                layer_normalization=self.layer_normalization,
+                dropout=self.dropout,
+            )
+            self.critic_layers = create_dense_architecture(
+                inpout_size,
+                self.configuration_hidden_layers,
+                1,
+                self.activation_function,
+                layer_normalization=self.layer_normalization,
+                dropout=self.dropout,
+            )
         print(self)
         self.to(self.device)
 
     @override(TorchRLModule)
     def _forward(self, batch, **kwargs):
-        action_distribution_inputs = self.actor_layers(batch[Columns.OBS].to(self.device))
+        if self.use_same_encoder_actor_critic:
+            action_distribution_inputs = self.actor_layers(self.encoder_layers(batch[Columns.OBS].to(self.device)))
+        else:
+            action_distribution_inputs = self.actor_layers(batch[Columns.OBS].to(self.device))
         return {
             Columns.ACTION_DIST_INPUTS: action_distribution_inputs,
         }
@@ -63,4 +94,7 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
             batch: Dict[str, Any],
             embeddings: Optional[Any] = None,
     ) -> TensorType:
-        return self.critic_layers(batch[Columns.OBS].to(self.device)).squeeze(-1)
+        if self.use_same_encoder_actor_critic:
+            return self.critic_layers(self.encoder_layers(batch[Columns.OBS].to(self.device))).squeeze(-1)
+        else:
+            return self.critic_layers(batch[Columns.OBS].to(self.device)).squeeze(-1)

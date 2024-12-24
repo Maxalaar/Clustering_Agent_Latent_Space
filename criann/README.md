@@ -68,3 +68,7 @@ cd ~/Programming_Projects/Clustering_Agent_Latent_Space/
 ```bash
 rsync -avz malaar01@austral.criann.fr:~/Programming_Projects/Clustering_Agent_Latent_Space/experiments/ ./experiments/criann/
 ```
+
+```bash
+while true; do rsync -avz malaar01@austral.criann.fr:~/Programming_Projects/Clustering_Agent_Latent_Space/experiments/ ./experiments/criann/; sleep 300; done
+```
