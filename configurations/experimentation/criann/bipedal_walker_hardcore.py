@@ -18,7 +18,7 @@ bipedal_walker_hardcore.reinforcement_learning_configuration.number_environment_
 # Reinforcement Learning
 # https://github.com/DLR-RM/rl-baselines3-zoo/blob/master/hyperparams/ppo.yml
 # https://github.com/ovechkin-dm/ppo-lstm-parallel
-bipedal_walker_hardcore.reinforcement_learning_configuration.training_name = 'Dense_V4'
+bipedal_walker_hardcore.reinforcement_learning_configuration.training_name = 'Dense_V5'
 bipedal_walker_hardcore.reinforcement_learning_configuration.architecture = DensePPO
 bipedal_walker_hardcore.reinforcement_learning_configuration.architecture_configuration = {
     'configuration_hidden_layers': [1024, 1024, 1024, 1024],
