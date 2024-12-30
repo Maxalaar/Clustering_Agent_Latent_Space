@@ -12,7 +12,7 @@ bipedal_walker_hardcore.environment_configuration = {'hardcore': True}
 # Ray
 bipedal_walker_hardcore.ray_local_mode = False
 bipedal_walker_hardcore.reinforcement_learning_configuration.number_gpus_per_learner = 1
-bipedal_walker_hardcore.reinforcement_learning_configuration.number_environment_runners = 16
+bipedal_walker_hardcore.reinforcement_learning_configuration.number_environment_runners = 6
 bipedal_walker_hardcore.reinforcement_learning_configuration.number_environment_per_environment_runners = 2
 
 # Reinforcement Learning
