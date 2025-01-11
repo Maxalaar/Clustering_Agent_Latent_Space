@@ -1,4 +1,4 @@
-# **Connect to CRIANN**  
+# **Connect to CRIANN**
 ```bash
 ssh -l malaar01 austral.criann.fr
 cd ~/Programming_Projects/Clustering_Agent_Latent_Space/
