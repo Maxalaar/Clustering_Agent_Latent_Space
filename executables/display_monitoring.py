@@ -60,10 +60,12 @@ if __name__ == "__main__":
         'ray/tune/evaluation/env_runners/episode_return_mean',
         'ray/tune/env_runners/episode_return_mean',
         'ray/tune/learners/default_policy/gradients_default_optimizer_global_norm',
+        'ray/tune/env_runners/episode_len_mean',
         # PPO
         'ray/tune/learners/default_policy/policy_loss',
         'ray/tune/learners/default_policy/vf_loss',
         'ray/tune/learners/default_policy/vf_loss_unclipped',
+        'ray/tune/learners/default_policy/mean_kl_loss',
         'ray/tune/learners/default_policy/entropy',
         # DQN
         'ray/tune/learners/default_policy/td_error_mean',

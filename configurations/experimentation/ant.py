@@ -27,7 +27,6 @@ ant.reinforcement_learning_configuration.lambda_gae = 0.95
 ant.reinforcement_learning_configuration.train_batch_size = 80_000
 ant.reinforcement_learning_configuration.minibatch_size = 20_000
 
-ant.reinforcement_learning_configuration.clip_all_parameter = 2.0
 ant.reinforcement_learning_configuration.clip_policy_parameter = 2.0
 ant.reinforcement_learning_configuration.clip_value_function_parameter = 2.0
 

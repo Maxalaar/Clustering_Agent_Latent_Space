@@ -18,16 +18,16 @@ bipedal_walker_hardcore.reinforcement_learning_configuration.number_environment_
 # Reinforcement Learning
 # https://github.com/DLR-RM/rl-baselines3-zoo/blob/master/hyperparams/ppo.yml
 # https://github.com/ovechkin-dm/ppo-lstm-parallel
-bipedal_walker_hardcore.reinforcement_learning_configuration.training_name = 'Dense_V2'
+bipedal_walker_hardcore.reinforcement_learning_configuration.training_name = 'New'
 
 bipedal_walker_hardcore.reinforcement_learning_configuration.architecture = DensePPO
 bipedal_walker_hardcore.reinforcement_learning_configuration.architecture_configuration = {
-    'use_same_encoder_actor_critic': False,
+    # 'use_same_encoder_actor_critic': False,
     # 'configuration_encoder_hidden_layers': [64, 128, 256],
-    'configuration_hidden_layers': [1024, 1024, 1024, 1024],
+    'configuration_hidden_layers': [1024, 1024, 1024],
     'activation_function': LeakyReLU(),
-    'layer_normalization': True,
-    'dropout': False,
+    # 'layer_normalization': True,
+    # 'dropout': False,
 }
 
 bipedal_walker_hardcore.reinforcement_learning_configuration.learning_rate = 1e-4
@@ -35,12 +35,12 @@ bipedal_walker_hardcore.reinforcement_learning_configuration.use_generalized_adv
 bipedal_walker_hardcore.reinforcement_learning_configuration.lambda_gae = 0.95
 bipedal_walker_hardcore.reinforcement_learning_configuration.train_batch_size = 40_000
 bipedal_walker_hardcore.reinforcement_learning_configuration.minibatch_size = 40_000
-bipedal_walker_hardcore.reinforcement_learning_configuration.number_epochs = 128
+bipedal_walker_hardcore.reinforcement_learning_configuration.number_epochs = 32
 bipedal_walker_hardcore.reinforcement_learning_configuration.entropy_coefficient = 0.001
 
 # bipedal_walker_hardcore.reinforcement_learning_configuration.gradient_clip = 0.1
 # bipedal_walker_hardcore.reinforcement_learning_configuration.gradient_clip_by = 'global_norm'
-# bipedal_walker_hardcore.reinforcement_learning_configuration.clip_all_parameter = 0.2
+bipedal_walker_hardcore.reinforcement_learning_configuration.clip_policy_parameter = 0.05
 # bipedal_walker_hardcore.reinforcement_learning_configuration.clip_value_function_parameter = 0.2
 
 bipedal_walker_hardcore.reinforcement_learning_configuration.batch_mode = 'complete_episodes'

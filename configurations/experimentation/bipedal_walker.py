@@ -31,7 +31,7 @@ bipedal_walker.reinforcement_learning_configuration.number_epochs = 64
 bipedal_walker.reinforcement_learning_configuration.entropy_coefficient = 0.0
 
 bipedal_walker.reinforcement_learning_configuration.gradient_clip = 0.1
-bipedal_walker.reinforcement_learning_configuration.clip_all_parameter = 0.18
+bipedal_walker.reinforcement_learning_configuration.clip_policy_parameter = 0.18
 bipedal_walker.reinforcement_learning_configuration.clip_value_function_parameter = 1.0
 
 # bipedal_walker.reinforcement_learning_configuration.gradient_clip = 0.1

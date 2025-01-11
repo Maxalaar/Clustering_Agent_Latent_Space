@@ -81,10 +81,13 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
             minibatch_size=reinforcement_learning_configuration.minibatch_size,
             lambda_=reinforcement_learning_configuration.lambda_gae,
             grad_clip=reinforcement_learning_configuration.gradient_clip,
-            clip_param=reinforcement_learning_configuration.clip_all_parameter,
+            clip_param=reinforcement_learning_configuration.clip_policy_parameter,
             vf_clip_param=reinforcement_learning_configuration.clip_value_function_parameter,
             learner_connector=reinforcement_learning_configuration.learner_connector,
             entropy_coeff=reinforcement_learning_configuration.entropy_coefficient,
+            use_kl_loss=reinforcement_learning_configuration.use_kullback_leibler_loss,
+            kl_coeff=reinforcement_learning_configuration.kullback_leibler_coefficient,
+            kl_target=reinforcement_learning_configuration.kullback_leibler_target,
         )
 
     if type(algorithm_configuration) is DQNConfig:

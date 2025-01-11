@@ -47,9 +47,12 @@ class ReinforcementLearningConfiguration:
         self.use_generalized_advantage_estimator: bool = NotProvided
         self.minibatch_size: int = NotProvided
         self.lambda_gae: float = NotProvided
-        self.clip_all_parameter: float = NotProvided
+        self.clip_policy_parameter: float = NotProvided
         self.clip_value_function_parameter: float = NotProvided
         self.entropy_coefficient: float = NotProvided
+        self.use_kullback_leibler_loss: bool = NotProvided
+        self.kullback_leibler_coefficient: float = NotProvided
+        self.kullback_leibler_target: float = NotProvided
 
         # Environment runners
         self.batch_mode: str = 'complete_episodes'
