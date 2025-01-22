@@ -88,6 +88,7 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
             use_kl_loss=reinforcement_learning_configuration.use_kullback_leibler_loss,
             kl_coeff=reinforcement_learning_configuration.kullback_leibler_coefficient,
             kl_target=reinforcement_learning_configuration.kullback_leibler_target,
+            vf_loss_coeff=reinforcement_learning_configuration.value_function_loss_coefficient,
         )
 
     if type(algorithm_configuration) is DQNConfig:

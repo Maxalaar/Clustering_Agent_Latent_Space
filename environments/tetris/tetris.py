@@ -41,7 +41,7 @@ class Tetris(gym.Env):
         if self.observation_rgb:
             observation = observation.astype(np.float32)
 
-        return observation, reward, done, truncated, information
+        return observation, reward/100, done, truncated, information
 
     def render(self):
         return self.environment.render()

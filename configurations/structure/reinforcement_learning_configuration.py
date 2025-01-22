@@ -53,6 +53,7 @@ class ReinforcementLearningConfiguration:
         self.use_kullback_leibler_loss: bool = NotProvided
         self.kullback_leibler_coefficient: float = NotProvided
         self.kullback_leibler_target: float = NotProvided
+        self.value_function_loss_coefficient: float = NotProvided
 
         # Environment runners
         self.batch_mode: str = 'complete_episodes'
