@@ -12,16 +12,23 @@ class SurrogatePolicyTrainingConfiguration:
     def __init__(self):
         self.training_name: str = 'base'
         self.architecture_configuration: dict = {
-            'shape_layers': [128, 64, 32, 16, 32, 64, 128],
-            'indexes_latent_space_to_clusterize': [6],
+            'shape_layers': [128, 64, 32, 32, 64, 128],
+            'indexes_latent_space_to_clusterize': [5, 7],
         }
         self.learning_rate: float = 1e-4
         self.batch_size: int = 20_000
         self.use_clusterization_loss = True
         self.clusterization_function = Kmeans
-        self.clusterization_function_configuration: dict = {}
+        self.clusterization_function_configuration: dict = {
+            'number_cluster': 4,
+            'number_points_for_silhouette_score': 1_000,
+            'memory_size': 100_000,
+        }
         self.clusterization_loss = DistanceCentroidLoss
-        self.clusterization_loss_configuration: dict = {}
+        self.clusterization_loss_configuration: dict = {
+            'margin_between_clusters': 10.0,
+            'number_centroids_repulsion': 1,
+        }
 
         self.number_mini_chunks: int = 2
         self.mini_chunk_size: int = 100_000

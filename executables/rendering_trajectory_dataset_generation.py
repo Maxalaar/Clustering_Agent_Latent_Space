@@ -20,17 +20,22 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
     ray.init(local_mode=experimentation_configuration.ray_local_mode)
 
     register_environments()
-
-    path_file: Path = experimentation_configuration.dataset_path / reinforcement_learning_path.name / 'trajectory_dataset.h5'
+    
+    path_file: Path = experimentation_configuration.dataset_path / reinforcement_learning_path.name / 'trajectory_dataset_with_rending.h5'
 
     def create_save_trajectory_callback():
         return SaveTrajectoryCallback(
             h5_file_path=path_file,
-            save_rendering=False,
+            save_rendering=True,
+            image_compression_function=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.image_compression_function,
+            image_compression_configuration=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.image_compression_configuration,
+            number_rendering_to_stack=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.number_rendering_to_stack,
         )
 
     best_checkpoints_path: Path = find_best_reinforcement_learning_checkpoint_path(reinforcement_learning_path)
     algorithm_configuration = get_checkpoint_algorithm_configuration(best_checkpoints_path)
+
+    algorithm_configuration.env_config.update({'render_mode': 'rgb_array'})
 
     algorithm_configuration.learners(
         num_learners=0,
@@ -43,11 +48,11 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
     )
 
     algorithm_configuration.env_runners(
-        explore=experimentation_configuration.trajectory_dataset_generation_configuration.explore,
-        num_env_runners=experimentation_configuration.trajectory_dataset_generation_configuration.number_environment_runners,
-        num_envs_per_env_runner=experimentation_configuration.trajectory_dataset_generation_configuration.number_environment_per_environment_runners,
-        num_cpus_per_env_runner=experimentation_configuration.trajectory_dataset_generation_configuration.number_cpus_per_environment_runners,
-        num_gpus_per_env_runner=experimentation_configuration.trajectory_dataset_generation_configuration.number_gpus_per_environment_runners,
+        explore=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.explore,
+        num_env_runners=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.number_environment_runners,
+        num_envs_per_env_runner=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.number_environment_per_environment_runners,
+        num_cpus_per_env_runner=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.number_cpus_per_environment_runners,
+        num_gpus_per_env_runner=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.number_gpus_per_environment_runners,
     )
 
     algorithm_configuration.callbacks(create_save_trajectory_callback)
@@ -56,14 +61,14 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
     algorithm.restore(str(best_checkpoints_path))
 
     def sample_for_trajectory_dataset_generation(worker: SingleAgentEnvRunner):
-        for _ in range(experimentation_configuration.trajectory_dataset_generation_configuration.number_iterations):
-            worker.sample(num_timesteps=experimentation_configuration.trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners)
+        for _ in range(experimentation_configuration.rendering_trajectory_dataset_generation_configuration.number_iterations):
+            worker.sample(num_timesteps=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners)
 
     algorithm.env_runner_group.foreach_worker(sample_for_trajectory_dataset_generation, local_env_runner=False)
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Generate trajectory dataset from policy.')
+    parser = argparse.ArgumentParser(description='Generate trajectory dataset with rendering from policy.')
     parser.add_argument(
         '--experimentation_configuration_file',
         type=str,

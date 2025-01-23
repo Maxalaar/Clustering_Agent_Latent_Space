@@ -59,6 +59,7 @@ def surrogate_policy_training(
 
     checkpoint_callback = ModelCheckpoint(
         train_time_interval=experimentation_configuration.surrogate_policy_training_configuration.model_checkpoint_time_interval,
+        save_top_k=1,
     )
     trainer = pl.trainer.Trainer(
         max_epochs=-1,

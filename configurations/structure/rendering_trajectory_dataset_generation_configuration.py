@@ -3,7 +3,7 @@ from ray.rllib.utils.from_config import NotProvided
 from utilities.image_compression import image_compression
 
 
-class TrajectoryDatasetGenerationConfiguration:
+class RenderingTrajectoryDatasetGenerationConfiguration:
     def __init__(self):
         self.explore = False
         self.number_iterations: int = 5
@@ -12,3 +12,11 @@ class TrajectoryDatasetGenerationConfiguration:
         self.number_environment_per_environment_runners: int = 1
         self.number_cpus_per_environment_runners: int = NotProvided
         self.number_gpus_per_environment_runners: int = NotProvided
+
+        self.image_compression_function = image_compression
+        self.image_compression_configuration = {
+            'new_width': 400,
+            'new_height': 400,
+            'grayscale': True,
+        }
+        self.number_rendering_to_stack: int = 0

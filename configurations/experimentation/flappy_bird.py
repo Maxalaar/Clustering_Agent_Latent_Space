@@ -8,50 +8,39 @@ flappy_bird = ExperimentationConfiguration(
     environment_name='FlappyBirdRllib',
 )
 
-# Reinforcement Learning
-flappy_bird.reinforcement_learning_configuration.architecture = DensePPO
-flappy_bird.reinforcement_learning_configuration.batch_mode = 'truncate_episodes'
-flappy_bird.reinforcement_learning_configuration.architecture = DensePPO
-flappy_bird.reinforcement_learning_configuration.architecture_configuration = {
-    'configuration_hidden_layers': [128, 128, 128],
-    'activation_function': LeakyReLU(),
-}
-flappy_bird.reinforcement_learning_configuration.train_batch_size = 80_000
-flappy_bird.reinforcement_learning_configuration.minibatch_size = 20_000
-flappy_bird.reinforcement_learning_configuration.number_environment_runners = 10
-flappy_bird.reinforcement_learning_configuration.number_gpus_per_learner = 1
+# Ray
+flappy_bird.ray_local_mode = False
 
-# Video Episodes Generation
-flappy_bird.video_episodes_generation_configuration.minimal_number_videos = 10
-flappy_bird.video_episodes_generation_configuration.number_environment_runners = 1
+# Reinforcement Learning
+flappy_bird.reinforcement_learning_configuration.training_name = 'base'
+flappy_bird.reinforcement_learning_configuration.architecture = DensePPO
+flappy_bird.reinforcement_learning_configuration.number_environment_runners = 16
+flappy_bird.reinforcement_learning_configuration.number_environment_per_environment_runners = 1
+flappy_bird.reinforcement_learning_configuration.number_gpus_per_learner = 1
+flappy_bird.reinforcement_learning_configuration.train_batch_size = 40_000
+flappy_bird.reinforcement_learning_configuration.minibatch_size = 10_000
+flappy_bird.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
+flappy_bird.reinforcement_learning_configuration.number_epochs = 16
+flappy_bird.reinforcement_learning_configuration.clip_policy_parameter = 0.1
+
+# Video Episodes
+flappy_bird.video_episodes_generation_configuration.number_environment_runners = 5
 
 # Trajectory Dataset Generation
-# flappy_bird.trajectory_dataset_generation_configuration.number_environment_runners = 5
-# flappy_bird.trajectory_dataset_generation_configuration.number_gpus_per_environment_runners = 1/flappy_bird.trajectory_dataset_generation_configuration.number_environment_runners
-# flappy_bird.trajectory_dataset_generation_configuration.number_iterations = 300
-# flappy_bird.trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 1_000
+flappy_bird.trajectory_dataset_generation_configuration.number_environment_runners = 10
+flappy_bird.trajectory_dataset_generation_configuration.number_iterations = 100
+flappy_bird.trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 1000
 
-flappy_bird.trajectory_dataset_generation_configuration.save_rendering = True
-flappy_bird.trajectory_dataset_generation_configuration.number_rendering_to_stack = 15
-flappy_bird.trajectory_dataset_generation_configuration.number_environment_runners = 2
-flappy_bird.trajectory_dataset_generation_configuration.number_gpus_per_environment_runners = 1/flappy_bird.trajectory_dataset_generation_configuration.number_environment_runners
-flappy_bird.trajectory_dataset_generation_configuration.number_iterations = 10
-flappy_bird.trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 1_000
+# Rendering Trajectory Dataset Generation
+flappy_bird.rendering_trajectory_dataset_generation_configuration.number_environment_runners = 5
+flappy_bird.rendering_trajectory_dataset_generation_configuration.number_iterations = 10
+flappy_bird.rendering_trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 100
 
 # Surrogate Policy Training
-flappy_bird.surrogate_policy_training_configuration.batch_size = 20_000
-flappy_bird.surrogate_policy_training_configuration.mini_chunk_size = 100_000
-flappy_bird.surrogate_policy_training_configuration.number_mini_chunks = 2
-flappy_bird.surrogate_policy_training_configuration.architecture_configuration = {
-    'shape_layers': [64, 64, 64, 64],
-    'latent_space_to_clusterize': [False, True, True, False],
-}
-flappy_bird.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
+flappy_bird.surrogate_policy_training_configuration.training_name = '4_cluster_1_repulsion'
+flappy_bird.surrogate_policy_training_configuration.clusterization_function_configuration.update({
     'number_cluster': 4,
-    'margin_between_clusters': 10.0,
-    # 'sliding_centroids': True,
-    # 'margin_between_clusters': 2.0,
-    # 'margin_intra_cluster': 0.0,
-    # 'attraction_loss_coefficient': 1.0,
-    # 'repulsion_loss_coefficient': 1.0,
+})
+flappy_bird.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
+    'number_centroids_repulsion': 1,
 })
