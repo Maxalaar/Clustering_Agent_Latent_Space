@@ -9,6 +9,8 @@ from ray.rllib.core.rl_module.default_model_config import DefaultModelConfig
 from ray.rllib.utils.from_config import NotProvided
 from ray.rllib.utils.typing import LearningRateOrSchedule
 
+from rllib_repertory.architectures.dense_ppo import DensePPO
+
 
 class ReinforcementLearningConfiguration:
     def __init__(self, algorithm_name: str = 'PPO'):
@@ -56,7 +58,7 @@ class ReinforcementLearningConfiguration:
         self.value_function_loss_coefficient: float = NotProvided
 
         # Environment runners
-        self.batch_mode: str = 'complete_episodes'
+        self.batch_mode: str = NotProvided  # 'complete_episodes' or 'truncate_episodes
         self.number_environment_runners: int = NotProvided
         self.number_environment_per_environment_runners: int = NotProvided
         self.number_cpus_per_environment_runners: int = NotProvided

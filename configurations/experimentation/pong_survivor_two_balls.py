@@ -1,7 +1,5 @@
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from environments.pong_survivor.configurations import classic_two_balls
-from lightning_repertory.clusterization_function.dbscan import Dbscan
-from lightning_repertory.clusterization_loss.silhouette_loss import SilhouetteLoss
 from rllib_repertory.architectures.dense_ppo import DensePPO
 
 pong_survivor_two_balls = ExperimentationConfiguration(
@@ -46,3 +44,8 @@ pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_f
 pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
     'number_centroids_repulsion': 1,
 })
+
+# Surrogate Policy Evaluation
+pong_survivor_two_balls.surrogate_policy_evaluation_configuration.evaluation_duration = 1_000
+pong_survivor_two_balls.surrogate_policy_evaluation_configuration.number_environment_runners = 10
+pong_survivor_two_balls.surrogate_policy_evaluation_configuration.number_gpus_per_environment_runners = 0.1

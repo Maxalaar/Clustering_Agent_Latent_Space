@@ -48,7 +48,7 @@ class FlappyBird(gym.Env):
         if self.current_time_step > self.spec.max_episode_steps:
             done = True
 
-        return observation, reward, done, truncated, information
+        return observation, reward/100, done, truncated, information
 
     def render(self):
         return self.environment.render()

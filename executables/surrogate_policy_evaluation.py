@@ -31,13 +31,13 @@ def evaluation_surrogate_policy(
 
     algorithm_configuration.env_runners(
         num_env_runners=0,
-        num_gpus_per_env_runner=0,
-        num_cpus_per_env_runner=1,
+        num_gpus_per_env_runner=experimentation_configuration.surrogate_policy_evaluation_configuration.number_gpus_per_environment_runners,
+        num_cpus_per_env_runner=experimentation_configuration.surrogate_policy_evaluation_configuration.number_cpus_per_environment_runners,
     )
 
     algorithm_configuration.evaluation(
-        evaluation_num_env_runners=10,
-        evaluation_duration=100,
+        evaluation_num_env_runners=experimentation_configuration.surrogate_policy_evaluation_configuration.number_environment_runners,
+        evaluation_duration=experimentation_configuration.surrogate_policy_evaluation_configuration.evaluation_duration,
     )
 
     algorithm = algorithm_configuration.build()
@@ -50,7 +50,6 @@ def evaluation_surrogate_policy(
             module_class=Lightning,
             model_config={
                 'checkpoint_path': surrogate_policy_checkpoint_path,
-                'use_gpu': False,
             },
         ),
     )
@@ -58,8 +57,8 @@ def evaluation_surrogate_policy(
     surrogate_policy_evaluation_information = algorithm.evaluate()
     del algorithm
 
-    print('Original policy average reward on the evaluation :' + str(original_policy_evaluation_information['env_runners']['episode_return_mean']))
-    print('Surrogate policy average reward on the evaluation :' + str(surrogate_policy_evaluation_information['env_runners']['episode_return_mean']))
+    print('Original policy average reward on ' + str(experimentation_configuration.surrogate_policy_evaluation_configuration.evaluation_duration) + ' iterations : ' + str(original_policy_evaluation_information['env_runners']['episode_return_mean']))
+    print('Surrogate policy average reward on ' + str(experimentation_configuration.surrogate_policy_evaluation_configuration.evaluation_duration) + ' iterations : ' + str(surrogate_policy_evaluation_information['env_runners']['episode_return_mean']))
 
 
 if __name__ == '__main__':

@@ -8,10 +8,7 @@ from ray.rllib.core.columns import Columns
 class Lightning(TorchRLModule):
     @override(TorchRLModule)
     def setup(self):
-        if self.model_config.get('use_gpu'):
-            device = torch.device('cuda')
-        else:
-            device = torch.device('cpu')
+        device = torch.device('cpu')
         self.lightning_module: SurrogatePolicy = SurrogatePolicy.load_from_checkpoint(self.model_config.get('checkpoint_path'), map_location=torch.device(device))
 
     @override(TorchRLModule)

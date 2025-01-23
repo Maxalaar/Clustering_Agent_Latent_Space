@@ -4,6 +4,7 @@ from typing import Optional
 from configurations.structure.reinforcement_learning_configuration import ReinforcementLearningConfiguration
 from configurations.structure.rendering_trajectory_dataset_generation_configuration import \
     RenderingTrajectoryDatasetGenerationConfiguration
+from configurations.structure.surrogate_policy_evaluation_configuration import SurrogatePolicyEvaluationConfiguration
 from configurations.structure.surrogate_policy_training_configuration import SurrogatePolicyTrainingConfiguration
 from configurations.structure.trajectory_dataset_generation_configuration import \
     TrajectoryDatasetGenerationConfiguration
@@ -40,6 +41,9 @@ class ExperimentationConfiguration:
         # Surrogate Policy
         self.surrogate_policy_storage_path: Path = self.experimentation_storage_path / 'surrogate_policy'
         self.surrogate_policy_training_configuration: Optional[SurrogatePolicyTrainingConfiguration] = SurrogatePolicyTrainingConfiguration()
+
+        # Surrogate Policy Evaluation
+        self.surrogate_policy_evaluation_configuration: SurrogatePolicyEvaluationConfiguration = SurrogatePolicyEvaluationConfiguration()
 
         # Latent Space Analysis
         self.latent_space_analysis_storage_path: Path = self.experimentation_storage_path / 'latent_space_analysis'

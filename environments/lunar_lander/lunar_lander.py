@@ -38,7 +38,7 @@ class LunarLander(gym.Env):
     def step(self, action):
         observation, reward, done, truncated, information = self.environment.step(action)
 
-        return observation, reward, done, truncated, information
+        return observation, reward/100, done, truncated, information
 
     def render(self, mode='human'):
         return self.environment.render()

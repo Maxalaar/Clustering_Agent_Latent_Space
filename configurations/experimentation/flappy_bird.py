@@ -19,7 +19,7 @@ flappy_bird.reinforcement_learning_configuration.number_environment_per_environm
 flappy_bird.reinforcement_learning_configuration.number_gpus_per_learner = 1
 flappy_bird.reinforcement_learning_configuration.train_batch_size = 40_000
 flappy_bird.reinforcement_learning_configuration.minibatch_size = 10_000
-flappy_bird.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
+flappy_bird.reinforcement_learning_configuration.batch_mode = 'truncate_episodes'
 flappy_bird.reinforcement_learning_configuration.number_epochs = 16
 flappy_bird.reinforcement_learning_configuration.clip_policy_parameter = 0.1
 
