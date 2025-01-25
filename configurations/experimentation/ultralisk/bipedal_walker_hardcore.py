@@ -10,19 +10,12 @@ bipedal_walker_hardcore = ExperimentationConfiguration(
 )
 bipedal_walker_hardcore.environment_configuration = {'hardcore': True}
 
-# Ray
-bipedal_walker_hardcore.ray_local_mode = False
-bipedal_walker_hardcore.reinforcement_learning_configuration.number_gpus_per_learner = 1
-bipedal_walker_hardcore.reinforcement_learning_configuration.number_environment_runners = 6
-bipedal_walker_hardcore.reinforcement_learning_configuration.number_environment_per_environment_runners = 2
-
 # Reinforcement Learning
-bipedal_walker_hardcore.reinforcement_learning_configuration.training_name = 'Dense_V8'
+bipedal_walker_hardcore.reinforcement_learning_configuration.training_name = 'base_V6'
 bipedal_walker_hardcore.reinforcement_learning_configuration.architecture = DensePPO
 bipedal_walker_hardcore.reinforcement_learning_configuration.architecture_configuration = {
-    'configuration_hidden_layers': [1024, 1024, 1024, 1024],
+    'configuration_hidden_layers': [32, 64, 128, 64, 32],
     'activation_function': LeakyReLU(),
-    'layer_normalization': True,
 }
 bipedal_walker_hardcore.reinforcement_learning_configuration.number_gpus_per_learner = 1
 bipedal_walker_hardcore.reinforcement_learning_configuration.number_environment_runners = 6
@@ -31,10 +24,31 @@ bipedal_walker_hardcore.reinforcement_learning_configuration.number_environment_
 bipedal_walker_hardcore.reinforcement_learning_configuration.learning_rate = 3e-4
 bipedal_walker_hardcore.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
 bipedal_walker_hardcore.reinforcement_learning_configuration.lambda_gae = 0.95
-bipedal_walker_hardcore.reinforcement_learning_configuration.train_batch_size = 1024 #40_000
-bipedal_walker_hardcore.reinforcement_learning_configuration.minibatch_size = 1024 #40_000
-bipedal_walker_hardcore.reinforcement_learning_configuration.number_epochs = 128
+bipedal_walker_hardcore.reinforcement_learning_configuration.train_batch_size = 100_000
+bipedal_walker_hardcore.reinforcement_learning_configuration.minibatch_size = 100_000
+bipedal_walker_hardcore.reinforcement_learning_configuration.number_epochs = 16
 bipedal_walker_hardcore.reinforcement_learning_configuration.entropy_coefficient = 0.0
+bipedal_walker_hardcore.reinforcement_learning_configuration.clip_policy_parameter = 0.025
+
+#
+# bipedal_walker_hardcore.reinforcement_learning_configuration.training_name = 'Dense_V8'
+# bipedal_walker_hardcore.reinforcement_learning_configuration.architecture = DensePPO
+# bipedal_walker_hardcore.reinforcement_learning_configuration.architecture_configuration = {
+#     'configuration_hidden_layers': [1024, 1024, 1024, 1024],
+#     'activation_function': LeakyReLU(),
+#     'layer_normalization': True,
+# }
+# bipedal_walker_hardcore.reinforcement_learning_configuration.number_gpus_per_learner = 1
+# bipedal_walker_hardcore.reinforcement_learning_configuration.number_environment_runners = 6
+# bipedal_walker_hardcore.reinforcement_learning_configuration.number_environment_per_environment_runners = 2
+#
+# bipedal_walker_hardcore.reinforcement_learning_configuration.learning_rate = 3e-4
+# bipedal_walker_hardcore.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
+# bipedal_walker_hardcore.reinforcement_learning_configuration.lambda_gae = 0.95
+# bipedal_walker_hardcore.reinforcement_learning_configuration.train_batch_size = 1024 #40_000
+# bipedal_walker_hardcore.reinforcement_learning_configuration.minibatch_size = 1024 #40_000
+# bipedal_walker_hardcore.reinforcement_learning_configuration.number_epochs = 128
+# bipedal_walker_hardcore.reinforcement_learning_configuration.entropy_coefficient = 0.0
 
 # bipedal_walker_hardcore.reinforcement_learning_configuration.gradient_clip = 0.025
 # bipedal_walker_hardcore.reinforcement_learning_configuration.gradient_clip_by = 'global_norm'
