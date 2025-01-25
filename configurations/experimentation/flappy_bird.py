@@ -37,10 +37,10 @@ flappy_bird.rendering_trajectory_dataset_generation_configuration.number_iterati
 flappy_bird.rendering_trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 100
 
 # Surrogate Policy Training
-flappy_bird.surrogate_policy_training_configuration.training_name = '4_cluster_1_repulsion'
+flappy_bird.surrogate_policy_training_configuration.training_name = '4_cluster_2_repulsion'
 flappy_bird.surrogate_policy_training_configuration.clusterization_function_configuration.update({
     'number_cluster': 4,
 })
 flappy_bird.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
-    'number_centroids_repulsion': 1,
+    'number_centroids_repulsion': 2,
 })
