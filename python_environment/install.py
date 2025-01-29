@@ -68,7 +68,7 @@ if __name__ == '__main__':
         'pip install gymnasium[mujoco]',
         'pip install flappy-bird-gymnasium',
         'pip install tetris-gymnasium',
-        'pip install ale-py'
+        'pip install ale-py',
     ]
 
     # Execute conda commands

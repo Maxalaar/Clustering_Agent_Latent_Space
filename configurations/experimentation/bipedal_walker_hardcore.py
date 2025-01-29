@@ -17,67 +17,46 @@ bipedal_walker_hardcore.reinforcement_learning_configuration.number_environment_
 bipedal_walker_hardcore.reinforcement_learning_configuration.number_environment_per_environment_runners = 1
 
 # Reinforcement Learning
-
-# Dense
 # https://github.com/DLR-RM/rl-baselines3-zoo/blob/master/hyperparams/ppo.yml
 # https://github.com/ovechkin-dm/ppo-lstm-parallel
-bipedal_walker_hardcore.reinforcement_learning_configuration.training_name = 'New_PPO_V16'
-
+bipedal_walker_hardcore.reinforcement_learning_configuration.training_name = 'base'
 bipedal_walker_hardcore.reinforcement_learning_configuration.architecture = DensePPO
 bipedal_walker_hardcore.reinforcement_learning_configuration.architecture_configuration = {
-    'use_same_encoder_actor_critic': False,
-    'configuration_hidden_layers': [128, 128, 128, 128],
+    'configuration_hidden_layers': [32, 64, 128, 64, 32],
     'activation_function': LeakyReLU(),
 }
-
-bipedal_walker_hardcore.reinforcement_learning_configuration.learning_rate = 1e-4
+bipedal_walker_hardcore.reinforcement_learning_configuration.learning_rate = 1e-3
 bipedal_walker_hardcore.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
 bipedal_walker_hardcore.reinforcement_learning_configuration.lambda_gae = 0.95
-bipedal_walker_hardcore.reinforcement_learning_configuration.train_batch_size = 40_000    # 40_000
-bipedal_walker_hardcore.reinforcement_learning_configuration.minibatch_size = 40_000  #4 0_000
-bipedal_walker_hardcore.reinforcement_learning_configuration.number_epochs = 16
-bipedal_walker_hardcore.reinforcement_learning_configuration.entropy_coefficient = 0.001
+bipedal_walker_hardcore.reinforcement_learning_configuration.train_batch_size = 100_000
+bipedal_walker_hardcore.reinforcement_learning_configuration.minibatch_size = 100_000
+bipedal_walker_hardcore.reinforcement_learning_configuration.number_epochs = 32
+bipedal_walker_hardcore.reinforcement_learning_configuration.entropy_coefficient = 0.0
+bipedal_walker_hardcore.reinforcement_learning_configuration.clip_policy_parameter = 0.01
 
-bipedal_walker_hardcore.reinforcement_learning_configuration.checkpoint_frequency = 200
-bipedal_walker_hardcore.reinforcement_learning_configuration.evaluation_interval = 200
-bipedal_walker_hardcore.reinforcement_learning_configuration.evaluation_duration = 10
+# Video Episodes
+bipedal_walker_hardcore.video_episodes_generation_configuration.number_environment_runners = 5
 
-bipedal_walker_hardcore.reinforcement_learning_configuration.use_kullback_leibler_loss = True
-# bipedal_walker_hardcore.reinforcement_learning_configuration.kullback_leibler_coefficient = 0.02
-bipedal_walker_hardcore.reinforcement_learning_configuration.clip_policy_parameter = 0.05
+# Trajectory Dataset Generation
+bipedal_walker_hardcore.trajectory_dataset_generation_configuration.number_environment_runners = 10
+bipedal_walker_hardcore.trajectory_dataset_generation_configuration.number_iterations = 100
+bipedal_walker_hardcore.trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 1000
 
-# bipedal_walker_hardcore.reinforcement_learning_configuration.gradient_clip = 0.1
-# bipedal_walker_hardcore.reinforcement_learning_configuration.gradient_clip_by = 'global_norm'
-# bipedal_walker_hardcore.reinforcement_learning_configuration.clip_value_function_parameter = 0.2
+# Rendering Trajectory Dataset Generation
+bipedal_walker_hardcore.rendering_trajectory_dataset_generation_configuration.number_environment_runners = 5
+bipedal_walker_hardcore.rendering_trajectory_dataset_generation_configuration.number_iterations = 10
+bipedal_walker_hardcore.rendering_trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 100
 
-bipedal_walker_hardcore.reinforcement_learning_configuration.batch_mode = 'truncate_episodes'   # 'complete_episodes'
-bipedal_walker_hardcore.reinforcement_learning_configuration.gamma = 0.99
+# Surrogate Policy Training
+bipedal_walker_hardcore.surrogate_policy_training_configuration.training_name = '4_cluster_2_repulsion'
+bipedal_walker_hardcore.surrogate_policy_training_configuration.clusterization_function_configuration.update({
+    'number_cluster': 4,
+})
+bipedal_walker_hardcore.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
+    'number_centroids_repulsion': 2,
+})
 
-# # Transformer
-# bipedal_walker_hardcore.reinforcement_learning_configuration.training_name = 'Transformer_V6'
-# bipedal_walker_hardcore.reinforcement_learning_configuration.architecture = TransformerPPO
-# bipedal_walker_hardcore.reinforcement_learning_configuration.architecture_configuration = {
-#     'action_token_projector_layer_shapes': [8],
-#     'critic_token_projector_layer_shapes': [8],
-#     'dimension_token': 16,
-#     'number_heads': 2,
-#     'dimension_feedforward': 32,
-#     'number_transformer_layers': 2,
-#     'use_multiple_projectors': True,
-#     'use_same_encoder_actor_critic': True,
-# }
-#
-# bipedal_walker_hardcore.reinforcement_learning_configuration.learning_rate = 1e-4
-# bipedal_walker_hardcore.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
-# bipedal_walker_hardcore.reinforcement_learning_configuration.lambda_gae = 0.95
-# bipedal_walker_hardcore.reinforcement_learning_configuration.train_batch_size = 2048 * 20
-# bipedal_walker_hardcore.reinforcement_learning_configuration.minibatch_size = 2048 * 20
-# bipedal_walker_hardcore.reinforcement_learning_configuration.number_epochs = 64
-# # bipedal_walker_hardcore.reinforcement_learning_configuration.entropy_coefficient = 0.001
-# # bipedal_walker_hardcore.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
-# bipedal_walker_hardcore.reinforcement_learning_configuration.gamma = 0.99
-#
-# # bipedal_walker_hardcore.reinforcement_learning_configuration.gradient_clip = 0.1
-# # bipedal_walker_hardcore.reinforcement_learning_configuration.gradient_clip_by = 'global_norm'
-# # bipedal_walker_hardcore.reinforcement_learning_configuration.clip_all_parameter = 0.2
-# # bipedal_walker_hardcore.reinforcement_learning_configuration.clip_value_function_parameter = 0.2
+# Surrogate Policy Evaluation
+bipedal_walker_hardcore.surrogate_policy_evaluation_configuration.evaluation_duration = 200
+bipedal_walker_hardcore.surrogate_policy_evaluation_configuration.number_environment_runners = 5
+bipedal_walker_hardcore.surrogate_policy_evaluation_configuration.number_gpus_per_environment_runners = 0.1

@@ -6,6 +6,7 @@ from environments.flappy_bird.flappy_bird import FlappyBird
 from environments.lunar_lander.lunar_lander import LunarLander
 from environments.bipedal_walker.bipedal_walker import BipedalWalker
 from environments.pong_survivor.pong_survivor import PongSurvivor
+from environments.slime_volley.slime_volley import SlimeVolley
 from environments.taxi.taxi import Taxi
 from environments.tetris.tetris import Tetris
 from environments.tetris_atari.tetris_atari import TetrisAtari
@@ -21,3 +22,4 @@ def register_environments():
     register_env(name='PongSurvivor', env_creator=PongSurvivor)
     register_env(name='TetrisRllib', env_creator=Tetris)
     register_env(name='TetrisAtariRllib', env_creator=TetrisAtari)
+    register_env(name='SlimeVolleyRllib', env_creator=SlimeVolley)

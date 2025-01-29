@@ -15,7 +15,7 @@ from utilities.get_configuration_class import get_configuration_class
 
 def video_episode_generation(experimentation_configuration: ExperimentationConfiguration, reinforcement_learning_path: Path):
     warnings.filterwarnings("ignore", category=DeprecationWarning)
-    ray.init(local_mode=False)
+    ray.init(local_mode=experimentation_configuration.ray_local_mode)
     register_environments()
 
     best_checkpoints_path: Path = find_best_reinforcement_learning_checkpoint_path(reinforcement_learning_path)
