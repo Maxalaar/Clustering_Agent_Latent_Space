@@ -3,7 +3,7 @@ from environments.pong_survivor.configurations import classic_two_balls
 from rllib_repertory.architectures.dense_ppo import DensePPO
 
 pong_survivor_two_balls = ExperimentationConfiguration(
-    experimentation_name='pong_survivor_tow_balls',
+    experimentation_name='pong_survivor_two_balls',
     environment_name='PongSurvivor',
 )
 pong_survivor_two_balls.environment_configuration = classic_two_balls

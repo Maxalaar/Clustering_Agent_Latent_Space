@@ -35,7 +35,7 @@ def flattening(dictionary: dict, flatten_dictionary: dict = {}, prefix: str = ''
 
 
 class PongSurvivor(gym.Env):
-    def __init__(self, environment_configuration: Optional[dict] = None):
+    def __init__(self, environment_configuration: Optional[dict] = {}):
         self.metadata = {'render_modes': ['rgb_array']}
 
         self.balls = []

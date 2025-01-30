@@ -55,7 +55,7 @@ def video_episode_generation(experimentation_configuration: ExperimentationConfi
     algorithm.restore(str(best_checkpoints_path))
     information = algorithm.evaluate()
 
-    print('The average reward on the evaluation is :' + str(information['env_runners']['episode_return_mean']))
+    # print('The average reward on the evaluation is :' + str(information['env_runners']['episode_return_mean']))
 
 
 if __name__ == '__main__':
