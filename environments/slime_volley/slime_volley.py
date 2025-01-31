@@ -340,9 +340,9 @@ class Agent:
         ballX = toX(bx) - (x + 0.6 * r * c)
         ballY = toY(by) - (y + 0.6 * r * s)
 
-        if self.emotion == "sad":
-            ballX = -self.dir * 10
-            ballY = -3 * 10
+        # if self.emotion == "sad":
+        #     ballX = -self.dir * 10
+        #     ballY = -3 * 10
 
         dist = math.sqrt(ballX ** 2 + ballY ** 2)
         if dist > 0:
@@ -601,15 +601,15 @@ if __name__ == "__main__":
 
         if left_agent_manual:
             keys = pygame.key.get_pressed()
-            left_agent_action[0] = 1 if keys[pygame.K_RIGHT] else 0
-            left_agent_action[1] = 1 if keys[pygame.K_LEFT] else 0
-            left_agent_action[2] = 1 if keys[pygame.K_KP0] else 0   # pygame.K_RETURN
+            left_agent_action[0] = 1 if keys[pygame.K_d] else 0
+            left_agent_action[1] = 1 if keys[pygame.K_q] else 0
+            left_agent_action[2] = 1 if keys[pygame.K_SPACE] else 0   # pygame.K_RETURN
 
         if right_agent_manual:
             keys = pygame.key.get_pressed()
-            right_agent_action[0] = 1 if keys[pygame.K_q] else 0
-            right_agent_action[1] = 1 if keys[pygame.K_d] else 0
-            right_agent_action[2] = 1 if keys[pygame.K_SPACE] else 0
+            right_agent_action[0] = 1 if keys[pygame.K_RIGHT] else 0
+            right_agent_action[1] = 1 if keys[pygame.K_LEFT] else 0
+            right_agent_action[2] = 1 if keys[pygame.K_KP0] else 0
 
         if not left_agent_manual:
             left_agent_action = left_policy.predict(environment.game.agent_left.getObservation())
