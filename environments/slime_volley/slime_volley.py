@@ -405,8 +405,8 @@ class Game:
         self.ground = None
         self.fence = None
         self.fenceStub = None
-        self.agent_left = None
-        self.agent_right = None
+        self.agent_left: Optional[Agent] = None
+        self.agent_right: Optional[Agent] = None
         self.delayScreen = None
         self.np_random = np_random
         self.reset()
@@ -446,25 +446,6 @@ class Game:
             self.ball.bounce(self.agent_right)
         if self.ball.isColliding(self.fenceStub):
             self.ball.bounce(self.fenceStub)
-
-        # result = -self.ball.checkEdges()
-        #
-        # if result != 0:
-        #     self.newMatch()
-        #     if result < 0:
-        #         self.agent_left.emotion = "happy"
-        #         self.agent_right.emotion = "sad"
-        #         self.agent_right.life -= 1
-        #     else:
-        #         self.agent_left.emotion = "sad"
-        #         self.agent_right.emotion = "happy"
-        #         self.agent_left.life -= 1
-        #     return result
-        #
-        # self.agent_left.updateState(self.ball, self.agent_right)
-        # self.agent_right.updateState(self.ball, self.agent_left)
-        #
-        # return result
 
         result = -self.ball.checkEdges()
         reward = 0
@@ -512,7 +493,10 @@ class SlimeVolley(gym.Env):
 
         self.t = 0
         self.t_limit = 4000
-        self.action_space = spaces.MultiDiscrete(np.array([2, 2, 2]))
+
+        self.action_space = spaces.Box(low=-1, high=1, shape=(3,))
+        # self.action_space = spaces.MultiDiscrete(np.array([2, 2, 2]))
+
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(12,), dtype=np.float32)
         self.game = Game()
         self.viewer = None
@@ -553,10 +537,10 @@ class SlimeVolley(gym.Env):
             done = True
 
         info = {
-            # 'ale.lives': self.game.agent_right.lives(),
-            # 'ale.otherLives': self.game.agent_left.lives(),
-            # 'state': self.game.agent_right.getObservation(),
-            # 'otherState': self.game.agent_left.getObservation(),
+            'left_agent_lives': self.game.agent_left.lives(),
+            'right_agent_lives': self.game.agent_right.lives(),
+            'left_agent_observation': self.game.agent_left.getObservation(),
+            'right_agent_observation': self.game.agent_right.getObservation(),
         }
 
         return obs, reward, done, False, info
@@ -594,66 +578,46 @@ if __name__ == "__main__":
     pygame.init()
     clock = pygame.time.Clock()
     FPS = 50
-    manualAction = [0, 0, 0]
-    otherManualAction = [0, 0, 0]
-    manualMode = False
-    otherManualMode = False
-    policy = BaselinePolicy()
+    left_agent_manual = False
+    right_agent_manual = False
 
-    env = SlimeVolley()
-    env.render_mode = 'human'
-    obs, _ = env.reset()  # Adapter pour la nouvelle signature de reset
+    left_agent_action = [0, 0, 0]
+    right_agent_action = [0, 0, 0]
+
+    left_policy = BaselinePolicy()
+    right_policy = BaselinePolicy()
+
+    environment = SlimeVolley()
+    environment.render_mode = 'human'
+    obs, _ = environment.reset()
     done = False
 
     while not done:
-        # clock.tick(FPS)
-        #
-        # # Gestion des événements
-        # for event in pygame.event.get():
-        #     if event.type == pygame.QUIT:
-        #         done = True
-        #     elif event.type == pygame.KEYDOWN:
-        #         if event.key == pygame.K_LEFT:
-        #             manualAction[0] = 1
-        #         elif event.key == pygame.K_RIGHT:
-        #             manualAction[1] = 1
-        #         elif event.key == pygame.K_UP:
-        #             manualAction[2] = 1
-        #         elif event.key == pygame.K_d:
-        #             otherManualAction[0] = 1
-        #         elif event.key == pygame.K_a:
-        #             otherManualAction[1] = 1
-        #         elif event.key == pygame.K_w:
-        #             otherManualAction[2] = 1
-        #     elif event.type == pygame.KEYUP:
-        #         if event.key == pygame.K_LEFT:
-        #             manualAction[0] = 0
-        #         elif event.key == pygame.K_RIGHT:
-        #             manualAction[1] = 0
-        #         elif event.key == pygame.K_UP:
-        #             manualAction[2] = 0
-        #         elif event.key == pygame.K_d:
-        #             otherManualAction[0] = 0
-        #         elif event.key == pygame.K_a:
-        #             otherManualAction[1] = 0
-        #         elif event.key == pygame.K_w:
-        #             otherManualAction[2] = 0
-        #
-        # # Logique du jeu
-        # if manualMode:
-        #     action = manualAction
-        # else:
-        #     action = env.policy.predict(obs)
-        #
-        # if otherManualMode:
-        #     otherAction = otherManualAction
-        #     obs, reward, done, _, _ = env.step(action, otherAction)
-        # else:
-        #     obs, reward, done, _, _ = env.step(action)
         clock.tick(FPS)
-        action = policy.predict(env.game.agent_left.getObservation())
-        # action = env.action_space.sample()
-        env.step(action)
-        env.render()
 
-    env.close()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+
+        if left_agent_manual:
+            keys = pygame.key.get_pressed()
+            left_agent_action[0] = 1 if keys[pygame.K_RIGHT] else 0
+            left_agent_action[1] = 1 if keys[pygame.K_LEFT] else 0
+            left_agent_action[2] = 1 if keys[pygame.K_KP0] else 0   # pygame.K_RETURN
+
+        if right_agent_manual:
+            keys = pygame.key.get_pressed()
+            right_agent_action[0] = 1 if keys[pygame.K_q] else 0
+            right_agent_action[1] = 1 if keys[pygame.K_d] else 0
+            right_agent_action[2] = 1 if keys[pygame.K_SPACE] else 0
+
+        if not left_agent_manual:
+            left_agent_action = left_policy.predict(environment.game.agent_left.getObservation())
+
+        if not right_agent_manual:
+            right_agent_action = right_policy.predict(environment.game.agent_right.getObservation())
+
+        environment.step(action=left_agent_action, otherAction=right_agent_action)
+        environment.render()
+
+    environment.close()

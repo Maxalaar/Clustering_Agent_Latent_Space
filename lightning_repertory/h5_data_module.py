@@ -40,8 +40,8 @@ class H5DataModule(pl.LightningDataModule):
         self.input_shape: Optional[tuple] = None
         self.output_shape: Optional[tuple] = None
         self.dataset: Optional[H5Dataset] = None
-        self.train_dataset: Optional[H5Dataset] = None
-        self.validation_dataset: Optional[H5Dataset] = None
+        # self.train_dataset: Optional[H5Dataset] = None
+        # self.validation_dataset: Optional[H5Dataset] = None
 
     def setup(self, stage=None):
         self.input_shape = get_h5_shapes(self.h5_file_path, self.input_dataset_name)
