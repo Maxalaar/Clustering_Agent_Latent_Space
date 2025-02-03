@@ -10,7 +10,7 @@ slime_volley = ExperimentationConfiguration(
 slime_volley.ray_local_mode = False
 
 # Reinforcement Learning
-slime_volley.reinforcement_learning_configuration.training_name = 'debug'
+slime_volley.reinforcement_learning_configuration.training_name = 'base'
 slime_volley.reinforcement_learning_configuration.architecture = DensePPO
 slime_volley.reinforcement_learning_configuration.number_environment_runners = 16
 slime_volley.reinforcement_learning_configuration.number_environment_per_environment_runners = 1
@@ -24,11 +24,12 @@ slime_volley.reinforcement_learning_configuration.entropy_coefficient = 0.001
 slime_volley.reinforcement_learning_configuration.number_checkpoint_to_keep = 10_000
 
 # Video Episodes
-slime_volley.video_episodes_generation_configuration.number_environment_runners = 1
+slime_volley.video_episodes_generation_configuration.number_environment_runners = 2
 slime_volley.video_episodes_generation_configuration.minimal_number_videos = 10
 
 # Trajectory Dataset Generation
 slime_volley.trajectory_dataset_generation_configuration.number_environment_runners = 10
+slime_volley.trajectory_dataset_generation_configuration.number_gpus_per_environment_runners = 0.1
 slime_volley.trajectory_dataset_generation_configuration.number_iterations = 100
 slime_volley.trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 1000
 
@@ -38,10 +39,10 @@ slime_volley.rendering_trajectory_dataset_generation_configuration.number_iterat
 slime_volley.rendering_trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 100
 
 # Surrogate Policy Training
-slime_volley.surrogate_policy_training_configuration.training_name = '4_cluster_1_repulsion'
+slime_volley.surrogate_policy_training_configuration.training_name = '8_cluster_2_repulsion'
 slime_volley.surrogate_policy_training_configuration.clusterization_function_configuration.update({
-    'number_cluster': 4,
+    'number_cluster': 8,
 })
 slime_volley.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
-    'number_centroids_repulsion': 1,
+    'number_centroids_repulsion': 2,
 })

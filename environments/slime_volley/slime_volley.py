@@ -76,13 +76,31 @@ class SlimeVolley(gym.Env):
         self.policy = BaselinePolicy()
         self.otherAction = None
 
+        self.observation_labels = [
+            # Self
+            'self_position_x',
+            'self_position_y',
+            'self_velocity_x',
+            'self_velocity_y',
+            # Ball
+            'ball_position_x',
+            'ball_position_y',
+            'ball_velocity_x',
+            'ball_velocity_y',
+            # Other
+            'other_position_x',
+            'other_position_y',
+            'other_velocity_x',
+            'other_velocity_y',
+        ]
+
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         self.game = Game(self, np_random=self.np_random)
         return [seed]
 
     def getObs(self):
-        return self.game.agent_right.getObservation()
+        return self.game.agent_left.getObservation()
 
     def step(self, action, otherAction=None):
         done = False
@@ -538,7 +556,7 @@ class Game:
 
         result = -self.ball.checkEdges()
         reward = 0
-        reward += 0.5 / 3000
+        reward += 0.5 / self.env.t_limit
 
         if result != 0:
             self.newMatch()

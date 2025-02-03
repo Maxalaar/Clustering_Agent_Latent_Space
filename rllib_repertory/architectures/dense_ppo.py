@@ -30,12 +30,14 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
         self.use_same_encoder_actor_critic = self.model_config.get('use_same_encoder_actor_critic', False)
         self.configuration_encoder_hidden_layers = self.model_config.get('configuration_encoder_hidden_layers', [64, 64])
 
-        inpout_size = get_preprocessor(self.observation_space)(self.observation_space).size
-        output_size = self.action_dist_cls.required_input_dim(space=self.action_space)
+        self.activations = {}
+
+        self.inpout_size = get_preprocessor(self.observation_space)(self.observation_space).size
+        self.output_size = self.action_dist_cls.required_input_dim(space=self.action_space)
 
         if self.use_same_encoder_actor_critic:
             self.encoder_layers = create_dense_architecture(
-                inpout_size,
+                self.inpout_size,
                 self.configuration_encoder_hidden_layers[:-1],
                 self.configuration_encoder_hidden_layers[-1],
                 self.activation_function,
@@ -45,7 +47,7 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
             self.actor_layers = create_dense_architecture(
                 self.configuration_encoder_hidden_layers[-1],
                 self.configuration_hidden_layers,
-                output_size,
+                self.output_size,
                 self.activation_function,
                 layer_normalization=self.layer_normalization,
                 dropout=self.dropout,
@@ -60,15 +62,15 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
             )
         else:
             self.actor_layers = create_dense_architecture(
-                inpout_size,
+                self.inpout_size,
                 self.configuration_hidden_layers,
-                output_size,
+                self.output_size,
                 self.activation_function,
                 layer_normalization=self.layer_normalization,
                 dropout=self.dropout,
             )
             self.critic_layers = create_dense_architecture(
-                inpout_size,
+                self.inpout_size,
                 self.configuration_hidden_layers,
                 1,
                 self.activation_function,
@@ -78,8 +80,32 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
         print(self)
         self.to(self.device)
 
+    def initialisation_hooks(self):
+        # Enregistrement des hooks
+        self._register_hooks()
+
+    def _register_hooks(self):
+        def save_activation(module, input, output, name):
+            # On stocke la sortie (activation) sans le gradient
+            self.activations[name] = output.detach()
+
+        # Enregistre un hook pour chaque module Linear
+        for name, module in self.named_modules():
+            if isinstance(module, nn.Linear):
+                module.register_forward_hook(lambda m, i, o, name=name: save_activation(m, i, o, name))
+
     @override(TorchRLModule)
     def _forward(self, batch, **kwargs):
+        if self.use_same_encoder_actor_critic:
+            action_distribution_inputs = self.actor_layers(self.encoder_layers(batch[Columns.OBS].to(self.device)))
+        else:
+            action_distribution_inputs = self.actor_layers(batch[Columns.OBS].to(self.device))
+        return {
+            Columns.ACTION_DIST_INPUTS: action_distribution_inputs,
+        }
+
+    def forward_visualization(self, batch, **kwargs):
+        self.activations["input"] = batch[Columns.OBS].to(self.device).cpu().detach()
         if self.use_same_encoder_actor_critic:
             action_distribution_inputs = self.actor_layers(self.encoder_layers(batch[Columns.OBS].to(self.device)))
         else:

@@ -48,6 +48,8 @@ def surrogate_policy_training(
         clusterization_loss=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss,
         clusterization_loss_configuration=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss_configuration,
         **experimentation_configuration.surrogate_policy_training_configuration.architecture_configuration,
+        action_loss_coefficient=experimentation_configuration.surrogate_policy_training_configuration.action_loss_coefficient,
+        clusterization_loss_coefficient=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss_coefficient,
     )
 
     logger = TensorBoardLogger(

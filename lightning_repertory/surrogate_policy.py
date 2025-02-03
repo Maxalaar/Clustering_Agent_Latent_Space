@@ -23,6 +23,8 @@ class SurrogatePolicy(pl.LightningModule):
             clusterization_loss: Optional[nn.Module] = None,
             clusterization_loss_configuration: dict = {},
             indexes_latent_space_to_clusterize: List[int] = None,
+            action_loss_coefficient: float = 1.0,
+            clusterization_loss_coefficient: float = 1.0,
     ):
         super(SurrogatePolicy, self).__init__()
 
@@ -48,6 +50,9 @@ class SurrogatePolicy(pl.LightningModule):
             self.clusterization_loss = clusterization_loss(logger=self.log, **clusterization_loss_configuration)
             self.indexes_latent_space_to_clusterize = np.array(indexes_latent_space_to_clusterize)
             self._register_hooks()
+
+        self.action_loss_coefficient = action_loss_coefficient
+        self.clusterization_loss_coefficient = clusterization_loss_coefficient
 
     def _register_hooks(self):
         if self.indexes_latent_space_to_clusterize is not None:
@@ -96,7 +101,7 @@ class SurrogatePolicy(pl.LightningModule):
         else:
             clustering_loss = 0.0
 
-        total_loss = action_loss + clustering_loss
+        total_loss = self.action_loss_coefficient * action_loss + self.clusterization_loss_coefficient * clustering_loss
 
         self.log('action_loss_train', action_loss, on_epoch=True)
         self.log('clusterization_loss_train', clustering_loss, on_epoch=True)
@@ -121,7 +126,7 @@ class SurrogatePolicy(pl.LightningModule):
         else:
             clustering_loss = 0.0
 
-        total_loss = action_loss + clustering_loss
+        total_loss = self.action_loss_coefficient * action_loss + self.clusterization_loss_coefficient * clustering_loss
 
         self.log('action_loss_validation', action_loss, on_epoch=True)
         self.log('clusterization_loss_validation', clustering_loss, on_epoch=True)

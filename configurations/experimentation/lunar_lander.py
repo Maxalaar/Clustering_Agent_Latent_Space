@@ -33,10 +33,16 @@ lunar_lander.rendering_trajectory_dataset_generation_configuration.number_iterat
 lunar_lander.rendering_trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 100
 
 # Surrogate Policy Training
-lunar_lander.surrogate_policy_training_configuration.training_name = '4_cluster_1_repulsion'
+lunar_lander.surrogate_policy_training_configuration.training_name = '0.05_clusterization_loss_V1'
+lunar_lander.surrogate_policy_training_configuration.clusterization_loss_coefficient = 0.05
 lunar_lander.surrogate_policy_training_configuration.clusterization_function_configuration.update({
     'number_cluster': 4,
 })
 lunar_lander.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
     'number_centroids_repulsion': 1,
 })
+
+# Surrogate Policy Evaluation
+lunar_lander.surrogate_policy_evaluation_configuration.evaluation_duration = 100
+lunar_lander.surrogate_policy_evaluation_configuration.number_environment_runners = 10
+lunar_lander.surrogate_policy_evaluation_configuration.number_gpus_per_environment_runners = 0.1

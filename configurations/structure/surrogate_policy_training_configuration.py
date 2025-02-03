@@ -29,6 +29,8 @@ class SurrogatePolicyTrainingConfiguration:
             'margin_between_clusters': 10.0,
             'number_centroids_repulsion': 1,
         }
+        self.action_loss_coefficient: float = 1.0
+        self.clusterization_loss_coefficient: float = 1.0
 
         self.number_mini_chunks: int = 2
         self.mini_chunk_size: int = 100_000

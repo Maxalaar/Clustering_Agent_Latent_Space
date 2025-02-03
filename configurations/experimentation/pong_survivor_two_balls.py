@@ -46,6 +46,6 @@ pong_survivor_two_balls.surrogate_policy_training_configuration.clusterization_l
 })
 
 # Surrogate Policy Evaluation
-pong_survivor_two_balls.surrogate_policy_evaluation_configuration.evaluation_duration = 1_000
+pong_survivor_two_balls.surrogate_policy_evaluation_configuration.evaluation_duration = 100
 pong_survivor_two_balls.surrogate_policy_evaluation_configuration.number_environment_runners = 10
 pong_survivor_two_balls.surrogate_policy_evaluation_configuration.number_gpus_per_environment_runners = 0.1
