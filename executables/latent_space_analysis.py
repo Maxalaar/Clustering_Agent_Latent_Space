@@ -197,35 +197,65 @@ def train_observations_actions_decision_tree(
     actions = actions.cpu().numpy()
     cluster_labels = cluster_labels.cpu().numpy()
 
-    for label in np.unique(cluster_labels):
-        indices = np.where(cluster_labels == label)[0]
-        observations_current_cluster = observations[indices]
-        actions_current_cluster = actions[indices]
+    x_train, x_test, y_train, y_test = train_test_split(observations, actions, test_size=0.2)
 
-        random_over_sampler = RandomOverSampler()
-        x_balance, y_balance = random_over_sampler.fit_resample(observations_current_cluster, actions_current_cluster)
-        x_train, x_test, y_train, y_test = train_test_split(x_balance, y_balance, test_size=0.2)
+    decision_tree = DecisionTreeClassifier(max_depth=10)
+    decision_tree.fit(x_train, y_train)
+    predict_y_test = decision_tree.predict(x_test)
+    accuracy_value = accuracy_score(y_test, predict_y_test)
+    information = 'Decision tree (all clusters: observations -> actions), max depth: ' + str(
+        decision_tree.max_depth) + ', accuracy: ' + str(accuracy_value) + '\n'
+    print(information)
+    with open(save_path / 'information.txt', 'a') as file:
+        file.write(information)
 
-        if is_convertible_to_int:
-            decision_tree = DecisionTreeClassifier(max_depth=2)
-            decision_tree.fit(x_train, y_train)
-        else:
-            return
-            # decision_tree = DecisionTreeRegressor()
-            # decision_tree.fit(x_train, y_train)
+    plt.figure(figsize=(12, 12))
+    plot_tree(decision_tree, filled=True, feature_names=feature_names, class_names=class_names)
+    plt.savefig(save_path / 'all_clusters_decision_tree.png', bbox_inches='tight', dpi=300)
 
-        predict_y_test = decision_tree.predict(x_test)
-        accuracy_value = accuracy_score(y_test, predict_y_test)
-        information = 'Decision tree cluster ' + str(label) + ' (observations -> actions), max depth: ' + str(decision_tree.max_depth) + ', accuracy: ' + str(accuracy_value) + '\n'
-        print(information)
-        with open(save_path / 'information.txt', 'a') as file:
-            file.write(information)
+    # for label in np.unique(cluster_labels):
+    #     indices = np.where(cluster_labels == label)[0]
+    #     observations_current_cluster = observations[indices]
+    #     actions_current_cluster = actions[indices]
+    #
+    #     random_over_sampler = RandomOverSampler()
+    #     x_balance, y_balance = random_over_sampler.fit_resample(observations_current_cluster, actions_current_cluster)
+    #     x_train, x_test, y_train, y_test = train_test_split(x_balance, y_balance, test_size=0.2)
+    #     decision_tree = DecisionTreeClassifier(max_depth=3)
+    #     decision_tree.fit(x_train, y_train)
+    #
+    #     predict_y_test = decision_tree.predict(x_test)
+    #     accuracy_value = accuracy_score(y_test, predict_y_test)
+    #     information = 'Decision tree cluster ' + str(label) + ' (observations -> actions), max depth: ' + str(decision_tree.max_depth) + ', accuracy: ' + str(accuracy_value) + '\n'
+    #     print(information)
+    #     with open(save_path / 'information.txt', 'a') as file:
+    #         file.write(information)
+    #
+    #     plt.figure(figsize=(12, 12))
+    #     plot_tree(decision_tree, filled=True, feature_names=feature_names, class_names=class_names)
+    #     plt.savefig(save_path / ('cluster_' + str(label) + '_observations_actions_decision_tree.png'), bbox_inches='tight', dpi=300)
+    #     matplotlib.pyplot.close()
 
-        plt.figure(figsize=(12, 12))
-        plot_tree(decision_tree, filled=True, feature_names=feature_names, class_names=class_names)
-        plt.savefig(save_path / ('cluster_' + str(label) + '_observations_actions_decision_tree.png'), bbox_inches='tight', dpi=300)
-        matplotlib.pyplot.close()
-
+    #
+    #     if is_convertible_to_int:
+    #         decision_tree = DecisionTreeClassifier(max_depth=2)
+    #         decision_tree.fit(x_train, y_train)
+    #     else:
+    #         return
+    #         # decision_tree = DecisionTreeRegressor()
+    #         # decision_tree.fit(x_train, y_train)
+    #
+    #     predict_y_test = decision_tree.predict(x_test)
+    #     accuracy_value = accuracy_score(y_test, predict_y_test)
+    #     information = 'Decision tree cluster ' + str(label) + ' (observations -> actions), max depth: ' + str(decision_tree.max_depth) + ', accuracy: ' + str(accuracy_value) + '\n'
+    #     print(information)
+    #     with open(save_path / 'information.txt', 'a') as file:
+    #         file.write(information)
+    #
+    #     plt.figure(figsize=(12, 12))
+    #     plot_tree(decision_tree, filled=True, feature_names=feature_names, class_names=class_names)
+    #     plt.savefig(save_path / ('cluster_' + str(label) + '_observations_actions_decision_tree.png'), bbox_inches='tight', dpi=300)
+    #     matplotlib.pyplot.close()
 
 def get_observations_with_rending(
         trajectory_dataset_with_rending_file_path: Path,
@@ -287,6 +317,24 @@ def representation_clusters(
             image = Image.fromarray(renderings_current_cluster[i].cpu().numpy())
             image.save(cluster_path / f'image_{i}.png')
 
+def representation_actions_by_cluster(
+        latent_space_analysis_storage_path: Path,
+        trajectory_dataset_with_rending_file_path: Path,
+        surrogate_policy: SurrogatePolicy,
+        clusterization_model,
+        device=torch.device('cpu'),
+):
+    observations, renderings = get_observations_with_rending(
+        trajectory_dataset_with_rending_file_path=trajectory_dataset_with_rending_file_path,
+        device=device,
+    )
+    embeddings = projection_clusterization_latent_space(
+        observations=observations,
+        surrogate_policy=surrogate_policy,
+    )
+    cluster_labels = clusterization_model.predict(embeddings)
+    unique_cluster_labels = np.unique(cluster_labels)
+
 
 def latent_space_analysis(
         experimentation_configuration: ExperimentationConfiguration,
@@ -337,14 +385,14 @@ def latent_space_analysis(
         tree_max_depth_observations_to_all_clusters=3,
         tree_max_depth_observations_to_cluster=2,
     )
-    # train_observations_actions_decision_tree(
-    #     observations=observations,
-    #     actions=actions,
-    #     cluster_labels=cluster_labels,
-    #     feature_names=getattr(environment, 'observation_labels', None),
-    #     class_names=getattr(environment, 'action_labels', None),
-    #     save_path=current_latent_space_analysis_storage_path,
-    # )
+    train_observations_actions_decision_tree(
+        observations=observations,
+        actions=actions,
+        cluster_labels=cluster_labels,
+        feature_names=getattr(environment, 'observation_labels', None),
+        class_names=getattr(environment, 'action_labels', None),
+        save_path=current_latent_space_analysis_storage_path,
+    )
     representation_clusters(
         latent_space_analysis_storage_path=current_latent_space_analysis_storage_path,
         trajectory_dataset_with_rending_file_path=trajectory_dataset_path / 'trajectory_dataset_with_rending.h5',
