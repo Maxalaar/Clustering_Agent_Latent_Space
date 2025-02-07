@@ -1,18 +1,18 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 import h5py
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-
 class H5MiniChunkDataset(Dataset):
     def __init__(
-            self, file_path: Path,
-            mini_chunk_size: int, input_dataset_name: str,
+            self,
+            file_path: Path,
+            mini_chunk_size: int,
+            dataset_names: List[str],
             number_mini_chunk: int = 2,
-            output_dataset_name: Optional[str] = None,
             shuffle: bool = True,
     ):
         self.file_path: Path = file_path
@@ -21,45 +21,44 @@ class H5MiniChunkDataset(Dataset):
         self.number_mini_chunk: int = number_mini_chunk
         self.shuffle: bool = shuffle
 
-        self.input_dataset = self.h5_file[input_dataset_name]
-        self.output_dataset = None
-        if output_dataset_name is not None:
-            self.output_dataset = self.h5_file[output_dataset_name]
+        self.dataset_names = dataset_names
+        self.datasets = [self.h5_file[name] for name in self.dataset_names]
 
-        if self.output_dataset is not None and len(self.input_dataset) != len(self.output_dataset):
-            raise ValueError(f"Error: input_dataset length ({len(self.input_dataset)}) does not match output_dataset length ({len(self.output_dataset)}).")
-        self.dataset_size = len(self.input_dataset)
+        # Check all datasets have the same length
+        first_len = len(self.datasets[0])
+        for ds in self.datasets[1:]:
+            if len(ds) != first_len:
+                raise ValueError(
+                    f"Dataset {ds.name} has length {len(ds)}, which does not match the first dataset length {first_len}."
+                )
+        self.dataset_size = first_len
 
         self.number_call_current_chunk: Optional[int] = None
         self.number_data_in_chunk: Optional[int] = None
-        self.input_chunk: Optional[torch.Tensor] = None
-        self.output_chunk: Optional[torch.Tensor] = None
+        self.dataset_chunks: Optional[List[torch.Tensor]] = None
 
     def load_mini_chunks(self):
-        input_mini_chunks = []
-        if self.output_dataset is not None:
-            output_mini_chunks = []
+        # Initialize a list to hold mini chunks for each dataset
+        mini_chunks = [[] for _ in range(len(self.datasets))]
 
-        for i in range(self.number_mini_chunk):
+        for _ in range(self.number_mini_chunk):
             idx_mini_chunk_start = np.random.randint(0, self.dataset_size)
             idx_mini_chunk_stop = min(idx_mini_chunk_start + self.mini_chunk_size, self.dataset_size)
 
-            input_mini_chunks.append(torch.tensor(self.input_dataset[idx_mini_chunk_start:idx_mini_chunk_stop]))
-            if self.output_dataset is not None:
-                output_mini_chunks.append(torch.tensor(self.output_dataset[idx_mini_chunk_start:idx_mini_chunk_stop]))
+            for i, dataset in enumerate(self.datasets):
+                data = torch.tensor(dataset[idx_mini_chunk_start:idx_mini_chunk_stop])
+                mini_chunks[i].append(data)
 
-        self.input_chunk = torch.cat(input_mini_chunks, dim=0)
-        if self.output_dataset is not None:
-            self.output_chunk = torch.cat(output_mini_chunks, dim=0)
-
-        self.number_data_in_chunk = self.input_chunk.size(0)
+        # Concatenate mini chunks for each dataset
+        self.dataset_chunks = [torch.cat(chunks, dim=0) for chunks in mini_chunks]
+        self.number_data_in_chunk = self.dataset_chunks[0].size(0)
         self.number_call_current_chunk = 0
 
     def __len__(self):
         return self.dataset_size
 
     def __getitem__(self, idx):
-        if self.input_chunk is None or self.number_call_current_chunk >= self.number_data_in_chunk:
+        if self.dataset_chunks is None or self.number_call_current_chunk >= self.number_data_in_chunk:
             self.load_mini_chunks()
 
         if self.shuffle:
@@ -69,7 +68,4 @@ class H5MiniChunkDataset(Dataset):
 
         self.number_call_current_chunk += 1
 
-        if self.output_dataset is not None:
-            return self.input_chunk[local_idx], self.output_chunk[local_idx]
-        else:
-            return self.input_chunk[local_idx]
+        return tuple(chunk[local_idx] for chunk in self.dataset_chunks)

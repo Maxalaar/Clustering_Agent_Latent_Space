@@ -29,8 +29,7 @@ def surrogate_policy_training(
 
     data_module = H5DataModule(
         h5_file_path=trajectory_dataset_file_path,
-        input_dataset_name='observations',
-        output_dataset_name='action_distribution_inputs',
+        dataset_names=['observations', 'action_distribution_inputs'],
         batch_size=experimentation_configuration.surrogate_policy_training_configuration.batch_size,
         mini_chunk_size=experimentation_configuration.surrogate_policy_training_configuration.mini_chunk_size,
         number_mini_chunks=experimentation_configuration.surrogate_policy_training_configuration.number_mini_chunks,

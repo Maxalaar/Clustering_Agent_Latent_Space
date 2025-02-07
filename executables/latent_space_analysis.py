@@ -42,8 +42,7 @@ def get_observations(
     display_h5_file_information(trajectory_dataset_file_path)
     data_module = H5DataModule(
         h5_file_path=trajectory_dataset_file_path,
-        input_dataset_name='observations',
-        output_dataset_name='actions',
+        dataset_names=['observations', 'actions'],
         batch_size=10_000,
         number_mini_chunks=4,
         mini_chunk_size=50_000,
@@ -199,7 +198,7 @@ def train_observations_actions_decision_tree(
 
     x_train, x_test, y_train, y_test = train_test_split(observations, actions, test_size=0.2)
 
-    decision_tree = DecisionTreeClassifier(max_depth=10)
+    decision_tree = DecisionTreeClassifier(max_depth=2)
     decision_tree.fit(x_train, y_train)
     predict_y_test = decision_tree.predict(x_test)
     accuracy_value = accuracy_score(y_test, predict_y_test)
@@ -213,28 +212,28 @@ def train_observations_actions_decision_tree(
     plot_tree(decision_tree, filled=True, feature_names=feature_names, class_names=class_names)
     plt.savefig(save_path / 'all_clusters_decision_tree.png', bbox_inches='tight', dpi=300)
 
-    # for label in np.unique(cluster_labels):
-    #     indices = np.where(cluster_labels == label)[0]
-    #     observations_current_cluster = observations[indices]
-    #     actions_current_cluster = actions[indices]
-    #
-    #     random_over_sampler = RandomOverSampler()
-    #     x_balance, y_balance = random_over_sampler.fit_resample(observations_current_cluster, actions_current_cluster)
-    #     x_train, x_test, y_train, y_test = train_test_split(x_balance, y_balance, test_size=0.2)
-    #     decision_tree = DecisionTreeClassifier(max_depth=3)
-    #     decision_tree.fit(x_train, y_train)
-    #
-    #     predict_y_test = decision_tree.predict(x_test)
-    #     accuracy_value = accuracy_score(y_test, predict_y_test)
-    #     information = 'Decision tree cluster ' + str(label) + ' (observations -> actions), max depth: ' + str(decision_tree.max_depth) + ', accuracy: ' + str(accuracy_value) + '\n'
-    #     print(information)
-    #     with open(save_path / 'information.txt', 'a') as file:
-    #         file.write(information)
-    #
-    #     plt.figure(figsize=(12, 12))
-    #     plot_tree(decision_tree, filled=True, feature_names=feature_names, class_names=class_names)
-    #     plt.savefig(save_path / ('cluster_' + str(label) + '_observations_actions_decision_tree.png'), bbox_inches='tight', dpi=300)
-    #     matplotlib.pyplot.close()
+    for label in np.unique(cluster_labels):
+        indices = np.where(cluster_labels == label)[0]
+        observations_current_cluster = observations[indices]
+        actions_current_cluster = actions[indices]
+
+        random_over_sampler = RandomOverSampler()
+        x_balance, y_balance = random_over_sampler.fit_resample(observations_current_cluster, actions_current_cluster)
+        x_train, x_test, y_train, y_test = train_test_split(x_balance, y_balance, test_size=0.2)
+        decision_tree = DecisionTreeClassifier(max_depth=2)
+        decision_tree.fit(x_train, y_train)
+
+        predict_y_test = decision_tree.predict(x_test)
+        accuracy_value = accuracy_score(y_test, predict_y_test)
+        information = 'Decision tree cluster ' + str(label) + ' (observations -> actions), max depth: ' + str(decision_tree.max_depth) + ', accuracy: ' + str(accuracy_value) + '\n'
+        print(information)
+        with open(save_path / 'information.txt', 'a') as file:
+            file.write(information)
+
+        plt.figure(figsize=(12, 12))
+        plot_tree(decision_tree, filled=True, feature_names=feature_names, class_names=class_names)
+        plt.savefig(save_path / ('cluster_' + str(label) + '_observations_actions_decision_tree.png'), bbox_inches='tight', dpi=300)
+        matplotlib.pyplot.close()
 
     #
     #     if is_convertible_to_int:
@@ -264,8 +263,7 @@ def get_observations_with_rending(
     display_h5_file_information(trajectory_dataset_with_rending_file_path)
     data_module = H5DataModule(
         h5_file_path=trajectory_dataset_with_rending_file_path,
-        output_dataset_name='observations',
-        input_dataset_name='renderings',
+        dataset_names=['observations', 'renderings', 'actions'],
         batch_size=2000,
         number_mini_chunks=2,
         mini_chunk_size=3000,
@@ -277,8 +275,8 @@ def get_observations_with_rending(
     renderings = []
 
     for i, batch in enumerate(islice(data_module.train_dataloader(), 5)):
-        observations.append(batch[1])
-        renderings.append(batch[0])
+        observations.append(batch[0])
+        renderings.append(batch[1])
 
     observations = torch.cat(observations, dim=0)
     observations = observations.clone().detach().to(device)
