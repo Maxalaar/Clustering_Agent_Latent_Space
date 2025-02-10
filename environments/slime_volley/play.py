@@ -1,4 +1,5 @@
 import pathlib
+from typing import Optional
 
 import numpy as np
 import pygame
@@ -17,19 +18,20 @@ from environments.slime_volley.slime_volley import BaselinePolicy, SlimeVolley
 from rllib_repertory.find_best_checkpoint_path import find_best_reinforcement_learning_checkpoint_path
 from rllib_repertory.get_checkpoint_algorithm_configuration import get_checkpoint_algorithm_configuration
 
-from utilities.graph_visualizer import GraphVisualizer
 import matplotlib.pyplot as plt
 
+from utilities.neural_network_visualizer import NeuralNetworkVisualizer
 
 if __name__ == "__main__":
     pygame.init()
     clock = pygame.time.Clock()
     FPS = 50
 
-    environment = SlimeVolley({'time_step': 1 / 60})
-    left_agent_manual = True
-    right_agent_manual = True
-    visualisation_neural_network = False
+    environment = SlimeVolley({'time_step': 1 / 30})
+    left_agent_manual = False
+    right_agent_manual = False
+    use_neural_network_visualisation = True
+    neural_network_visualizer: Optional[NeuralNetworkVisualizer] = None
     # checkpoint_path = pathlib.Path('/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/slime_volley/reinforcement_learning/debug/PPO_SlimeVolleyRllib_96e3c_00000_0_2025-01-31_11-31-54/checkpoint_000000')
     checkpoint_path: pathlib.Path = find_best_reinforcement_learning_checkpoint_path(pathlib.Path('/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/slime_volley/reinforcement_learning/base'))
 
@@ -49,6 +51,9 @@ if __name__ == "__main__":
     register_environments()
 
     algorithm_configuration = get_checkpoint_algorithm_configuration(checkpoint_path)
+    algorithm_configuration.rl_module(
+        model_config=algorithm_configuration.model_config | {'recorder_mode': True}
+    )
     algorithm_configuration.learners(
         num_learners=0,
         num_gpus_per_learner=0,
@@ -65,11 +70,12 @@ if __name__ == "__main__":
     module_to_env_connector.connectors.pop()
     rl_module = algorithm.get_module()
 
-    if visualisation_neural_network:
-        plt.ion()
-        rl_module.initialisation_hooks()
-        graph_visualizer = GraphVisualizer(rl_module, n_edges=10)
-        graph_visualizer.fig.show()
+    if use_neural_network_visualisation:
+        neural_network_visualizer = NeuralNetworkVisualizer(rl_module.actor_layers)
+        # plt.ion()
+        # rl_module.initialisation_hooks()
+        # graph_visualizer = GraphVisualizer(rl_module, n_edges=10)
+        # graph_visualizer.fig.show()
 
     environment.render_mode = 'human'
     obs, _ = environment.reset()
@@ -78,10 +84,11 @@ if __name__ == "__main__":
     while not done:
         clock.tick(FPS)
 
-        if visualisation_neural_network:
-            graph_visualizer.update(0)  # 0 = dummy frame
-            graph_visualizer.fig.canvas.draw()
-            graph_visualizer.fig.canvas.flush_events()  # Force le rafraîchissement
+        if use_neural_network_visualisation:
+            neural_network_visualizer.update()
+            # graph_visualizer.update(0)  # 0 = dummy frame
+            # graph_visualizer.fig.canvas.draw()
+            # graph_visualizer.fig.canvas.flush_events()  # Force le rafraîchissement
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -128,7 +135,7 @@ if __name__ == "__main__":
             obs = environment.getObs()
             fwd_ins = {"obs": torch.Tensor([obs])}
             # fwd_outputs = rl_module.forward_inference(fwd_ins)
-            fwd_outputs = rl_module.forward_visualization(fwd_ins)
+            fwd_outputs = rl_module._forward(fwd_ins)
             left_agent_action = module_to_env_connector(rl_module=rl_module, batch=fwd_outputs, episodes=[None])['actions_for_env'][0]
 
         if not right_agent_manual:

@@ -32,16 +32,17 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
     best_checkpoints_path: Path = find_best_reinforcement_learning_checkpoint_path(reinforcement_learning_path)
     algorithm_configuration = get_checkpoint_algorithm_configuration(best_checkpoints_path)
 
+    algorithm_configuration.rl_module(
+        model_config=algorithm_configuration.model_config | {'recorder_mode': True}
+    )
     algorithm_configuration.learners(
         num_learners=0,
         num_gpus_per_learner=0,
         num_cpus_per_learner=0,
     )
-
     algorithm_configuration.evaluation(
         evaluation_num_env_runners=0,
     )
-
     algorithm_configuration.env_runners(
         explore=experimentation_configuration.trajectory_dataset_generation_configuration.explore,
         num_env_runners=experimentation_configuration.trajectory_dataset_generation_configuration.number_environment_runners,

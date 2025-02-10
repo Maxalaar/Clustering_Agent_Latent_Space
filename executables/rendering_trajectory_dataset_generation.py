@@ -20,23 +20,22 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
     ray.init(local_mode=experimentation_configuration.ray_local_mode)
 
     register_environments()
-    
-    path_file: Path = experimentation_configuration.dataset_path / reinforcement_learning_path.name / 'trajectory_dataset_with_rending.h5'
 
     def create_save_trajectory_callback():
         return SaveTrajectoryCallback(
             h5_file_path=path_file,
             save_rendering=True,
-            image_compression_function=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.image_compression_function,
-            image_compression_configuration=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.image_compression_configuration,
-            number_rendering_to_stack=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.number_rendering_to_stack,
         )
+    
+    path_file: Path = experimentation_configuration.dataset_path / reinforcement_learning_path.name / 'trajectory_dataset_with_rending.h5'
 
     best_checkpoints_path: Path = find_best_reinforcement_learning_checkpoint_path(reinforcement_learning_path)
     algorithm_configuration = get_checkpoint_algorithm_configuration(best_checkpoints_path)
 
     algorithm_configuration.env_config.update({'render_mode': 'rgb_array'})
-
+    algorithm_configuration.rl_module(
+        model_config=algorithm_configuration.model_config | {'recorder_mode': True}
+    )
     algorithm_configuration.learners(
         num_learners=0,
         num_gpus_per_learner=0,

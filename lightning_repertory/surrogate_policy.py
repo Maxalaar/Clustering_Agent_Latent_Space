@@ -15,7 +15,7 @@ class SurrogatePolicy(pl.LightningModule):
             input_dimension,
             output_dimension,
             shape_layers=None,
-            activation_function=nn.LeakyReLU(),
+            activation_function_class=nn.LeakyReLU,
             learning_rate: float = 1e-4,
             use_clusterization_loss: bool = False,
             clusterization_function=None,
@@ -37,7 +37,7 @@ class SurrogatePolicy(pl.LightningModule):
             input_dimension=input_dimension,
             shape_layers=shape_layers,
             output_dimension=output_dimension,
-            activation_function=activation_function,
+            activation_function_class=activation_function_class,
         )
         self.embeddings_in_clustering_space = []
         self.learning_rate = learning_rate

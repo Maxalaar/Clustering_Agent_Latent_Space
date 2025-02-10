@@ -27,7 +27,7 @@ class FlappyBird(gym.Env):
             'next_bottom_pipe_vertical_position',
             'next_next_pipe_horizontal_position',
             'next_next_top_pipe_vertical_position',
-            'next_next_top_pipe_vertical_position',
+            'next_next_bottom_pipe_vertical_position',
             'player_vertical_position',
             'player_vertical_velocity',
             'player_rotation',

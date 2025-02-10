@@ -19,4 +19,3 @@ class RenderingTrajectoryDatasetGenerationConfiguration:
             'new_height': 400,
             'grayscale': True,
         }
-        self.number_rendering_to_stack: int = 0

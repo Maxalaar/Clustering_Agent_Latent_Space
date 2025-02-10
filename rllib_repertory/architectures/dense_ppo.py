@@ -1,5 +1,4 @@
 from typing import Dict, Any, Optional
-
 import torch
 from torch import nn, TensorType
 from ray.rllib.core.rl_module.apis import ValueFunctionAPI
@@ -9,20 +8,16 @@ from ray.rllib.utils.annotations import override
 from ray.rllib.core.columns import Columns
 
 from ray.rllib.algorithms.ppo.torch.ppo_torch_rl_module import PPOTorchRLModule
-from torch.nn.functional import dropout
 
+from utilities.activation_functions import activation_functions
 from utilities.create_dense_architecture import create_dense_architecture
-
-
-# from ray.rllib.core.testing.torch.bc_module import DiscreteBCTorchModule
-# from ray.rllib.algorithms.ppo.ppo_catalog import PPOCatalog
 
 
 class DensePPO(TorchRLModule, ValueFunctionAPI):
     @override(TorchRLModule)
     def setup(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.activation_function = self.model_config.get('activation_function', nn.ReLU())
+        self.activation_function_class = self.model_config.get('activation_function_class', nn.ReLU)
         self.layer_normalization = self.model_config.get('layer_normalization', False)
         self.dropout = self.model_config.get('dropout', False)
         self.configuration_hidden_layers = self.model_config.get('configuration_hidden_layers', [64, 64])
@@ -30,6 +25,10 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
         self.use_same_encoder_actor_critic = self.model_config.get('use_same_encoder_actor_critic', False)
         self.configuration_encoder_hidden_layers = self.model_config.get('configuration_encoder_hidden_layers', [64, 64])
 
+        # Récupération du flag pour le mode création de dataset
+        self.recorder_mode = self.model_config.get('recorder_mode', False)
+
+        # Dictionnaire pour stocker les activations via hooks
         self.activations = {}
 
         self.inpout_size = get_preprocessor(self.observation_space)(self.observation_space).size
@@ -40,7 +39,7 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
                 self.inpout_size,
                 self.configuration_encoder_hidden_layers[:-1],
                 self.configuration_encoder_hidden_layers[-1],
-                self.activation_function,
+                self.activation_function_class,
                 layer_normalization=self.layer_normalization,
                 dropout=self.dropout,
             )
@@ -48,7 +47,7 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
                 self.configuration_encoder_hidden_layers[-1],
                 self.configuration_hidden_layers,
                 self.output_size,
-                self.activation_function,
+                self.activation_function_class,
                 layer_normalization=self.layer_normalization,
                 dropout=self.dropout,
             )
@@ -56,7 +55,7 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
                 self.configuration_encoder_hidden_layers[-1],
                 self.configuration_hidden_layers,
                 1,
-                self.activation_function,
+                self.activation_function_class,
                 layer_normalization=self.layer_normalization,
                 dropout=self.dropout,
             )
@@ -65,7 +64,7 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
                 self.inpout_size,
                 self.configuration_hidden_layers,
                 self.output_size,
-                self.activation_function,
+                self.activation_function_class,
                 layer_normalization=self.layer_normalization,
                 dropout=self.dropout,
             )
@@ -73,11 +72,16 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
                 self.inpout_size,
                 self.configuration_hidden_layers,
                 1,
-                self.activation_function,
+                self.activation_function_class,
                 layer_normalization=self.layer_normalization,
                 dropout=self.dropout,
             )
         print(self)
+
+        # En mode dataset, on enregistre les hooks pour capturer les activations
+        if self.recorder_mode:
+            self.initialisation_hooks()
+
         self.to(self.device)
 
     def initialisation_hooks(self):
@@ -86,33 +90,43 @@ class DensePPO(TorchRLModule, ValueFunctionAPI):
 
     def _register_hooks(self):
         def save_activation(module, input, output, name):
-            # On stocke la sortie (activation) sans le gradient
-            self.activations[name] = output.detach()
+            # Stocker la sortie sans gradient
+            self.activations[str(name) + '_' + str(module)] = output.detach()
 
-        # Enregistre un hook pour chaque module Linear
+        # Enregistrer un hook pour chaque module Linear
         for name, module in self.named_modules():
-            if isinstance(module, nn.Linear):
+            # print(str(name) + ' : ' + str(module))
+            if isinstance(module, activation_functions):
                 module.register_forward_hook(lambda m, i, o, name=name: save_activation(m, i, o, name))
 
     @override(TorchRLModule)
     def _forward(self, batch, **kwargs):
+        obs = batch[Columns.OBS].to(self.device)
+
         if self.use_same_encoder_actor_critic:
-            action_distribution_inputs = self.actor_layers(self.encoder_layers(batch[Columns.OBS].to(self.device)))
+            encoder_output = self.encoder_layers(obs)
+            action_distribution_inputs = self.actor_layers(encoder_output)
         else:
-            action_distribution_inputs = self.actor_layers(batch[Columns.OBS].to(self.device))
-        return {
+            action_distribution_inputs = self.actor_layers(obs)
+
+        output = {
             Columns.ACTION_DIST_INPUTS: action_distribution_inputs,
         }
 
-    def forward_visualization(self, batch, **kwargs):
-        self.activations["input"] = batch[Columns.OBS].to(self.device).cpu().detach()
-        if self.use_same_encoder_actor_critic:
-            action_distribution_inputs = self.actor_layers(self.encoder_layers(batch[Columns.OBS].to(self.device)))
-        else:
-            action_distribution_inputs = self.actor_layers(batch[Columns.OBS].to(self.device))
-        return {
-            Columns.ACTION_DIST_INPUTS: action_distribution_inputs,
-        }
+        if self.recorder_mode:
+            self.activations['input'] = batch[Columns.OBS].to(self.device)
+            self.activations['actor_output'] = action_distribution_inputs.to(self.device)
+
+            if self.use_same_encoder_actor_critic:
+                critic_output =  self.critic_layers(self.encoder_layers(batch[Columns.OBS].to(self.device))).squeeze(-1)
+            else:
+                critic_output = self.critic_layers(batch[Columns.OBS].to(self.device)).squeeze(-1)
+            self.activations['critic_output'] = critic_output
+
+            output['activations'] = {key: value.detach().cpu().numpy() for key, value in self.activations.items()}
+            output['critic_values'] = critic_output.detach().cpu().numpy()
+
+        return output
 
     @override(ValueFunctionAPI)
     def compute_values(
