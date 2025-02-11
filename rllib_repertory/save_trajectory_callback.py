@@ -18,18 +18,26 @@ class SaveTrajectoryCallback(DefaultCallbacks):
             self,
             h5_file_path: Path,
             save_rendering: bool = False,
+            image_compression_function=None,
+            image_compression_configuration={},
     ):
         super().__init__()
         self.h5_file_path = h5_file_path
         self.save_rendering = save_rendering
         self.rendering_by_episode = {}
+        self.image_compression_function = image_compression_function
+        self.image_compression_configuration = image_compression_configuration
 
-    def on_episode_step(self, *, episode, env, **kwargs):
+    def on_episode_step(self, *, episode, env, env_index: int, **kwargs):
         if self.save_rendering:
             # Capture du rendu graphique
-            rendering = env.render()
+            rendering = env.envs[env_index].render()
             if episode.id_ not in self.rendering_by_episode:
                 self.rendering_by_episode[episode.id_] = []
+
+            if self.image_compression_function is not None:
+                rendering = self.image_compression_function(image=rendering, **self.image_compression_configuration)
+
             self.rendering_by_episode[episode.id_].append(rendering)
 
     def on_sample_end(self, *, samples, **kwargs):
@@ -50,6 +58,7 @@ class SaveTrajectoryCallback(DefaultCallbacks):
 
             if self.save_rendering:
                 add_value(data_dictionary, 'renderings', self.rendering_by_episode.get(episode.id_, []))
+                del self.rendering_by_episode[episode.id_]
 
         for key in data_dictionary.keys():
             if data_dictionary[key]:
