@@ -85,6 +85,13 @@ if __name__ == "__main__":
         'pytorch_lightning/-number_cluster_step',
     ]
 
+    list_sparse_autoencoder = [
+        'sparse_autoencoder_training/-total_loss_train_epoch',
+        'sparse_autoencoder_training/-reconstruction_loss_train_epoch',
+        'sparse_autoencoder_training/-sparsity_loss_train_epoch',
+        'sparse_autoencoder_training/-mean_non_zero_train_epoch',
+    ]
+
     process = Process(target=run_tensorboard)
     process.start()
 
@@ -97,5 +104,6 @@ if __name__ == "__main__":
         # Open monitoring dashboards
         webbrowser.open_new('http://127.0.0.1:8265')
         webbrowser.open(list_to_url(list_simulation))
+        webbrowser.open(list_to_url(list_sparse_autoencoder))
         webbrowser.open(list_to_url(list_supervised))
         webbrowser.open(list_to_url(list_learning))

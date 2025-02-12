@@ -25,6 +25,8 @@ def trajectory_dataset_generation(experimentation_configuration: Experimentation
         return SaveTrajectoryCallback(
             h5_file_path=path_file,
             save_rendering=True,
+            image_compression_function=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.image_compression_function,
+            image_compression_configuration=experimentation_configuration.rendering_trajectory_dataset_generation_configuration.image_compression_configuration,
         )
     
     path_file: Path = experimentation_configuration.dataset_path / reinforcement_learning_path.name / 'trajectory_dataset_with_rending.h5'
