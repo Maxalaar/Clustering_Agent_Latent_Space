@@ -99,3 +99,6 @@ class H5DataModule(pl.LightningDataModule):
             num_workers=self.number_workers,
             shuffle=False,
         )
+
+    def load_data(self, data_number: int):
+        return self.full_dataset.load_data(data_number)

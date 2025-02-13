@@ -1,9 +1,11 @@
 from pathlib import Path
 from typing import Optional
 
+from configurations.structure.latent_space_analysis_configuration import LatentSpaceAnalysisConfiguration
 from configurations.structure.reinforcement_learning_configuration import ReinforcementLearningConfiguration
 from configurations.structure.rendering_trajectory_dataset_generation_configuration import \
     RenderingTrajectoryDatasetGenerationConfiguration
+from configurations.structure.sparse_autoencoder_training_configuration import SparseAutoencoderTrainingConfiguration
 from configurations.structure.surrogate_policy_evaluation_configuration import SurrogatePolicyEvaluationConfiguration
 from configurations.structure.surrogate_policy_training_configuration import SurrogatePolicyTrainingConfiguration
 from configurations.structure.trajectory_dataset_generation_configuration import \
@@ -45,5 +47,10 @@ class ExperimentationConfiguration:
         # Surrogate Policy Evaluation
         self.surrogate_policy_evaluation_configuration: SurrogatePolicyEvaluationConfiguration = SurrogatePolicyEvaluationConfiguration()
 
+        # Sparse Autoencoder
+        self.sparse_autoencoder_storage_path: Path = self.experimentation_storage_path / 'sparse_autoencoder'
+        self.sparse_autoencoder_training_configuration: Optional[SparseAutoencoderTrainingConfiguration] = SparseAutoencoderTrainingConfiguration()
+
         # Latent Space Analysis
         self.latent_space_analysis_storage_path: Path = self.experimentation_storage_path / 'latent_space_analysis'
+        self.latent_space_analysis_configuration: Optional[LatentSpaceAnalysisConfiguration] = LatentSpaceAnalysisConfiguration()

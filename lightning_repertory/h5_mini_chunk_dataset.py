@@ -54,6 +54,26 @@ class H5MiniChunkDataset(Dataset):
         self.number_data_in_chunk = self.dataset_chunks[0].size(0)
         self.number_call_current_chunk = 0
 
+    def load_data(self, data_number: int):
+        """Charge n données et les retourne sous forme de liste."""
+        mini_chunks = [[] for _ in range(len(self.datasets))]
+        loaded_data = 0
+
+        while loaded_data < data_number:
+            remaining = data_number - loaded_data
+            chunk_size = min(self.mini_chunk_size, remaining)
+
+            idx_mini_chunk_start = np.random.randint(0, self.dataset_size)
+            idx_mini_chunk_stop = min(idx_mini_chunk_start + chunk_size, self.dataset_size)
+
+            for i, dataset in enumerate(self.datasets):
+                data = torch.tensor(dataset[idx_mini_chunk_start:idx_mini_chunk_stop])
+                mini_chunks[i].append(data)
+
+            loaded_data += (idx_mini_chunk_stop - idx_mini_chunk_start)
+
+        return [torch.cat(chunks, dim=0) for chunks in mini_chunks]
+
     def __len__(self):
         return self.dataset_size
 
