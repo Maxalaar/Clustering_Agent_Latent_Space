@@ -98,14 +98,14 @@ def latent_space_analysis(
             tree_max_depth_observations_to_all_clusters=3,
             tree_max_depth_observations_to_cluster=2,
         )
-        train_observations_actions_decision_tree(
-            observations=observations,
-            actions=actions,
-            cluster_labels=cluster_labels,
-            feature_names=getattr(environment, 'observation_labels', None),
-            class_names=getattr(environment, 'action_labels', None),
-            save_path=latent_space_analysis_storage_path,
-        )
+        # train_observations_actions_decision_tree(
+        #     observations=observations,
+        #     actions=actions,
+        #     cluster_labels=cluster_labels,
+        #     feature_names=getattr(environment, 'observation_labels', None),
+        #     class_names=getattr(environment, 'action_labels', None),
+        #     save_path=latent_space_analysis_storage_path,
+        # )
         representation_clusters(
             observations=observations_with_rending,
             renderings=renderings,

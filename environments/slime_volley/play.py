@@ -71,7 +71,7 @@ if __name__ == "__main__":
     rl_module = algorithm.get_module()
 
     if use_neural_network_visualisation:
-        neural_network_visualizer = NeuralNetworkVisualizer(rl_module.actor_layers)
+        neural_network_visualizer = NeuralNetworkVisualizer(rl_module.actor_layers, max_connections_per_layer=10)
         # plt.ion()
         # rl_module.initialisation_hooks()
         # graph_visualizer = GraphVisualizer(rl_module, n_edges=10)

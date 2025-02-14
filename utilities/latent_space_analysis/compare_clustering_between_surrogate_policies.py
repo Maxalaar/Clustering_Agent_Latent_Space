@@ -19,7 +19,7 @@ def compare_clustering_between_surrogate_policies(surrogate_policies_cluster_lab
                 normalized_mutual_info_values.append(normalized_mutual_info_score(surrogate_policy_cluster_labels_1.cpu(), surrogate_policy_cluster_labels_2.cpu()))
 
     information = 'Compare clustering between surrogate policies: \n'
-    information += 'Rand score: ' + np.array(rand_score_values).mean() + '\n'
-    information += 'Adjusted Rand score: ' + np.array(adjusted_rand_score_values).mean() + '\n'
-    information += 'Normalized Mutual Information score: ' + np.array(normalized_mutual_info_values).mean() + '\n'
+    information += 'Rand score: ' + str(np.array(rand_score_values).mean()) + '\n'
+    information += 'Adjusted Rand score: ' + str(np.array(adjusted_rand_score_values).mean()) + '\n'
+    information += 'Normalized Mutual Information score: ' + str(np.array(normalized_mutual_info_values).mean()) + '\n'
     print(information)
