@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from rllib_repertory.architectures.dense_ppo import DensePPO
 
@@ -39,10 +41,45 @@ slime_volley.rendering_trajectory_dataset_generation_configuration.number_iterat
 slime_volley.rendering_trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 100
 
 # Surrogate Policy Training
-slime_volley.surrogate_policy_training_configuration.training_name = '8_cluster_2_repulsion'
+# slime_volley.surrogate_policy_training_configuration.training_name = 'new_architecture_0.0005_clusterization_loss'
+# slime_volley.surrogate_policy_training_configuration.clusterization_loss_coefficient = 0.0005
+# slime_volley.surrogate_policy_training_configuration.architecture_configuration = {
+#     'shape_layers': [64, 64],
+#     'indexes_latent_space_to_clusterize': [1, 3],
+# }
+# slime_volley.surrogate_policy_training_configuration.clusterization_function_configuration.update({
+#     'number_cluster': 4,
+# })
+# slime_volley.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
+#     'number_centroids_repulsion': 1,
+# })
+
+
+# slime_volley.surrogate_policy_training_configuration.training_name = '0.0005_clusterization_loss'
+# slime_volley.surrogate_policy_training_configuration.clusterization_loss_coefficient = 0.0005
+# slime_volley.surrogate_policy_training_configuration.clusterization_function_configuration.update({
+#     'number_cluster': 4,
+# })
+# slime_volley.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
+#     'number_centroids_repulsion': 1,
+# })
+
+# slime_volley.surrogate_policy_training_configuration.training_name = '4_cluster_2_repulsion_0.05_clusterization_loss'
+# slime_volley.surrogate_policy_training_configuration.clusterization_loss_coefficient = 0.05
+# slime_volley.surrogate_policy_training_configuration.clusterization_function_configuration.update({
+#     'number_cluster': 8,
+# })
+# slime_volley.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
+#     'number_centroids_repulsion': 2,
+# })
+
+slime_volley.surrogate_policy_training_configuration.training_name = 'mass_0.0005_clusterization_loss'
+slime_volley.surrogate_policy_training_configuration.clusterization_loss_coefficient = 0.0005
 slime_volley.surrogate_policy_training_configuration.clusterization_function_configuration.update({
-    'number_cluster': 8,
+    'number_cluster': 4,
 })
 slime_volley.surrogate_policy_training_configuration.clusterization_loss_configuration.update({
-    'number_centroids_repulsion': 2,
+    'number_centroids_repulsion': 1,
 })
+slime_volley.surrogate_policy_training_configuration.number_surrogate_policies_to_train = 5
+slime_volley.surrogate_policy_training_configuration.maximum_training_time_by_policy = timedelta(hours=2, minutes=0)

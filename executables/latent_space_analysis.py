@@ -12,6 +12,8 @@ from environments.register_environments import register_environments
 from lightning_repertory.surrogate_policy import SurrogatePolicy
 
 from utilities.get_configuration_class import get_configuration_class
+from utilities.latent_space_analysis.compare_clustering_between_surrogate_policies import \
+    compare_clustering_between_surrogate_policies
 from utilities.latent_space_analysis.get_data import get_data
 from utilities.latent_space_analysis.kmeans_latent_space import kmeans_latent_space
 from utilities.latent_space_analysis.latent_space_projection_2d import latent_space_projection_2d
@@ -22,6 +24,7 @@ from utilities.latent_space_analysis.train_observations_actions_decision_tree im
     train_observations_actions_decision_tree
 from utilities.latent_space_analysis.train_observations_clusters_decision_tree import \
     train_observations_clusters_decision_tree
+from utilities.process_surrogate_policy_checkpoint_paths import process_surrogate_policy_checkpoint_paths
 
 
 def latent_space_analysis(
@@ -68,6 +71,8 @@ def latent_space_analysis(
         with open(latent_space_analysis_storage_path / 'information.txt', 'a') as file:
             file.write(information)
 
+    surrogate_policies_cluster_labels = []
+
     for latent_space_analysis_storage_path, surrogate_policy in zip(latent_space_analysis_storage_paths, surrogate_policies):
         embeddings = projection_clusterization_latent_space(
             observations=observations,
@@ -78,6 +83,7 @@ def latent_space_analysis(
             number_cluster=surrogate_policy.clusterization_function.number_cluster,
             save_path=latent_space_analysis_storage_path,
         )
+        surrogate_policies_cluster_labels.append(cluster_labels)
         latent_space_projection_2d(
             embeddings=embeddings,
             cluster_labels=cluster_labels,
@@ -108,6 +114,9 @@ def latent_space_analysis(
             clusterization_model=kmeans,
         )
 
+    if len(surrogate_policies) > 0:
+        compare_clustering_between_surrogate_policies(surrogate_policies_cluster_labels)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Analyse of the clustering latent space for explainability.')
@@ -127,7 +136,7 @@ if __name__ == '__main__':
         '--surrogate_policy_checkpoint_paths',
         type=str,
         nargs='+',
-        help="The path of repository with the surrogate policy checkpoint (e.g., './experiments/cartpole/surrogate_policy/base/version_[...]/checkpoints/[...].ckpt')"
+        help="Path(s) to the policy checkpoint (e.g., './experiments/cartpole/surrogate_policy/base/version_[...]/checkpoints/[...].ckpt' or a directory containing .ckpt files)"
     )
 
     arguments = parser.parse_args()
@@ -137,11 +146,6 @@ if __name__ == '__main__':
     if not trajectory_dataset_path.is_absolute():
         trajectory_dataset_path = Path.cwd() / trajectory_dataset_path
 
-    surrogate_policy_checkpoint_paths = []
-    for surrogate_policy_checkpoint_path in arguments.surrogate_policy_checkpoint_paths:
-        surrogate_policy_checkpoint_path = Path(surrogate_policy_checkpoint_path)
-        if not surrogate_policy_checkpoint_path.is_absolute():
-            surrogate_policy_checkpoint_path = Path.cwd() / surrogate_policy_checkpoint_path
-        surrogate_policy_checkpoint_paths.append(surrogate_policy_checkpoint_path)
+    surrogate_policy_checkpoint_paths = process_surrogate_policy_checkpoint_paths(arguments.surrogate_policy_checkpoint_paths)
 
     latent_space_analysis(configuration_class, trajectory_dataset_path, surrogate_policy_checkpoint_paths)

@@ -39,6 +39,9 @@ class SurrogatePolicyTrainingConfiguration:
         self.model_checkpoint_time_interval = timedelta(minutes=10)
         self.evaluation_every_n_epoch = 10
 
+        self.number_surrogate_policies_to_train = 1
+        self.maximum_training_time_by_policy = None
+
     def to_yaml_file(self, directory: Path):
         directory.mkdir(parents=True, exist_ok=True)
         file_path = directory / 'surrogate_policy_training_configuration.yaml'
