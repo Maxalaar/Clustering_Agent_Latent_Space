@@ -99,87 +99,114 @@ class NeuralNetworkVisualizer:
 
     def _save_activation(self, idx, tensor):
         act = tensor.detach().cpu()[0] if tensor.dim() > 1 else tensor.detach().cpu()
-        self._activations[idx] = act.tolist()
+        self._activations[idx] = act  # Store as tensor
 
-    def activation_to_color(self, activation):
+    # def _save_activation(self, idx, tensor):
+    #     # Extract and flatten activation tensors
+    #     if tensor.dim() > 1:
+    #         act = tensor.detach().cpu()[0]  # Get first element from batch
+    #     else:
+    #         act = tensor.detach().cpu()
+    #     act = act.squeeze()  # Remove all singleton dimensions
+    #     self._activations[idx] = act
+
+    def activations_to_colors(self, activations_tensor):
         max_val = 1.0
-        try:
-            act = float(activation)
-        except:
-            act = 0.0
+        clamped = torch.clamp(activations_tensor, -max_val, max_val)
+        negative_mask = clamped < 0
+        t_neg = (clamped + max_val) / max_val
+        red_neg = green_neg = (255 * t_neg).to(torch.uint8)
+        blue_neg = torch.full_like(red_neg, 255, dtype=torch.uint8)
 
-        clamped = max(min(act, max_val), -max_val)
-        if clamped < 0:
-            t = (clamped + max_val) / max_val
-            red = green = int(255 * t)
-            blue = 255
-        else:
-            t = clamped / max_val
-            red = 255
-            green = blue = int(255 * (1 - t))
+        positive_mask = ~negative_mask
+        t_pos = clamped / max_val
+        red_pos = torch.full_like(t_pos, 255, dtype=torch.uint8)
+        green_blue = (255 * (1 - t_pos)).to(torch.uint8)
+        green_pos = blue_pos = green_blue
 
-        red = max(0, min(255, red))
-        green = max(0, min(255, green))
-        blue = max(0, min(255, blue))
-        return f'#{red:02x}{green:02x}{blue:02x}'
+        red = torch.where(negative_mask, red_neg, red_pos)
+        green = torch.where(negative_mask, green_neg, green_pos)
+        blue = torch.where(negative_mask, blue_neg, blue_pos)
+
+        colors = []
+        for r, g, b in zip(red.tolist(), green.tolist(), blue.tolist()):
+            colors.append(f'#{r:02x}{g:02x}{b:02x}')
+        return colors
 
     def weight_to_color(self, weight):
         return self.activation_to_color(weight)
 
+    def activation_to_color(self, activation):
+        act_tensor = torch.tensor([activation], dtype=torch.float32)
+        return self.activations_to_colors(act_tensor)[0]
+
     def update(self):
-        # Mise à jour des neurones
-        for i in range(len(self.neuron_items)):
-            if i in self._activations:
-                for j, neuron_id in enumerate(self.neuron_items[i]):
-                    color = self.activation_to_color(self._activations[i][j])
-                    self.canvas.itemconfig(neuron_id, fill=color)
+        # Update neurons
+        for layer_idx, neuron_ids in enumerate(self.neuron_items):
+            if layer_idx in self._activations:
+                activations = self._activations[layer_idx]
+                if isinstance(activations, torch.Tensor):
+                    colors = self.activations_to_colors(activations)
+                    for j, neuron_id in enumerate(neuron_ids):
+                        self.canvas.itemconfig(neuron_id, fill=colors[j])
 
-        # Mise à jour des connexions
-        for i in range(len(self.connection_items)):
-            if i >= len(self.linear_layers):
+        # Update connections
+        for layer_idx in range(len(self.connection_items)):
+            if layer_idx >= len(self.linear_layers):
                 continue
-            weights = self.linear_layers[i].weight.data
-            activations = self._activations.get(i, [])
-            if not activations:
-                continue
-
-            next_size = len(self.positions[i + 1])
-            strengths = []
-            # Calculer la force de chaque connexion
-            for j in range(len(activations)):
-                for k in range(next_size):
-                    strengths.append(activations[j] * weights[k, j].item())
-
-            if not strengths:
+            linear_layer = self.linear_layers[layer_idx]
+            weights = linear_layer.weight.data.cpu()
+            activations = self._activations.get(layer_idx)
+            if activations is None:
                 continue
 
-            max_abs = max(abs(s) for s in strengths) or 1.0
-            top_connections = set()
-            if self.max_connections_per_layer is not None:
-                # On trie par valeur absolue décroissante
-                sorted_conn = sorted(enumerate(strengths), key=lambda x: -abs(x[1]))
-                top_connections = set(idx for idx, _ in sorted_conn[:self.max_connections_per_layer])
+            if not isinstance(activations, torch.Tensor):
+                activations = torch.tensor(activations)
 
-            for c, line_id in enumerate(self.connection_items[i]):
-                if self.max_connections_per_layer is not None and c not in top_connections:
-                    # Masquer la connexion qui n'est pas dans le top
-                    self.canvas.itemconfig(line_id, state='hidden')
-                else:
-                    j, k = c // next_size, c % next_size
-                    strength = activations[j] * weights[k, j].item()
-                    norm_strength = strength / max_abs
-                    color = self.activation_to_color(norm_strength)
-                    thickness = 1 + 3 * abs(norm_strength)
-                    self.canvas.itemconfig(line_id, state='normal', fill=color, width=thickness)
+            # Vectorized strength calculation
+            with torch.no_grad():
+                # strengths = activations * weights.T
+                # strengths_flat = strengths.flatten()
+                # max_abs = strengths_flat.abs().max().item() or 1.0
+                # norm_strengths = strengths_flat / max_abs
+                # colors = self.activations_to_colors(norm_strengths)
+                # thicknesses = (1 + 3 * norm_strengths.abs()).tolist()
 
-            self.window.update_idletasks()
-            self.window.update()
+                strengths = activations.unsqueeze(1) * weights.T
+                strengths_flat = strengths.flatten()
+                max_abs = strengths_flat.abs().max().item() or 1.0
+                norm_strengths = strengths_flat / max_abs
+                colors = self.activations_to_colors(norm_strengths)
+                thicknesses = (1 + 3 * norm_strengths.abs()).tolist()
+
+                top_connections = None
+                if self.max_connections_per_layer is not None:
+                    k = min(self.max_connections_per_layer, len(strengths_flat))
+                    if k > 0:
+                        _, top_indices = torch.topk(strengths_flat.abs(), k)
+                        top_connections = set(top_indices.tolist())
+
+                connection_layer = self.connection_items[layer_idx]
+                for c, line_id in enumerate(connection_layer):
+                    if top_connections is not None and c not in top_connections:
+                        self.canvas.itemconfig(line_id, state='hidden')
+                    else:
+                        self.canvas.itemconfig(
+                            line_id,
+                            state='normal',
+                            fill=colors[c],
+                            width=thicknesses[c]
+                        )
+
+        # Single UI update after all changes
+        self.window.update_idletasks()
+        self.window.update()
 
     def start(self):
         self.window.mainloop()
 
 
-# Exemple d'utilisation
+# Example usage
 if __name__ == '__main__':
     model = nn.Sequential(
         nn.Linear(4, 5),
@@ -188,11 +215,13 @@ if __name__ == '__main__':
     )
     vis = NeuralNetworkVisualizer(model, max_connections_per_layer=10)
 
+
     def update_loop():
         inp = torch.randn(1, 4)
         _ = model(inp)
         vis.update()
-        vis.window.after(100, update_loop)
+        vis.window.after(33, update_loop)  # ~30 FPS
+
 
     update_loop()
     vis.start()
