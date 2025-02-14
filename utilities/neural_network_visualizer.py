@@ -127,14 +127,14 @@ class NeuralNetworkVisualizer:
         return self.activation_to_color(weight)
 
     def update(self):
-        # Update neurons
+        # Mise à jour des neurones
         for i in range(len(self.neuron_items)):
             if i in self._activations:
                 for j, neuron_id in enumerate(self.neuron_items[i]):
                     color = self.activation_to_color(self._activations[i][j])
                     self.canvas.itemconfig(neuron_id, fill=color)
 
-        # Update connections
+        # Mise à jour des connexions
         for i in range(len(self.connection_items)):
             if i >= len(self.linear_layers):
                 continue
@@ -145,29 +145,32 @@ class NeuralNetworkVisualizer:
 
             next_size = len(self.positions[i + 1])
             strengths = []
+            # Calculer la force de chaque connexion
             for j in range(len(activations)):
                 for k in range(next_size):
                     strengths.append(activations[j] * weights[k, j].item())
 
-                if not strengths:
-                    continue
+            if not strengths:
+                continue
 
             max_abs = max(abs(s) for s in strengths) or 1.0
             top_connections = set()
             if self.max_connections_per_layer is not None:
+                # On trie par valeur absolue décroissante
                 sorted_conn = sorted(enumerate(strengths), key=lambda x: -abs(x[1]))
                 top_connections = set(idx for idx, _ in sorted_conn[:self.max_connections_per_layer])
 
             for c, line_id in enumerate(self.connection_items[i]):
                 if self.max_connections_per_layer is not None and c not in top_connections:
-                    self.canvas.itemconfig(line_id, fill='#cccccc', width=1)
+                    # Masquer la connexion qui n'est pas dans le top
+                    self.canvas.itemconfig(line_id, state='hidden')
                 else:
                     j, k = c // next_size, c % next_size
                     strength = activations[j] * weights[k, j].item()
                     norm_strength = strength / max_abs
                     color = self.activation_to_color(norm_strength)
                     thickness = 1 + 3 * abs(norm_strength)
-                    self.canvas.itemconfig(line_id, fill=color, width=thickness)
+                    self.canvas.itemconfig(line_id, state='normal', fill=color, width=thickness)
 
             self.window.update_idletasks()
             self.window.update()
@@ -176,7 +179,7 @@ class NeuralNetworkVisualizer:
         self.window.mainloop()
 
 
-# Example usage
+# Exemple d'utilisation
 if __name__ == '__main__':
     model = nn.Sequential(
         nn.Linear(4, 5),
@@ -185,13 +188,11 @@ if __name__ == '__main__':
     )
     vis = NeuralNetworkVisualizer(model, max_connections_per_layer=10)
 
-
     def update_loop():
         inp = torch.randn(1, 4)
         _ = model(inp)
         vis.update()
         vis.window.after(100, update_loop)
-
 
     update_loop()
     vis.start()
