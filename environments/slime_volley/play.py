@@ -1,6 +1,7 @@
 import pathlib
 from typing import Optional
 
+from pathlib import Path
 import numpy as np
 import pygame
 from ray.rllib import Policy
@@ -10,6 +11,7 @@ from ray.rllib.connectors.module_to_env import ModuleToEnvPipeline
 from ray.rllib.core.rl_module import RLModule
 from ray.rllib.algorithms.algorithm import Algorithm
 import torch
+import tkinter as tk
 from ray.rllib.env.single_agent_env_runner import SingleAgentEnvRunner
 from ray.rllib.models.torch.torch_distributions import TorchDiagGaussian
 
@@ -20,6 +22,7 @@ from rllib_repertory.get_checkpoint_algorithm_configuration import get_checkpoin
 
 import matplotlib.pyplot as plt
 
+from utilities.latent_space_2d_visualizer import LatentSpace2DVisualizer
 from utilities.neural_network_visualizer import NeuralNetworkVisualizer
 
 if __name__ == "__main__":
@@ -27,13 +30,21 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
     FPS = 50
 
+    root = tk.Tk()
+    root.withdraw()
+
     environment = SlimeVolley({'time_step': 1 / 30})
     left_agent_manual = False
     right_agent_manual = False
     use_neural_network_visualisation = True
+    use_latent_space_2d_visualisation = True
     neural_network_visualizer: Optional[NeuralNetworkVisualizer] = None
-    # checkpoint_path = pathlib.Path('/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/slime_volley/reinforcement_learning/debug/PPO_SlimeVolleyRllib_96e3c_00000_0_2025-01-31_11-31-54/checkpoint_000000')
-    checkpoint_path: pathlib.Path = find_best_reinforcement_learning_checkpoint_path(pathlib.Path('/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/slime_volley/reinforcement_learning/base'))
+    latent_space_2d_visualizer: Optional[LatentSpace2DVisualizer] = None
+
+    # checkpoint_path = Path('/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/slime_volley/reinforcement_learning/debug/PPO_SlimeVolleyRllib_96e3c_00000_0_2025-01-31_11-31-54/checkpoint_000000')
+    policy_checkpoint_path: Path = find_best_reinforcement_learning_checkpoint_path(Path('/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/slime_volley/reinforcement_learning/base'))
+    surrogate_policy_checkpoint_path: Path = Path('/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/slime_volley/surrogate_policy/4_cluster_1_repulsion/version_0/checkpoints/epoch=554-step=13867.ckpt')
+    dataset_path: Path = Path('/home/malaarabiou/Programming_Projects/Pycharm_Projects/Clustering_Agent_Latent_Space/experiments/slime_volley/datasets/base')
 
     # Initialisation des manettes
     pygame.joystick.init()
@@ -50,7 +61,7 @@ if __name__ == "__main__":
     ray.init(local_mode=True)
     register_environments()
 
-    algorithm_configuration = get_checkpoint_algorithm_configuration(checkpoint_path)
+    algorithm_configuration = get_checkpoint_algorithm_configuration(policy_checkpoint_path)
     algorithm_configuration.rl_module(
         model_config=algorithm_configuration.model_config | {'recorder_mode': True}
     )
@@ -65,7 +76,7 @@ if __name__ == "__main__":
     )
 
     algorithm: Algorithm = algorithm_configuration.build()
-    algorithm.restore(str(checkpoint_path))
+    algorithm.restore(str(policy_checkpoint_path))
     module_to_env_connector = algorithm.config.build_module_to_env_connector(environment)
     module_to_env_connector.connectors.pop()
     rl_module = algorithm.get_module()
@@ -76,6 +87,12 @@ if __name__ == "__main__":
         # rl_module.initialisation_hooks()
         # graph_visualizer = GraphVisualizer(rl_module, n_edges=10)
         # graph_visualizer.fig.show()
+
+    if use_latent_space_2d_visualisation:
+        latent_space_2d_visualizer = LatentSpace2DVisualizer(
+            surrogate_policy_path=surrogate_policy_checkpoint_path,
+            dataset_path=dataset_path,
+        )
 
     environment.render_mode = 'human'
     obs, _ = environment.reset()
@@ -89,6 +106,10 @@ if __name__ == "__main__":
             # graph_visualizer.update(0)  # 0 = dummy frame
             # graph_visualizer.fig.canvas.draw()
             # graph_visualizer.fig.canvas.flush_events()  # Force le rafraîchissement
+
+        if use_latent_space_2d_visualisation:
+            latent_space_2d_visualizer.update()
+            # latent_space_2d_visualizer.update(environment.getObs())
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

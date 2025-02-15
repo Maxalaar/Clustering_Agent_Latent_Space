@@ -11,7 +11,7 @@ class NeuralNetworkVisualizer:
         self.neuron_radius = neuron_radius
         self.max_connections_per_layer = max_connections_per_layer
 
-        self.window = tk.Tk()
+        self.window = tk.Toplevel()
         self.window.title("Neural Network Visualizer")
         self.canvas = tk.Canvas(self.window, width=self.width, height=self.height, bg='white')
         self.canvas.pack()
