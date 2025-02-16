@@ -108,8 +108,7 @@ if __name__ == "__main__":
             # graph_visualizer.fig.canvas.flush_events()  # Force le rafraîchissement
 
         if use_latent_space_2d_visualisation:
-            latent_space_2d_visualizer.update()
-            # latent_space_2d_visualizer.update(environment.getObs())
+            latent_space_2d_visualizer.update(environment.getObs())
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
