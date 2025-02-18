@@ -28,7 +28,7 @@ export PATH=$PATH:~/packages/$PROJECTNAME/
 #echo Working directory : $PWD
 
 params=(
-  --experimentation_configuration_file ./configurations/experimentation/criann/tetris.py
+  --experimentation_configuration_file ./configurations/experimentation/criann/tetris_ppo_dense.py
 )
 
 ls

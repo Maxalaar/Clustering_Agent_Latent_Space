@@ -5,6 +5,17 @@ cd ~/Programming_Projects/Clustering_Agent_Latent_Space/
 ```
 
 ---
+# **Git**
+
+```git diff```: Shows unstaged changes in your working directory compared to the last commit.
+
+```git pull```: Updates your local repository with changes from a remote repository.
+
+```git push```: Uploads your local commits to a remote repository.
+
+```git stash```: Temporarily saves uncommitted changes to allow for switching tasks or branches.
+
+---
 
 # **Submit Jobs**  
 1. **Submit a job**  
@@ -22,14 +33,24 @@ cd ~/Programming_Projects/Clustering_Agent_Latent_Space/
    cd /dlocal/run/<job_id>
    ```  
 
-4. **Follow the logs of a job in real-time**  
+4. **Read the logs of a job**  
+   ```bash
+   less ~/Programming_Projects/Clustering_Agent_Latent_Space/criann_logs/<file_name>
+   ```  
+
+5. **Follow the logs of a job in real-time**  
    ```bash
    tail -f ~/Programming_Projects/Clustering_Agent_Latent_Space/criann_logs/<file_name>
    ```  
 
-5. **Connection to the compute node of the job**
+6. **Connection to the compute node of the job**
    ```bash
    ssh <NODELIST(REASON)>
+   ```
+
+7. **Job's history**
+   ```bash
+   sacct
    ```
 
 ---
@@ -65,10 +86,11 @@ cd ~/Programming_Projects/Clustering_Agent_Latent_Space/
 ```
 
 # Retrieving results
+This command uses rsync to copy files from a remote server to a local directory.
 ```bash
 rsync -avz malaar01@austral.criann.fr:~/Programming_Projects/Clustering_Agent_Latent_Space/experiments/ ./experiments/criann/
 ```
-
+This script runs an rsync command every 5 minutes (300 seconds) to keep the local directory.
 ```bash
 while true; do rsync -avz malaar01@austral.criann.fr:~/Programming_Projects/Clustering_Agent_Latent_Space/experiments/ ./experiments/criann/; sleep 300; done
 ```
