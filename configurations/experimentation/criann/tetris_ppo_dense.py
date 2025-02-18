@@ -21,12 +21,12 @@ tetris_ppo_dense.reinforcement_learning_configuration.number_environment_per_env
 tetris_ppo_dense.reinforcement_learning_configuration.number_gpus_per_environment_runners = 0
 tetris_ppo_dense.reinforcement_learning_configuration.number_gpus_per_learner = 1
 
-tetris_ppo_dense.reinforcement_learning_configuration.training_name = 'dense_ppo_v1'
+tetris_ppo_dense.reinforcement_learning_configuration.training_name = 'dense_ppo_v2'
 tetris_ppo_dense.reinforcement_learning_configuration.algorithm_name = 'PPO'
 tetris_ppo_dense.reinforcement_learning_configuration.flatten_observations = True
 tetris_ppo_dense.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
-tetris_ppo_dense.reinforcement_learning_configuration.train_batch_size = 2048 #1024
-tetris_ppo_dense.reinforcement_learning_configuration.minibatch_size = 256 #1024
+tetris_ppo_dense.reinforcement_learning_configuration.train_batch_size = 2048*8 #1024
+tetris_ppo_dense.reinforcement_learning_configuration.minibatch_size = 256*8 #1024
 tetris_ppo_dense.reinforcement_learning_configuration.number_epochs = 10
 tetris_ppo_dense.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
 tetris_ppo_dense.reinforcement_learning_configuration.learning_rate = 5e-6
