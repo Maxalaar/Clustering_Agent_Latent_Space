@@ -28,7 +28,7 @@ pong_survivor_two_balls.video_episodes_generation_configuration.number_environme
 
 # Trajectory Dataset Generation
 pong_survivor_two_balls.trajectory_dataset_generation_configuration.number_environment_runners = 10
-pong_survivor_two_balls.trajectory_dataset_generation_configuration.number_iterations = 100
+pong_survivor_two_balls.trajectory_dataset_generation_configuration.number_iterations = 1000
 pong_survivor_two_balls.trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 1000
 
 # Rendering Trajectory Dataset Generation

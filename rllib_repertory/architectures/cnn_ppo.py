@@ -1,0 +1,79 @@
+from typing import Dict, Any, Optional
+import torch
+from torch import nn, Tensor
+from ray.rllib.core.rl_module.apis import ValueFunctionAPI
+from ray.rllib.core.rl_module.torch import TorchRLModule
+from ray.rllib.core.columns import Columns
+from utilities.create_dense_architecture import create_dense_architecture
+
+class CNNPPO(TorchRLModule, ValueFunctionAPI):
+    def setup(self):
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.activation_function_class = self.model_config.get("activation_function_class", nn.ReLU)
+        self.layer_normalization = self.model_config.get("layer_normalization", False)
+        self.dropout = self.model_config.get("dropout", False)
+        self.configuration_hidden_layers = self.model_config.get("configuration_hidden_layers", [64, 64])
+
+        # Utilisation d'un CNN pour encoder l'observation (forme attendue : (4, 84, 84))
+        in_channels = self.observation_space.shape[0] if len(self.observation_space.shape) == 3 else 1
+        self.actor_cnn = nn.Sequential(
+            nn.Conv2d(in_channels, 32, kernel_size=8, stride=4),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=3, stride=1),
+            nn.ReLU(),
+            nn.Flatten()
+        )
+        self.critic_cnn = nn.Sequential(
+            nn.Conv2d(in_channels, 32, kernel_size=8, stride=4),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=4, stride=2),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=3, stride=1),
+            nn.ReLU(),
+            nn.Flatten()
+        )
+        # Calcul dynamique de la taille de sortie du CNN
+        dummy_input = torch.zeros(1, *self.observation_space.shape)
+        cnn_output_size = self.actor_cnn(dummy_input).shape[1]
+        print('CNN output size : ' + str(cnn_output_size))
+
+        self.output_size = self.action_dist_cls.required_input_dim(space=self.action_space)
+
+        # Architectures denses séparées pour l'acteur et le critique
+        self.actor_layers = create_dense_architecture(
+            cnn_output_size,
+            self.configuration_hidden_layers,
+            self.output_size,
+            self.activation_function_class,
+            layer_normalization=self.layer_normalization,
+            dropout=self.dropout,
+        )
+        self.critic_layers = create_dense_architecture(
+            cnn_output_size,
+            self.configuration_hidden_layers,
+            1,
+            self.activation_function_class,
+            layer_normalization=self.layer_normalization,
+            dropout=self.dropout,
+        )
+
+        # Déplacer l'ensemble du module sur le device (assure que cnn_encoder et les couches denses sont sur GPU si disponible)
+        self.to(self.device)
+        print(self)
+        # Optionnel si besoin de s'assurer que le CNN est bien sur le device :
+        # self.cnn_encoder = self.cnn_encoder.to(self.device)
+
+    def _forward(self, batch, **kwargs):
+        obs = batch[Columns.OBS].to(self.device)
+        cnn_features = self.actor_cnn(obs)
+        action_distribution_inputs = self.actor_layers(cnn_features)
+        return {
+            Columns.ACTION_DIST_INPUTS: action_distribution_inputs,
+        }
+
+    def compute_values(self, batch: Dict[str, Any], embeddings: Optional[Any] = None) -> Tensor:
+        obs = batch[Columns.OBS].to(self.device)
+        cnn_features = self.critic_cnn(obs)
+        return self.critic_layers(cnn_features).squeeze(-1)

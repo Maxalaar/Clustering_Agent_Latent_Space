@@ -63,18 +63,18 @@ tetris.reinforcement_learning_configuration.training_name = 'Transformer_V1'
 # tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
 
 
-# PPO Transformer
-tetris.reinforcement_learning_configuration.algorithm_name = 'PPO'
-tetris.reinforcement_learning_configuration.flatten_observations = True
-tetris.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
-tetris.reinforcement_learning_configuration.architecture = TetrisPPOTransformer
-tetris.reinforcement_learning_configuration.architecture_configuration = {
-    'dimension_token': 16,
-    'number_heads': 2,
-    'dimension_feedforward': 32,
-    'number_transformer_layers': 2,
-}
-tetris.reinforcement_learning_configuration.train_batch_size = 512
-tetris.reinforcement_learning_configuration.minibatch_size = 512
-tetris.reinforcement_learning_configuration.number_epochs = 16
-tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
+# # PPO Transformer
+# tetris.reinforcement_learning_configuration.algorithm_name = 'PPO'
+# tetris.reinforcement_learning_configuration.flatten_observations = True
+# tetris.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
+# tetris.reinforcement_learning_configuration.architecture = TetrisPPOTransformer
+# tetris.reinforcement_learning_configuration.architecture_configuration = {
+#     'dimension_token': 16,
+#     'number_heads': 2,
+#     'dimension_feedforward': 32,
+#     'number_transformer_layers': 2,
+# }
+# tetris.reinforcement_learning_configuration.train_batch_size = 512
+# tetris.reinforcement_learning_configuration.minibatch_size = 512
+# tetris.reinforcement_learning_configuration.number_epochs = 16
+# tetris.reinforcement_learning_configuration.batch_mode = 'complete_episodes'

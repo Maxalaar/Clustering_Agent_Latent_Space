@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 
 lunar_lander = ExperimentationConfiguration(
@@ -33,8 +35,12 @@ lunar_lander.rendering_trajectory_dataset_generation_configuration.number_iterat
 lunar_lander.rendering_trajectory_dataset_generation_configuration.minimal_steps_per_iteration_per_environment_runners = 100
 
 # Surrogate Policy Training
-lunar_lander.surrogate_policy_training_configuration.training_name = '0.05_clusterization_loss_V1'
-lunar_lander.surrogate_policy_training_configuration.clusterization_loss_coefficient = 0.05
+lunar_lander.surrogate_policy_training_configuration.training_name = 'mass_4_cluster_1_repulsion'
+lunar_lander.surrogate_policy_training_configuration.number_surrogate_policies_to_train = 4
+lunar_lander.surrogate_policy_training_configuration.maximum_training_time_by_policy = timedelta(minutes=15)
+
+# lunar_lander.surrogate_policy_training_configuration.training_name = '0.05_clusterization_loss_V1'
+# lunar_lander.surrogate_policy_training_configuration.clusterization_loss_coefficient = 0.05
 lunar_lander.surrogate_policy_training_configuration.clusterization_function_configuration.update({
     'number_cluster': 4,
 })
