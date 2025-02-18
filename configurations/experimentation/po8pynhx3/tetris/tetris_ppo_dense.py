@@ -8,7 +8,6 @@ from configurations.structure.experimentation_configuration import Experimentati
 from rllib_repertory.architectures.cnn_ppo import CNNPPO
 from rllib_repertory.architectures.dense_dqn import DenseDQN
 from rllib_repertory.architectures.dense_ppo import DensePPO
-from rllib_repertory.architectures.tetris_ppo import TetrisPPOTransformer, TetrisPPOCNN
 
 tetris_ppo_dense = ExperimentationConfiguration(
     experimentation_name='tetris_ppo_dense',

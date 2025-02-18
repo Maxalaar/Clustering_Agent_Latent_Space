@@ -7,7 +7,6 @@ from ray.rllib.algorithms.dqn.dqn_rainbow_rl_module import DQNRainbowRLModule
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from rllib_repertory.architectures.dense_dqn import DenseDQN
 from rllib_repertory.architectures.dense_ppo import DensePPO
-from rllib_repertory.architectures.tetris_ppo import TetrisPPOTransformer, TetrisPPOCNN
 from rllib_repertory.architectures.transformer_ppo import TransformerPPO
 
 tetris_cnn = ExperimentationConfiguration(
