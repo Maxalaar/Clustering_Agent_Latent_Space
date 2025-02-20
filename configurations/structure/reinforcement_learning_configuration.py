@@ -45,6 +45,11 @@ class ReinforcementLearningConfiguration:
         self.epsilon: Optional[LearningRateOrSchedule] = NotProvided
         self.number_steps_sampled_before_learning_starts: int = NotProvided
 
+        self.number_step_return: int = NotProvided
+        self.use_noisy_exploration: bool = NotProvided
+        self.use_dueling_dqn: bool = NotProvided
+        self.use_double_q_function: bool = NotProvided
+
         # PPO only
         self.use_generalized_advantage_estimator: bool = NotProvided
         self.minibatch_size: int = NotProvided

@@ -99,6 +99,10 @@ def reinforcement_learning_training(experimentation_configuration: Experimentati
             target_network_update_freq=reinforcement_learning_configuration.target_network_update_frequency,
             training_intensity=reinforcement_learning_configuration.training_intensity,
             num_steps_sampled_before_learning_starts=reinforcement_learning_configuration.number_steps_sampled_before_learning_starts,
+            n_step=reinforcement_learning_configuration.number_step_return,
+            noisy=reinforcement_learning_configuration.use_noisy_exploration,
+            dueling=reinforcement_learning_configuration.use_dueling_dqn,
+            double_q=reinforcement_learning_configuration.use_double_q_function,
         )
 
     # Environment runners
