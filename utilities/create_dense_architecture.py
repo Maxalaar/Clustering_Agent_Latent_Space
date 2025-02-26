@@ -1,7 +1,14 @@
 from torch import nn
 
 
-def create_dense_architecture(input_dimension, shape_layers, output_dimension, activation_function_class, layer_normalization=False, dropout=False):
+def create_dense_architecture(
+    input_dimension,
+    shape_layers,
+    output_dimension,
+    activation_function_class,
+    layer_normalization=False,
+    dropout=False
+):
     if len(shape_layers) != 0:
         layers = [nn.Linear(input_dimension, shape_layers[0]), activation_function_class()]
 

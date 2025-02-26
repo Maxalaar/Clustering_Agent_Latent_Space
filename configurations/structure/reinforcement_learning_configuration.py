@@ -26,7 +26,7 @@ class ReinforcementLearningConfiguration:
 
         # Training
         self.gamma: float = NotProvided
-        self.flatten_observations: bool = True
+        self.flatten_observations: bool = False
         self.architecture: Optional[RLModule] = None
         self.architecture_configuration: Optional[DefaultModelConfig, Dict] = None
         self.train_batch_size: int = NotProvided

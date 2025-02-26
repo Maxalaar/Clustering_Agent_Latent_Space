@@ -30,6 +30,12 @@ class LunarLander(gym.Env):
             'leg_0_contact_ground',
             'leg_1_contact_ground',
         ]
+        self.action_labels = [
+            'do_nothing',
+            'fire_left_orientation_engine',
+            'fire_main_engine',
+            'fire_right_orientation_engine',
+        ]
 
     def reset(self, seed=None, options=None):
         observation, info = self.environment.reset(seed=seed, options=options)

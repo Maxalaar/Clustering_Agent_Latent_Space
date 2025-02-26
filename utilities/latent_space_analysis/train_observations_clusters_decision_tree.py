@@ -22,6 +22,8 @@ def train_observations_clusters_decision_tree(
     save_path = save_path / 'observations_clusters_decision_trees'
     os.makedirs(save_path, exist_ok=True)
 
+    observations_cluster_accuracy_values = []
+
     observations = observations.cpu().numpy()
     cluster_labels = cluster_labels.cpu().numpy()
 
@@ -34,8 +36,8 @@ def train_observations_clusters_decision_tree(
     decision_tree = DecisionTreeClassifier(max_depth=tree_max_depth_observations_to_all_clusters)
     decision_tree.fit(x_train, y_train)
     predict_y_test = decision_tree.predict(x_test)
-    accuracy_value = accuracy_score(y_test, predict_y_test)
-    information = 'Decision tree (observations -> all clusters), max depth: ' + str(decision_tree.max_depth) + ', accuracy: ' + str(accuracy_value) + '\n'
+    observations_cluster_accuracy_value = accuracy_score(y_test, predict_y_test)
+    information = 'Decision tree (observations -> all clusters), max depth: ' + str(decision_tree.max_depth) + ', accuracy: ' + str(observations_cluster_accuracy_value) + '\n'
     print(information)
     with open(save_path / 'information.txt', 'a') as file:
         file.write(information)
@@ -54,8 +56,9 @@ def train_observations_clusters_decision_tree(
         decision_tree = DecisionTreeClassifier(max_depth=tree_max_depth_observations_to_cluster)
         decision_tree.fit(x_train, y_train)
         predict_y_test = decision_tree.predict(x_test)
-        accuracy_value = accuracy_score(y_test, predict_y_test)
-        information = 'Decision tree (observations -> cluster ' + str(label) + '), max depth: ' + str(decision_tree.max_depth) + ', accuracy: ' + str(accuracy_value) + '\n'
+        observations_cluster_accuracy_value = accuracy_score(y_test, predict_y_test)
+        observations_cluster_accuracy_values.append(observations_cluster_accuracy_value)
+        information = 'Decision tree (observations -> cluster ' + str(label) + '), max depth: ' + str(decision_tree.max_depth) + ', accuracy: ' + str(observations_cluster_accuracy_value) + '\n'
         print(information)
         with open(save_path / 'information.txt', 'a') as file:
             file.write(information)
@@ -64,3 +67,5 @@ def train_observations_clusters_decision_tree(
         plot_tree(decision_tree, filled=True, feature_names=feature_names, class_names=class_names)
         plt.savefig(save_path / ('cluster_' + str(label) + '_decision_tree.png'), bbox_inches='tight', dpi=300)
         matplotlib.pyplot.close()
+
+    return observations_cluster_accuracy_values

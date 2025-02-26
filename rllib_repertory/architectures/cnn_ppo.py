@@ -4,6 +4,8 @@ from torch import nn, Tensor
 from ray.rllib.core.rl_module.apis import ValueFunctionAPI
 from ray.rllib.core.rl_module.torch import TorchRLModule
 from ray.rllib.core.columns import Columns
+
+from utilities.create_cnn_architecture import create_cnn_architecture
 from utilities.create_dense_architecture import create_dense_architecture
 
 class CNNPPO(TorchRLModule, ValueFunctionAPI):
@@ -13,35 +15,40 @@ class CNNPPO(TorchRLModule, ValueFunctionAPI):
         self.layer_normalization = self.model_config.get("layer_normalization", False)
         self.dropout = self.model_config.get("dropout", False)
         self.configuration_hidden_layers = self.model_config.get("configuration_hidden_layers", [64, 64])
+        self.configuration_cnn = self.model_config.get(
+            "configuration_cnn",
+            [(32, 8, 4), (64, 4, 2), (64, 3, 1)]  # Default configuration
+        )
+        self.use_layer_normalization_cnn = self.model_config.get("use_layer_normalization_cnn", False)
 
-        # Utilisation d'un CNN pour encoder l'observation (forme attendue : (4, 84, 84))
-        in_channels = self.observation_space.shape[0] if len(self.observation_space.shape) == 3 else 1
-        self.actor_cnn = nn.Sequential(
-            nn.Conv2d(in_channels, 32, kernel_size=8, stride=4),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size=3, stride=1),
-            nn.ReLU(),
-            nn.Flatten()
+        # Determine input channels for CNN
+        if len(self.observation_space.shape) == 3:
+            in_channels = self.observation_space.shape[0]
+        else:
+            in_channels = 1
+
+        # Create CNN architectures for actor and critic
+        self.actor_cnn = create_cnn_architecture(
+            in_channels=in_channels,
+            configuration_cnn=self.configuration_cnn,
+            activation_function_class=self.activation_function_class,
+            use_normalization=self.use_layer_normalization_cnn,
         )
-        self.critic_cnn = nn.Sequential(
-            nn.Conv2d(in_channels, 32, kernel_size=8, stride=4),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size=3, stride=1),
-            nn.ReLU(),
-            nn.Flatten()
+        self.critic_cnn = create_cnn_architecture(
+            in_channels=in_channels,
+            configuration_cnn=self.configuration_cnn,
+            activation_function_class=self.activation_function_class,
+            use_normalization=self.use_layer_normalization_cnn,
         )
-        # Calcul dynamique de la taille de sortie du CNN
-        dummy_input = torch.zeros(1, *self.observation_space.shape)
+
+        # Dynamically compute CNN output size
+        dummy_input = torch.zeros(32, *self.observation_space.shape)
         cnn_output_size = self.actor_cnn(dummy_input).shape[1]
-        print('CNN output size : ' + str(cnn_output_size))
+        print(f'CNN output size: {cnn_output_size}')
 
         self.output_size = self.action_dist_cls.required_input_dim(space=self.action_space)
 
-        # Architectures denses séparées pour l'acteur et le critique
+        # Create dense layers for actor and critic
         self.actor_layers = create_dense_architecture(
             cnn_output_size,
             self.configuration_hidden_layers,
@@ -59,11 +66,8 @@ class CNNPPO(TorchRLModule, ValueFunctionAPI):
             dropout=self.dropout,
         )
 
-        # Déplacer l'ensemble du module sur le device (assure que cnn_encoder et les couches denses sont sur GPU si disponible)
         self.to(self.device)
         print(self)
-        # Optionnel si besoin de s'assurer que le CNN est bien sur le device :
-        # self.cnn_encoder = self.cnn_encoder.to(self.device)
 
     def _forward(self, batch, **kwargs):
         obs = batch[Columns.OBS].to(self.device)

@@ -1,6 +1,8 @@
 import argparse
 import os
 import shutil
+
+import numpy as np
 import ray
 import torch
 
@@ -14,6 +16,7 @@ from lightning_repertory.surrogate_policy import SurrogatePolicy
 from utilities.get_configuration_class import get_configuration_class
 from utilities.latent_space_analysis.compare_clustering_between_surrogate_policies import \
     compare_clustering_between_surrogate_policies
+from utilities.latent_space_analysis.distribute_actions_by_cluster import distribution_actions_by_cluster
 from utilities.latent_space_analysis.get_data import get_data
 from utilities.latent_space_analysis.kmeans_latent_space import kmeans_latent_space
 from utilities.latent_space_analysis.latent_space_projection_2d import latent_space_projection_2d
@@ -72,6 +75,7 @@ def latent_space_analysis(
             file.write(information)
 
     surrogate_policies_cluster_labels = []
+    observations_cluster_accuracy_values = []
 
     for latent_space_analysis_storage_path, surrogate_policy in zip(latent_space_analysis_storage_paths, surrogate_policies):
         embeddings = projection_clusterization_latent_space(
@@ -90,7 +94,7 @@ def latent_space_analysis(
             save_path=latent_space_analysis_storage_path,
             number_data=10_000,
         )
-        train_observations_clusters_decision_tree(
+        observations_cluster_accuracy_values_one_policy = train_observations_clusters_decision_tree(
             observations=observations,
             cluster_labels=cluster_labels,
             feature_names=getattr(environment, 'observation_labels', None),
@@ -98,14 +102,24 @@ def latent_space_analysis(
             tree_max_depth_observations_to_all_clusters=3,
             tree_max_depth_observations_to_cluster=2,
         )
-        # train_observations_actions_decision_tree(
-        #     observations=observations,
-        #     actions=actions,
-        #     cluster_labels=cluster_labels,
-        #     feature_names=getattr(environment, 'observation_labels', None),
-        #     class_names=getattr(environment, 'action_labels', None),
-        #     save_path=latent_space_analysis_storage_path,
-        # )
+        observations_cluster_accuracy_values = observations_cluster_accuracy_values + observations_cluster_accuracy_values_one_policy
+
+        distribution_actions_by_cluster(
+            observations=observations,
+            cluster_labels=cluster_labels,
+            actions=actions,
+            save_path=latent_space_analysis_storage_path,
+            class_names=getattr(environment, 'action_labels', None),
+        )
+        train_observations_actions_decision_tree(
+            observations=observations,
+            actions=actions,
+            cluster_labels=cluster_labels,
+            feature_names=getattr(environment, 'observation_labels', None),
+            class_names=getattr(environment, 'action_labels', None),
+            save_path=latent_space_analysis_storage_path,
+        )
+
         representation_clusters(
             observations=observations_with_rending,
             renderings=renderings,
@@ -116,6 +130,7 @@ def latent_space_analysis(
 
     if len(surrogate_policies) > 0:
         compare_clustering_between_surrogate_policies(surrogate_policies_cluster_labels)
+        print('Decision tree (observations -> cluster) mean accuracy for all policies : ' + str(np.array(observations_cluster_accuracy_values).mean()))
 
 
 if __name__ == '__main__':

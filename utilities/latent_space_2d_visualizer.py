@@ -151,13 +151,13 @@ class LatentSpace2DVisualizer:
         #     n_neighbors=30,
         # )
 
-        # self.projector_2d = PCA(
-        #     n_components=2,
-        # )
-
-        self.projector_2d = TruncatedSVD(
+        self.projector_2d = PCA(
             n_components=2,
         )
+
+        # self.projector_2d = TruncatedSVD(
+        #     n_components=2,
+        # )
 
         # self.projector_2d = GaussianRandomProjection(
         #     n_components=2,
