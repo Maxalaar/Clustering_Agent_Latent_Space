@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 from configurations.structure.latent_space_analysis_configuration import LatentSpaceAnalysisConfiguration
 from configurations.structure.reinforcement_learning_configuration import ReinforcementLearningConfiguration
@@ -42,7 +42,7 @@ class ExperimentationConfiguration:
 
         # Surrogate Policy
         self.surrogate_policy_storage_path: Path = self.experimentation_storage_path / 'surrogate_policy'
-        self.surrogate_policy_training_configuration: Optional[SurrogatePolicyTrainingConfiguration] = SurrogatePolicyTrainingConfiguration()
+        self.surrogate_policy_training_configuration: Optional[SurrogatePolicyTrainingConfiguration, List[SurrogatePolicyTrainingConfiguration]] = SurrogatePolicyTrainingConfiguration()
 
         # Surrogate Policy Evaluation
         self.surrogate_policy_evaluation_configuration: SurrogatePolicyEvaluationConfiguration = SurrogatePolicyEvaluationConfiguration()

@@ -25,63 +25,69 @@ def surrogate_policy_training(
     trajectory_dataset_file_path = trajectory_dataset_path / 'trajectory_dataset.h5'
     display_h5_file_information(trajectory_dataset_file_path)
 
-    ray.init()
+    if not ray.is_initialized:
+        ray.init()
+
     torch.set_float32_matmul_precision('medium')
 
-    data_module = H5DataModule(
-        h5_file_path=trajectory_dataset_file_path,
-        dataset_names=['observations', 'action_distribution_inputs'],
-        batch_size=experimentation_configuration.surrogate_policy_training_configuration.batch_size,
-        mini_chunk_size=experimentation_configuration.surrogate_policy_training_configuration.mini_chunk_size,
-        number_mini_chunks=experimentation_configuration.surrogate_policy_training_configuration.number_mini_chunks,
-        number_workers=experimentation_configuration.surrogate_policy_training_configuration.data_loader_number_workers,
-    )
-    data_module.setup()
+    if not isinstance(experimentation_configuration.surrogate_policy_training_configuration, list):
+        experimentation_configuration.surrogate_policy_training_configuration = [experimentation_configuration.surrogate_policy_training_configuration]
 
-    for policy_id in range(experimentation_configuration.surrogate_policy_training_configuration.number_surrogate_policies_to_train):
-        print(
-            f"Starting training of surrogate policy {policy_id + 1}/{experimentation_configuration.surrogate_policy_training_configuration.number_surrogate_policies_to_train}")
-
-        surrogate_policy = SurrogatePolicy(
-            input_dimension=np.prod(data_module.input_shape),
-            output_dimension=np.prod(data_module.output_shape),
-            learning_rate=experimentation_configuration.surrogate_policy_training_configuration.learning_rate,
-            use_clusterization_loss=experimentation_configuration.surrogate_policy_training_configuration.use_clusterization_loss,
-            clusterization_function=experimentation_configuration.surrogate_policy_training_configuration.clusterization_function,
-            clusterization_function_configuration=experimentation_configuration.surrogate_policy_training_configuration.clusterization_function_configuration,
-            clusterization_loss=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss,
-            clusterization_loss_configuration=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss_configuration,
-            **experimentation_configuration.surrogate_policy_training_configuration.architecture_configuration,
-            action_loss_coefficient=experimentation_configuration.surrogate_policy_training_configuration.action_loss_coefficient,
-            clusterization_loss_coefficient=experimentation_configuration.surrogate_policy_training_configuration.clusterization_loss_coefficient,
+    for surrogate_policy_training_configuration in experimentation_configuration.surrogate_policy_training_configuration:
+        data_module = H5DataModule(
+            h5_file_path=trajectory_dataset_file_path,
+            dataset_names=['observations', 'action_distribution_inputs'],
+            batch_size=surrogate_policy_training_configuration.batch_size,
+            mini_chunk_size=surrogate_policy_training_configuration.mini_chunk_size,
+            number_mini_chunks=surrogate_policy_training_configuration.number_mini_chunks,
+            number_workers=surrogate_policy_training_configuration.data_loader_number_workers,
         )
+        data_module.setup()
 
-        logger = TensorBoardLogger(
-            save_dir=experimentation_configuration.surrogate_policy_storage_path,
-            prefix='pytorch_lightning/',
-            name=experimentation_configuration.surrogate_policy_training_configuration.training_name,
-        )
-        experimentation_configuration.surrogate_policy_training_configuration.to_yaml_file(Path(logger.log_dir))
+        for policy_id in range(surrogate_policy_training_configuration.number_surrogate_policies_to_train):
+            print(
+                f"Starting training of surrogate policy {policy_id + 1}/{surrogate_policy_training_configuration.number_surrogate_policies_to_train}")
 
-        checkpoint_callback = ModelCheckpoint(
-            train_time_interval=experimentation_configuration.surrogate_policy_training_configuration.model_checkpoint_time_interval,
-            save_top_k=1,
-        )
+            surrogate_policy = SurrogatePolicy(
+                input_dimension=np.prod(data_module.input_shape),
+                output_dimension=np.prod(data_module.output_shape),
+                learning_rate=surrogate_policy_training_configuration.learning_rate,
+                use_clusterization_loss=surrogate_policy_training_configuration.use_clusterization_loss,
+                clusterization_function=surrogate_policy_training_configuration.clusterization_function,
+                clusterization_function_configuration=surrogate_policy_training_configuration.clusterization_function_configuration,
+                clusterization_loss=surrogate_policy_training_configuration.clusterization_loss,
+                clusterization_loss_configuration=surrogate_policy_training_configuration.clusterization_loss_configuration,
+                **surrogate_policy_training_configuration.architecture_configuration,
+                action_loss_coefficient=surrogate_policy_training_configuration.action_loss_coefficient,
+                clusterization_loss_coefficient=surrogate_policy_training_configuration.clusterization_loss_coefficient,
+            )
 
-        trainer = pl.Trainer(
-            max_epochs=-1,
-            max_time=experimentation_configuration.surrogate_policy_training_configuration.maximum_training_time_by_policy,
-            logger=logger,
-            check_val_every_n_epoch=experimentation_configuration.surrogate_policy_training_configuration.evaluation_every_n_epoch,
-            callbacks=[checkpoint_callback],
-        )
+            logger = TensorBoardLogger(
+                save_dir=experimentation_configuration.surrogate_policy_storage_path,
+                prefix='pytorch_lightning/',
+                name=surrogate_policy_training_configuration.training_name,
+            )
+            surrogate_policy_training_configuration.to_yaml_file(Path(logger.log_dir))
 
-        trainer.fit(
-            model=surrogate_policy,
-            train_dataloaders=data_module.train_dataloader(),
-            val_dataloaders=data_module.validation_dataloader(),
-            ckpt_path=surrogate_policy_checkpoint_path,
-        )
+            checkpoint_callback = ModelCheckpoint(
+                train_time_interval=surrogate_policy_training_configuration.model_checkpoint_time_interval,
+                save_top_k=1,
+            )
+
+            trainer = pl.Trainer(
+                max_epochs=-1,
+                max_time=surrogate_policy_training_configuration.maximum_training_time_by_policy,
+                logger=logger,
+                check_val_every_n_epoch=surrogate_policy_training_configuration.evaluation_every_n_epoch,
+                callbacks=[checkpoint_callback],
+            )
+
+            trainer.fit(
+                model=surrogate_policy,
+                train_dataloaders=data_module.train_dataloader(),
+                val_dataloaders=data_module.validation_dataloader(),
+                ckpt_path=surrogate_policy_checkpoint_path,
+            )
 
 
 if __name__ == '__main__':
