@@ -45,6 +45,7 @@ class ExperimentationConfiguration:
         self.surrogate_policy_training_configuration: Optional[SurrogatePolicyTrainingConfiguration, List[SurrogatePolicyTrainingConfiguration]] = SurrogatePolicyTrainingConfiguration()
 
         # Surrogate Policy Evaluation
+        self.surrogate_policy_evaluation_storage_path: Path = self.experimentation_storage_path / 'surrogate_policy_evaluation'
         self.surrogate_policy_evaluation_configuration: SurrogatePolicyEvaluationConfiguration = SurrogatePolicyEvaluationConfiguration()
 
         # Sparse Autoencoder

@@ -11,7 +11,7 @@ from PIL import Image
 def representation_clusters(
         observations,
         renderings,
-        latent_space_analysis_storage_path: Path,
+        save_path: Path,
         surrogate_policy: SurrogatePolicy,
         clusterization_model,
 ):
@@ -23,7 +23,7 @@ def representation_clusters(
     unique_cluster_labels = np.unique(cluster_labels)
 
     for label in unique_cluster_labels:
-        cluster_path: Path = latent_space_analysis_storage_path / ('cluster_' + str(label))
+        cluster_path: Path = save_path / ('cluster_' + str(label))
         os.makedirs(cluster_path, exist_ok=True)
         ixd_points_current_cluster = np.where(cluster_labels == label)[0]
         renderings_current_cluster = renderings[ixd_points_current_cluster.get()]

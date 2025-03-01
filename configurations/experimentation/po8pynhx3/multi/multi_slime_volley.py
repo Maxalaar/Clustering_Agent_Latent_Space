@@ -3,13 +3,13 @@ from datetime import timedelta
 from configurations.structure.experimentation_configuration import ExperimentationConfiguration
 from configurations.structure.surrogate_policy_training_configuration import SurrogatePolicyTrainingConfiguration
 
-multi_lunar_lander = ExperimentationConfiguration(
-    experimentation_name='multi_lunar_lander',
-    environment_name='LunarLanderRllib',
+multi_slime_volley = ExperimentationConfiguration(
+    experimentation_name='multi_slime_volley',
+    environment_name='SlimeVolleyRllib',
 )
 
 # Ray
-multi_lunar_lander.ray_local_mode = False
+multi_slime_volley.ray_local_mode = False
 
 # Surrogate Policy Training
 surrogate_policy_training_configurations = []
@@ -28,9 +28,4 @@ for number_cluster in [2, 3, 4, 5, 6]:
 
     surrogate_policy_training_configurations.append(surrogate_policy_training_configuration)
 
-multi_lunar_lander.surrogate_policy_training_configuration = surrogate_policy_training_configurations
-
-# Surrogate Policy Evaluation
-multi_lunar_lander.surrogate_policy_evaluation_configuration.evaluation_duration = 300
-multi_lunar_lander.surrogate_policy_evaluation_configuration.number_environment_runners = 10
-multi_lunar_lander.surrogate_policy_evaluation_configuration.number_gpus_per_environment_runners = 0.1
+multi_slime_volley.surrogate_policy_training_configuration = surrogate_policy_training_configurations

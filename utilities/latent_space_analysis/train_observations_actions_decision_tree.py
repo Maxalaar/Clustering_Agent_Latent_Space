@@ -16,6 +16,8 @@ def train_observations_actions_decision_tree(
         actions: torch.Tensor,
         cluster_labels: torch.Tensor,
         save_path: Path,
+        tree_max_depth_observations_to_actions: int,
+        tree_max_depth_cluster_observations_to_actions: int,
         feature_names: Optional[list] = None,
         class_names: Optional[list] = None,
 ):
@@ -33,7 +35,7 @@ def train_observations_actions_decision_tree(
 
     x_train, x_test, y_train, y_test = train_test_split(observations, actions, test_size=0.2)
 
-    decision_tree = DecisionTreeClassifier(max_depth=2)
+    decision_tree = DecisionTreeClassifier(max_depth=tree_max_depth_observations_to_actions)
     decision_tree.fit(x_train, y_train)
     predict_y_test = decision_tree.predict(x_test)
     accuracy_value = accuracy_score(y_test, predict_y_test)
@@ -55,7 +57,7 @@ def train_observations_actions_decision_tree(
         random_over_sampler = RandomOverSampler()
         x_balance, y_balance = random_over_sampler.fit_resample(observations_current_cluster, actions_current_cluster)
         x_train, x_test, y_train, y_test = train_test_split(x_balance, y_balance, test_size=0.2)
-        decision_tree = DecisionTreeClassifier(max_depth=2)
+        decision_tree = DecisionTreeClassifier(max_depth=tree_max_depth_cluster_observations_to_actions)
         decision_tree.fit(x_train, y_train)
 
         predict_y_test = decision_tree.predict(x_test)

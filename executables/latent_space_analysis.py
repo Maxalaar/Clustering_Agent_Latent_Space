@@ -14,8 +14,11 @@ from environments.register_environments import register_environments
 from lightning_repertory.surrogate_policy import SurrogatePolicy
 
 from utilities.get_configuration_class import get_configuration_class
+from utilities.get_last_directory_name import get_last_directory_name
 from utilities.latent_space_analysis.compare_clustering_between_surrogate_policies import \
     compare_clustering_between_surrogate_policies
+from utilities.latent_space_analysis.create_latent_space_analysis_directories import \
+    create_latent_space_analysis_directories
 from utilities.latent_space_analysis.distribute_actions_by_cluster import distribution_actions_by_cluster
 from utilities.latent_space_analysis.get_data import get_data
 from utilities.latent_space_analysis.kmeans_latent_space import kmeans_latent_space
@@ -27,19 +30,32 @@ from utilities.latent_space_analysis.train_observations_actions_decision_tree im
     train_observations_actions_decision_tree
 from utilities.latent_space_analysis.train_observations_clusters_decision_tree import \
     train_observations_clusters_decision_tree
+from utilities.load_surrogate_policies import load_surrogate_policies
 from utilities.process_surrogate_policy_checkpoint_paths import process_surrogate_policy_checkpoint_paths
+from utilities.save_dictionary_to_file import save_dictionary_to_file
 
 
 def latent_space_analysis(
         experimentation_configuration: ExperimentationConfiguration,
         trajectory_dataset_path: Path,
-        surrogate_policy_checkpoint_paths: List[Path],
+        surrogate_policy_checkpoint_paths,
         device=torch.device('cuda'),
 ):
-    ray.init()
+
+    if not ray.is_initialized():
+        ray.init()
+
     register_environments()
     environment_creator = _Registry().get('env_creator', experimentation_configuration.environment_name)
     environment = environment_creator(experimentation_configuration.environment_configuration)
+
+    save_directory_name = get_last_directory_name(surrogate_policy_checkpoint_paths)
+    surrogate_policy_checkpoint_paths: List[Path] = process_surrogate_policy_checkpoint_paths(surrogate_policy_checkpoint_paths)
+    surrogate_policies = load_surrogate_policies(surrogate_policy_checkpoint_paths)
+    latent_space_analysis_storage_paths = create_latent_space_analysis_directories(surrogate_policy_checkpoint_paths, experimentation_configuration)
+
+    surrogate_policies_cluster_labels = []
+    observations_cluster_accuracy_values = []
 
     observations, actions = get_data(
         dataset_names=['observations', 'actions'],
@@ -54,28 +70,6 @@ def latent_space_analysis(
         trajectory_dataset_file_path=trajectory_dataset_path / 'trajectory_dataset_with_rending.h5',
         device=device,
     )
-
-    latent_space_analysis_storage_paths = []
-    surrogate_policies = []
-    for surrogate_policy_checkpoint_path in surrogate_policy_checkpoint_paths:
-
-        latent_space_analysis_storage_path = experimentation_configuration.latent_space_analysis_storage_path / surrogate_policy_checkpoint_path.parents[2].name / surrogate_policy_checkpoint_path.parents[1].name
-        if latent_space_analysis_storage_path.exists() and latent_space_analysis_storage_path.is_dir():
-            shutil.rmtree(latent_space_analysis_storage_path)
-        os.makedirs(latent_space_analysis_storage_path, exist_ok=True)
-        latent_space_analysis_storage_paths.append(latent_space_analysis_storage_path)
-
-        surrogate_policy: SurrogatePolicy = SurrogatePolicy.load_from_checkpoint(surrogate_policy_checkpoint_path)
-        surrogate_policy.eval()
-        surrogate_policies.append(surrogate_policy)
-
-        information = 'Surrogate policy checkpoint path: ' + str(surrogate_policy_checkpoint_path) + '\n'
-        print(information)
-        with open(latent_space_analysis_storage_path / 'information.txt', 'a') as file:
-            file.write(information)
-
-    surrogate_policies_cluster_labels = []
-    observations_cluster_accuracy_values = []
 
     for latent_space_analysis_storage_path, surrogate_policy in zip(latent_space_analysis_storage_paths, surrogate_policies):
         embeddings = projection_clusterization_latent_space(
@@ -92,15 +86,15 @@ def latent_space_analysis(
             embeddings=embeddings,
             cluster_labels=cluster_labels,
             save_path=latent_space_analysis_storage_path,
-            number_data=10_000,
+            number_data=experimentation_configuration.latent_space_analysis_configuration.number_data_projection_2d,
         )
         observations_cluster_accuracy_values_one_policy = train_observations_clusters_decision_tree(
             observations=observations,
             cluster_labels=cluster_labels,
             feature_names=getattr(environment, 'observation_labels', None),
             save_path=latent_space_analysis_storage_path,
-            tree_max_depth_observations_to_all_clusters=3,
-            tree_max_depth_observations_to_cluster=2,
+            tree_max_depth_observations_to_all_clusters=experimentation_configuration.latent_space_analysis_configuration.tree_max_depth_observations_to_all_clusters,
+            tree_max_depth_observations_to_cluster=experimentation_configuration.latent_space_analysis_configuration.tree_max_depth_observations_to_cluster,
         )
         observations_cluster_accuracy_values = observations_cluster_accuracy_values + observations_cluster_accuracy_values_one_policy
 
@@ -118,19 +112,40 @@ def latent_space_analysis(
             feature_names=getattr(environment, 'observation_labels', None),
             class_names=getattr(environment, 'action_labels', None),
             save_path=latent_space_analysis_storage_path,
+            tree_max_depth_observations_to_actions=experimentation_configuration.latent_space_analysis_configuration.tree_max_depth_observations_to_actions,
+            tree_max_depth_cluster_observations_to_actions=experimentation_configuration.latent_space_analysis_configuration.tree_max_depth_cluster_observations_to_actions,
         )
 
         representation_clusters(
             observations=observations_with_rending,
             renderings=renderings,
-            latent_space_analysis_storage_path=latent_space_analysis_storage_path,
+            save_path=latent_space_analysis_storage_path,
             surrogate_policy=surrogate_policy,
             clusterization_model=kmeans,
         )
 
+    information = {}
+
     if len(surrogate_policies) > 0:
-        compare_clustering_between_surrogate_policies(surrogate_policies_cluster_labels)
-        print('Decision tree (observations -> cluster) mean accuracy for all policies : ' + str(np.array(observations_cluster_accuracy_values).mean()))
+        information['clustering_between_surrogate_policies'] = compare_clustering_between_surrogate_policies(
+            surrogate_policies_cluster_labels=surrogate_policies_cluster_labels,
+        )
+
+    information['observations_clusters_decision_tree'] = {
+        'observations_clusters_decision_tree_mean': np.array(observations_cluster_accuracy_values).mean(),
+        'observations_clusters_decision_tree_standard_deviation': np.array(observations_cluster_accuracy_values).std()
+    }
+
+    for key, value in information.items():
+        print(f"{key}: {value}")
+
+    if save_directory_name:
+        save_dictionary_to_file(
+            dictionary=information,
+            name='latent_space_analysis_information',
+            path=experimentation_configuration.latent_space_analysis_storage_path / save_directory_name,
+        )
+
 
 
 if __name__ == '__main__':
@@ -161,6 +176,5 @@ if __name__ == '__main__':
     if not trajectory_dataset_path.is_absolute():
         trajectory_dataset_path = Path.cwd() / trajectory_dataset_path
 
-    surrogate_policy_checkpoint_paths = process_surrogate_policy_checkpoint_paths(arguments.surrogate_policy_checkpoint_paths)
-
-    latent_space_analysis(configuration_class, trajectory_dataset_path, surrogate_policy_checkpoint_paths)
+    for path in arguments.surrogate_policy_checkpoint_paths:
+        latent_space_analysis(configuration_class, trajectory_dataset_path, Path(path))

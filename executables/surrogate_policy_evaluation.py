@@ -1,6 +1,8 @@
 import argparse
 from pathlib import Path
+from typing import List
 
+import numpy as np
 import ray
 from ray.rllib.core.rl_module import RLModuleSpec
 
@@ -10,15 +12,22 @@ from rllib_repertory.architectures.lightning import Lightning
 from rllib_repertory.find_best_checkpoint_path import find_best_reinforcement_learning_checkpoint_path
 from rllib_repertory.get_checkpoint_algorithm_configuration import get_checkpoint_algorithm_configuration
 from utilities.get_configuration_class import get_configuration_class
+from utilities.get_last_directory_name import get_last_directory_name
+from utilities.process_surrogate_policy_checkpoint_paths import process_surrogate_policy_checkpoint_paths
+from utilities.save_dictionary_to_file import save_dictionary_to_file
 
 
 def evaluation_surrogate_policy(
         experimentation_configuration: ExperimentationConfiguration,
         reinforcement_learning_path: Path,
-        surrogate_policy_checkpoint_path: Path
+        surrogate_policy_checkpoint_paths: Path,
 ):
-    ray.init(local_mode=experimentation_configuration.ray_local_mode)
+    if not ray.is_initialized():
+        ray.init()
     register_environments()
+
+    save_directory_name = get_last_directory_name(surrogate_policy_checkpoint_paths)
+    surrogate_policy_checkpoint_paths: List[Path] = process_surrogate_policy_checkpoint_paths(surrogate_policy_checkpoint_paths)
 
     best_checkpoints_path: Path = find_best_reinforcement_learning_checkpoint_path(reinforcement_learning_path)
     algorithm_configuration = get_checkpoint_algorithm_configuration(best_checkpoints_path)
@@ -43,22 +52,50 @@ def evaluation_surrogate_policy(
     algorithm = algorithm_configuration.build()
     algorithm.restore(str(best_checkpoints_path))
     original_policy_evaluation_information = algorithm.evaluate()
+    original_policy_return_mean = original_policy_evaluation_information['env_runners']['episode_return_mean']
     del algorithm
 
-    algorithm_configuration.rl_module(
-        rl_module_spec=RLModuleSpec(
-            module_class=Lightning,
-            model_config={
-                'checkpoint_path': surrogate_policy_checkpoint_path,
-            },
-        ),
-    )
-    algorithm = algorithm_configuration.build()
-    surrogate_policy_evaluation_information = algorithm.evaluate()
-    del algorithm
+    surrogate_policy_return_means = []
+    for surrogate_policy_checkpoint_path in surrogate_policy_checkpoint_paths:
+        algorithm_configuration.rl_module(
+            rl_module_spec=RLModuleSpec(
+                module_class=Lightning,
+                model_config={
+                    'checkpoint_path': surrogate_policy_checkpoint_path,
+                },
+            ),
+        )
+        algorithm = algorithm_configuration.build()
+        surrogate_policy_evaluation_information = algorithm.evaluate()
+        del algorithm
+        surrogate_policy_return_means.append(surrogate_policy_evaluation_information['env_runners']['episode_return_mean'])
 
-    print('Original policy average reward on ' + str(experimentation_configuration.surrogate_policy_evaluation_configuration.evaluation_duration) + ' iterations : ' + str(original_policy_evaluation_information['env_runners']['episode_return_mean']))
-    print('Surrogate policy average reward on ' + str(experimentation_configuration.surrogate_policy_evaluation_configuration.evaluation_duration) + ' iterations : ' + str(surrogate_policy_evaluation_information['env_runners']['episode_return_mean']))
+    surrogate_policy_ratio_means = np.array(surrogate_policy_return_means) / original_policy_return_mean
+    surrogate_policies_ratio_mean = surrogate_policy_ratio_means.mean()
+    surrogate_policies_standard_deviation = surrogate_policy_ratio_means.std()
+
+    print('Number of episode : ' + str(experimentation_configuration.surrogate_policy_evaluation_configuration.evaluation_duration))
+    print('Original policy reward mean : ' + str(original_policy_return_mean))
+    print('Surrogate policy reward means : ' + str(surrogate_policy_return_means))
+    print('Surrogate policy ratio means : ' + str(surrogate_policy_ratio_means))
+    print('Surrogate policies ratio mean : ' + str(surrogate_policies_ratio_mean))
+    print('Surrogate policies standard deviation : ' + str(surrogate_policies_standard_deviation))
+
+    information = {
+        'number_episode': experimentation_configuration.surrogate_policy_evaluation_configuration.evaluation_duration,
+        'original_policy_return_mean': original_policy_return_mean,
+        'surrogate_policy_return_means': surrogate_policy_return_means,
+        'surrogate_policy_ratio_means': surrogate_policy_ratio_means.tolist(),
+        'surrogate_policies_ratio_mean': surrogate_policies_ratio_mean,
+        'surrogate_policies_standard_deviation': surrogate_policies_standard_deviation,
+    }
+
+    if save_directory_name:
+        save_dictionary_to_file(
+            dictionary=information,
+            name='evaluation_surrogate_policy_information',
+            path=experimentation_configuration.surrogate_policy_evaluation_storage_path / save_directory_name,
+        )
 
 
 if __name__ == '__main__':
@@ -76,9 +113,10 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
-        '--surrogate_policy_checkpoint_path',
+        '--surrogate_policy_checkpoint_paths',
         type=str,
-        help="The path of repository with the surrogate policy checkpoint (e.g., './experiments/cartpole/surrogate_policy/base/version_[...]/checkpoints/[...].ckpt')"
+        nargs='+',
+        help="Path(s) to the policy checkpoint (e.g., './experiments/cartpole/surrogate_policy/base/version_[...]/checkpoints/[...].ckpt' or a directory containing .ckpt files)"
     )
 
     arguments = parser.parse_args()
@@ -88,11 +126,8 @@ if __name__ == '__main__':
     if not reinforcement_learning_path.is_absolute():
         reinforcement_learning_path = Path.cwd() / reinforcement_learning_path
 
-    surrogate_policy_checkpoint_path = Path(arguments.surrogate_policy_checkpoint_path)
-    if not surrogate_policy_checkpoint_path.is_absolute():
-        surrogate_policy_checkpoint_path = Path.cwd() / surrogate_policy_checkpoint_path
-
-    evaluation_surrogate_policy(configuration_class, reinforcement_learning_path, surrogate_policy_checkpoint_path)
+    for path in arguments.surrogate_policy_checkpoint_paths:
+        evaluation_surrogate_policy(configuration_class, reinforcement_learning_path, Path(path))
 
 
 
