@@ -3,6 +3,7 @@ from ray.tune.registry import register_env
 from environments.ant.ant import Ant
 from environments.car_racing.car_racing import CarRacing
 from environments.cart_pole.cart_pole import CartPole
+from environments.craftium.craftium import Craftium
 from environments.flappy_bird.flappy_bird import FlappyBird
 from environments.lunar_lander.lunar_lander import LunarLander
 from environments.bipedal_walker.bipedal_walker import BipedalWalker
@@ -25,3 +26,4 @@ def register_environments():
     register_env(name='TetrisAtariRllib', env_creator=TetrisAtari)
     register_env(name='SlimeVolleyRllib', env_creator=SlimeVolley)
     register_env(name='CarRacingRllib', env_creator=CarRacing)
+    register_env(name='CraftiumRllib', env_creator=Craftium)
