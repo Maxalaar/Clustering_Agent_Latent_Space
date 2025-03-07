@@ -17,29 +17,39 @@ class CNNPPO(TorchRLModule, ValueFunctionAPI):
         self.configuration_hidden_layers = self.model_config.get("configuration_hidden_layers", [64, 64])
         self.configuration_cnn = self.model_config.get(
             "configuration_cnn",
-            [(32, 8, 4), (64, 4, 2), (64, 3, 1)]  # Default configuration
+            [(32, 8, 4), (64, 4, 2), (64, 3, 1)]
         )
         self.use_layer_normalization_cnn = self.model_config.get("use_layer_normalization_cnn", False)
+        self.use_unified_cnn = self.model_config.get("use_unified_cnn", False)  # Option uu
 
         # Determine input channels for CNN
-        if len(self.observation_space.shape) == 3:
-            in_channels = self.observation_space.shape[0]
-        else:
-            in_channels = 1
+        in_channels = self.observation_space.shape[0] if len(self.observation_space.shape) == 3 else 1
 
-        # Create CNN architectures for actor and critic
-        self.actor_cnn = create_cnn_architecture(
+        # Create CNN architecture
+        self.shared_cnn = create_cnn_architecture(
             in_channels=in_channels,
             configuration_cnn=self.configuration_cnn,
             activation_function_class=self.activation_function_class,
             use_normalization=self.use_layer_normalization_cnn,
         )
-        self.critic_cnn = create_cnn_architecture(
-            in_channels=in_channels,
-            configuration_cnn=self.configuration_cnn,
-            activation_function_class=self.activation_function_class,
-            use_normalization=self.use_layer_normalization_cnn,
-        )
+
+        # Use shared CNN for both actor and critic if `use_unified_cnn` is True
+        if self.use_unified_cnn:
+            self.actor_cnn = self.shared_cnn
+            self.critic_cnn = self.shared_cnn
+        else:
+            self.actor_cnn = create_cnn_architecture(
+                in_channels=in_channels,
+                configuration_cnn=self.configuration_cnn,
+                activation_function_class=self.activation_function_class,
+                use_normalization=self.use_layer_normalization_cnn,
+            )
+            self.critic_cnn = create_cnn_architecture(
+                in_channels=in_channels,
+                configuration_cnn=self.configuration_cnn,
+                activation_function_class=self.activation_function_class,
+                use_normalization=self.use_layer_normalization_cnn,
+            )
 
         # Dynamically compute CNN output size
         dummy_input = torch.zeros(32, *self.observation_space.shape)

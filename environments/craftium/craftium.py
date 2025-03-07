@@ -4,8 +4,10 @@ from typing import Optional
 import gymnasium as gym
 import numpy as np
 
-import craftium
-
+try:
+    import craftium
+except ImportError:
+    print('craftium is not installed')
 
 class Craftium(gym.Env):
     def __init__(self, environment_configuration: Optional[dict] = None):

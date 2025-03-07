@@ -1,0 +1,36 @@
+from ray.rllib.core.rl_module.default_model_config import DefaultModelConfig
+from ray.rllib.utils.exploration import Random
+from ray.rllib.utils.replay_buffers import PrioritizedEpisodeReplayBuffer
+from torch.nn import LeakyReLU
+from ray.rllib.algorithms.dqn.dqn_rainbow_rl_module import DQNRainbowRLModule
+
+from configurations.structure.experimentation_configuration import ExperimentationConfiguration
+from rllib_repertory.architectures.dense_dqn import DenseDQN
+from rllib_repertory.architectures.dense_ppo import DensePPO
+from rllib_repertory.architectures.transformer_ppo import TransformerPPO
+
+tetris_transformer = ExperimentationConfiguration(
+    experimentation_name='tetris',
+    environment_name='TetrisRllib',
+)
+
+tetris_transformer.ray_local_mode = False
+
+tetris_transformer.reinforcement_learning_configuration.number_environment_runners = 2
+tetris_transformer.reinforcement_learning_configuration.number_environment_per_environment_runners = 1
+tetris_transformer.reinforcement_learning_configuration.number_gpus_per_environment_runners = 1 / tetris_transformer.reinforcement_learning_configuration.number_environment_runners
+tetris_transformer.reinforcement_learning_configuration.number_gpus_per_learner = 1
+
+tetris_transformer.reinforcement_learning_configuration.training_name = 'transformer_ppo_v1'
+tetris_transformer.reinforcement_learning_configuration.algorithm_name = 'PPO'
+tetris_transformer.reinforcement_learning_configuration.flatten_observations = True
+tetris_transformer.reinforcement_learning_configuration.architecture = TransformerPPO
+tetris_transformer.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
+tetris_transformer.reinforcement_learning_configuration.train_batch_size = 512
+tetris_transformer.reinforcement_learning_configuration.minibatch_size = 512
+tetris_transformer.reinforcement_learning_configuration.number_epochs = 8
+tetris_transformer.reinforcement_learning_configuration.batch_mode = 'complete_episodes'
+
+tetris_transformer.reinforcement_learning_configuration.clip_policy_parameter = 0.05
+tetris_transformer.reinforcement_learning_configuration.checkpoint_frequency = 1000
+tetris_transformer.reinforcement_learning_configuration.evaluation_interval = 1000

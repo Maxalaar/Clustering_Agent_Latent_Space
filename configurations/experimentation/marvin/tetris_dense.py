@@ -22,24 +22,25 @@ tetris_dense.reinforcement_learning_configuration.number_gpus_per_environment_ru
 tetris_dense.reinforcement_learning_configuration.number_gpus_per_learner = 1
 
 # PPO Dense
-tetris_dense.reinforcement_learning_configuration.training_name = 'dense_ppo_v30'
+tetris_dense.reinforcement_learning_configuration.training_name = 'dense_ppo_v33'
 tetris_dense.reinforcement_learning_configuration.algorithm_name = 'PPO'
 tetris_dense.reinforcement_learning_configuration.flatten_observations = True
 tetris_dense.reinforcement_learning_configuration.use_generalized_advantage_estimator = True
-tetris_dense.reinforcement_learning_configuration.train_batch_size = 50_000
-tetris_dense.reinforcement_learning_configuration.minibatch_size = 50_000
+tetris_dense.reinforcement_learning_configuration.train_batch_size = 25_000
+tetris_dense.reinforcement_learning_configuration.minibatch_size = 25_000
 tetris_dense.reinforcement_learning_configuration.number_epochs = 32
 tetris_dense.reinforcement_learning_configuration.batch_mode = 'truncate_episodes' # 'truncate_episodes' or 'complete_episodes'
 tetris_dense.reinforcement_learning_configuration.architecture = DensePPO
 tetris_dense.reinforcement_learning_configuration.architecture_configuration = {
     'configuration_hidden_layers': [2048, 1024, 512, 256, 128, 64],
-    'activation_function': LeakyReLU(),
+    'activation_function': LeakyReLU,
 }
 
 tetris_dense.reinforcement_learning_configuration.learning_rate = 1e-5
-tetris_dense.reinforcement_learning_configuration.clip_policy_parameter = 0.01
-tetris_dense.reinforcement_learning_configuration.kullback_leibler_coefficient = 0.3
-tetris_dense.reinforcement_learning_configuration.entropy_coefficient = 0.03
+tetris_dense.reinforcement_learning_configuration.clip_policy_parameter = 0.1
+# tetris_dense.reinforcement_learning_configuration.clip_policy_parameter = 0.01
+# tetris_dense.reinforcement_learning_configuration.kullback_leibler_coefficient = 0.3
+# tetris_dense.reinforcement_learning_configuration.entropy_coefficient = 0.03
 
 # tetris_dense.reinforcement_learning_configuration.use_kullback_leibler_loss = True
 # tetris_dense.reinforcement_learning_configuration.kullback_leibler_coefficient = 0.3
