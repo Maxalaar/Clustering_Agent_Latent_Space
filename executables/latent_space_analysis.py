@@ -113,7 +113,6 @@ def latent_space_analysis(
             class_names=getattr(environment, 'action_labels', None),
             save_path=latent_space_analysis_storage_path,
             tree_max_depth_observations_to_actions=experimentation_configuration.latent_space_analysis_configuration.tree_max_depth_observations_to_actions,
-            tree_max_depth_cluster_observations_to_actions=experimentation_configuration.latent_space_analysis_configuration.tree_max_depth_cluster_observations_to_actions,
         )
 
         representation_clusters(

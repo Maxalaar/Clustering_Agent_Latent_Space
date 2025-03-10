@@ -47,6 +47,7 @@ def evaluation_surrogate_policy(
     algorithm_configuration.evaluation(
         evaluation_num_env_runners=experimentation_configuration.surrogate_policy_evaluation_configuration.number_environment_runners,
         evaluation_duration=experimentation_configuration.surrogate_policy_evaluation_configuration.evaluation_duration,
+        evaluation_sample_timeout_s=np.inf,
     )
 
     algorithm = algorithm_configuration.build()
@@ -70,22 +71,25 @@ def evaluation_surrogate_policy(
         del algorithm
         surrogate_policy_return_means.append(surrogate_policy_evaluation_information['env_runners']['episode_return_mean'])
 
-    surrogate_policy_ratio_means = np.array(surrogate_policy_return_means) / original_policy_return_mean
-    surrogate_policies_ratio_mean = surrogate_policy_ratio_means.mean()
-    surrogate_policies_standard_deviation = surrogate_policy_ratio_means.std()
+    surrogate_policies_ratio_means = np.array(surrogate_policy_return_means) / original_policy_return_mean
+    surrogate_policies_reward_mean = np.array(surrogate_policy_return_means).mean()
+    surrogate_policies_ratio_mean = surrogate_policies_ratio_means.mean()
+    surrogate_policies_standard_deviation = surrogate_policies_ratio_means.std()
 
     print('Number of episode : ' + str(experimentation_configuration.surrogate_policy_evaluation_configuration.evaluation_duration))
-    print('Original policy reward mean : ' + str(original_policy_return_mean))
-    print('Surrogate policy reward means : ' + str(surrogate_policy_return_means))
-    print('Surrogate policy ratio means : ' + str(surrogate_policy_ratio_means))
+    print('Original policies reward mean : ' + str(original_policy_return_mean))
+    print('Surrogate policies reward mean : ' + str(surrogate_policies_reward_mean))
+    print('Surrogate policies reward means : ' + str(surrogate_policy_return_means))
+    print('Surrogate policies ratio means : ' + str(surrogate_policies_ratio_means))
     print('Surrogate policies ratio mean : ' + str(surrogate_policies_ratio_mean))
     print('Surrogate policies standard deviation : ' + str(surrogate_policies_standard_deviation))
 
     information = {
         'number_episode': experimentation_configuration.surrogate_policy_evaluation_configuration.evaluation_duration,
-        'original_policy_return_mean': original_policy_return_mean,
-        'surrogate_policy_return_means': surrogate_policy_return_means,
-        'surrogate_policy_ratio_means': surrogate_policy_ratio_means.tolist(),
+        'original_policies_return_mean': original_policy_return_mean,
+        'surrogate_policies_return_mean': surrogate_policies_reward_mean,
+        'surrogate_policies_return_means': surrogate_policy_return_means,
+        'surrogate_policies_ratio_means': surrogate_policies_ratio_means.tolist(),
         'surrogate_policies_ratio_mean': surrogate_policies_ratio_mean,
         'surrogate_policies_standard_deviation': surrogate_policies_standard_deviation,
     }

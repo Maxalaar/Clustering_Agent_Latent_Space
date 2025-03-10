@@ -32,3 +32,8 @@ for number_cluster in [2, 3, 4, 5, 6]:
     surrogate_policy_training_configurations.append(surrogate_policy_training_configuration)
 
 multi_pong_survivor_two_balls.surrogate_policy_training_configuration = surrogate_policy_training_configurations
+
+# Surrogate Policy Evaluation
+multi_pong_survivor_two_balls.surrogate_policy_evaluation_configuration.evaluation_duration = 100
+multi_pong_survivor_two_balls.surrogate_policy_evaluation_configuration.number_environment_runners = 5
+multi_pong_survivor_two_balls.surrogate_policy_evaluation_configuration.number_gpus_per_environment_runners = 0.1

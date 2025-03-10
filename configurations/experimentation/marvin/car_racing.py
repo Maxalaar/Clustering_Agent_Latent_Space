@@ -31,11 +31,9 @@ car_racing.reinforcement_learning_configuration.number_gpus_per_environment_runn
 car_racing.reinforcement_learning_configuration.train_batch_size = 512 * 4
 car_racing.reinforcement_learning_configuration.compress_observations = True
 car_racing.reinforcement_learning_configuration.minibatch_size = 256
-# car_racing.reinforcement_learning_configuration.clip_policy_parameter = 0.1
 car_racing.reinforcement_learning_configuration.learning_rate = 1e-5
+# car_racing.reinforcement_learning_configuration.clip_policy_parameter = 0.1
 # car_racing.reinforcement_learning_configuration.entropy_coefficient = 0.005
 
 car_racing.reinforcement_learning_configuration.evaluation_num_environment_runners = 1
 car_racing.reinforcement_learning_configuration.number_checkpoint_to_keep = 1_000_000
-
-

@@ -31,6 +31,6 @@ for number_cluster in [2, 3, 4, 5, 6]:
 multi_flappy_bird.surrogate_policy_training_configuration = surrogate_policy_training_configurations
 
 # Surrogate Policy Evaluation
-multi_flappy_bird.surrogate_policy_evaluation_configuration.evaluation_duration = 300
-multi_flappy_bird.surrogate_policy_evaluation_configuration.number_environment_runners = 10
+multi_flappy_bird.surrogate_policy_evaluation_configuration.evaluation_duration = 50
+multi_flappy_bird.surrogate_policy_evaluation_configuration.number_environment_runners = 0
 multi_flappy_bird.surrogate_policy_evaluation_configuration.number_gpus_per_environment_runners = 0.1

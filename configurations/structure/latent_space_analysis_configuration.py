@@ -10,5 +10,4 @@ class LatentSpaceAnalysisConfiguration:
         self.tree_max_depth_observations_to_all_clusters: int = 3
         self.tree_max_depth_observations_to_cluster = 2
 
-        self.tree_max_depth_observations_to_actions: int = 3
-        self.tree_max_depth_cluster_observations_to_actions: int = 2
+        self.tree_max_depth_observations_to_actions: int = 2

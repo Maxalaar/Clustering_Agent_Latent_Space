@@ -38,6 +38,7 @@ tetris_dense.reinforcement_learning_configuration.architecture_configuration = {
 
 tetris_dense.reinforcement_learning_configuration.learning_rate = 1e-5
 tetris_dense.reinforcement_learning_configuration.clip_policy_parameter = 0.1
+
 # tetris_dense.reinforcement_learning_configuration.clip_policy_parameter = 0.01
 # tetris_dense.reinforcement_learning_configuration.kullback_leibler_coefficient = 0.3
 # tetris_dense.reinforcement_learning_configuration.entropy_coefficient = 0.03
